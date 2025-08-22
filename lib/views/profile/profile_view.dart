@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 import '../../controllers/auth_controller.dart';
+import '../../models/user_account.dart';
 import '../../routes/app_routes.dart';
 
 class ProfileView extends StatelessWidget {
@@ -51,11 +53,12 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(height: 20),
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: user.avatarUrl != null
-                      ? NetworkImage(user.avatarUrl!)
+                  backgroundImage:
+                      user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                      ? _getImageProvider(user.avatarUrl!)
                       : null,
                   backgroundColor: Colors.white,
-                  child: user.avatarUrl == null
+                  child: user.avatarUrl == null || user.avatarUrl!.isEmpty
                       ? const Icon(
                           Icons.person,
                           size: 50,
@@ -120,6 +123,44 @@ class ProfileView extends StatelessWidget {
                   subtitle: user.email,
                 ),
                 const SizedBox(height: 12),
+
+                if (user.phone != null && user.phone!.isNotEmpty)
+                  _buildInfoCard(
+                    context,
+                    icon: Icons.phone_outlined,
+                    title: 'Phone Number',
+                    subtitle: user.phone!,
+                  ),
+                if (user.phone != null && user.phone!.isNotEmpty)
+                  const SizedBox(height: 12),
+
+                if (user.address != null && user.address!.isNotEmpty)
+                  _buildInfoCard(
+                    context,
+                    icon: Icons.location_on_outlined,
+                    title: 'Address',
+                    subtitle: user.address!,
+                  ),
+                if (user.address != null && user.address!.isNotEmpty)
+                  const SizedBox(height: 12),
+
+                if (user.gender != null)
+                  _buildInfoCard(
+                    context,
+                    icon: Icons.person_outline,
+                    title: 'Gender',
+                    subtitle: _getGenderDisplayName(user.gender!),
+                  ),
+                if (user.gender != null) const SizedBox(height: 12),
+
+                if (user.dob != null)
+                  _buildInfoCard(
+                    context,
+                    icon: Icons.cake_outlined,
+                    title: 'Date of Birth',
+                    subtitle: DateFormat('dd/MM/yyyy').format(user.dob!),
+                  ),
+                if (user.dob != null) const SizedBox(height: 12),
 
                 _buildInfoCard(
                   context,
@@ -331,5 +372,27 @@ class ProfileView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  ImageProvider _getImageProvider(String imageUrl) {
+    if (imageUrl.startsWith('data:image')) {
+      // Base64 image
+      final base64Data = imageUrl.split(',')[1];
+      return MemoryImage(base64Decode(base64Data));
+    } else {
+      // Network URL
+      return NetworkImage(imageUrl);
+    }
+  }
+
+  String _getGenderDisplayName(Gender gender) {
+    switch (gender) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.other:
+        return 'Other';
+    }
   }
 }

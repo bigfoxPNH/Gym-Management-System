@@ -1,0 +1,26 @@
+// Firebase Storage Security Rules for Gym Pro App
+// These rules allow authenticated users to:
+// - Upload and update their own profile pictures
+// - Read any profile pictures
+// - Delete their own profile pictures
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Rules for profile images
+    match /profile_images/{imageId} {
+      // Allow read access to all authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow write/delete access if user is authenticated and the image belongs to them
+      allow write, delete: if request.auth != null 
+        && request.auth.uid != null
+        && imageId.matches('profile_' + request.auth.uid + '_.*');
+    }
+    
+    // Default rule - deny access to all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

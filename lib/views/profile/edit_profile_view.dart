@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 import '../../controllers/auth_controller.dart';
+import '../../models/user_account.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/app_button.dart';
 import '../../services/firebase_service.dart';
@@ -19,6 +22,10 @@ class EditProfileView extends StatelessWidget {
 
     final fullNameController = TextEditingController(text: user.fullName);
     final usernameController = TextEditingController(text: user.username);
+    final phoneController = TextEditingController(text: user.phone ?? '');
+    final addressController = TextEditingController(text: user.address ?? '');
+    final selectedGender = Rx<Gender?>(user.gender);
+    final selectedDate = Rx<DateTime?>(user.dob);
     final formKey = GlobalKey<FormState>();
     final RxBool isLoading = false.obs;
 
@@ -40,44 +47,81 @@ class EditProfileView extends StatelessWidget {
               Center(
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundImage: user.avatarUrl != null
-                          ? NetworkImage(user.avatarUrl!)
-                          : null,
-                      backgroundColor: Colors.grey[200],
-                      child: user.avatarUrl == null
-                          ? const Icon(
-                              Icons.person,
-                              size: 60,
-                              color: Color(0xFF2196F3),
-                            )
-                          : null,
-                    ),
+                    Obx(() {
+                      final currentUser = authController.userAccount;
+                      return Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 60,
+                            backgroundImage:
+                                currentUser?.avatarUrl != null &&
+                                    currentUser!.avatarUrl!.isNotEmpty
+                                ? _getImageProvider(currentUser.avatarUrl!)
+                                : null,
+                            backgroundColor: Colors.grey[200],
+                            child:
+                                currentUser?.avatarUrl == null ||
+                                    currentUser!.avatarUrl!.isEmpty
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: Color(0xFF2196F3),
+                                  )
+                                : null,
+                          ),
+                          if (authController.isLoading)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: InkWell(
-                        onTap: () {
-                          Get.snackbar(
-                            'Coming Soon',
-                            'Photo upload will be available soon!',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF2196F3),
-                            shape: BoxShape.circle,
+                      child: Obx(() {
+                        return InkWell(
+                          onTap: authController.isLoading
+                              ? null
+                              : () => _showImageSourceDialog(authController),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF2196F3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: authController.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
                           ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -134,6 +178,119 @@ class EditProfileView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // Phone field
+              AppTextField(
+                controller: phoneController,
+                labelText: 'Phone Number',
+                prefixIcon: const Icon(Icons.phone_outlined),
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    if (value.length < 10) {
+                      return 'Phone number must be at least 10 digits';
+                    }
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Address field
+              AppTextField(
+                controller: addressController,
+                labelText: 'Address',
+                prefixIcon: const Icon(Icons.location_on_outlined),
+                maxLines: 2,
+                validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    if (value.length < 5) {
+                      return 'Address must be at least 5 characters';
+                    }
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Gender dropdown
+              Obx(
+                () => DropdownButtonFormField<Gender>(
+                  value: selectedGender.value,
+                  decoration: const InputDecoration(
+                    labelText: 'Gender',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('Select Gender')),
+                    DropdownMenuItem(value: Gender.male, child: Text('Male')),
+                    DropdownMenuItem(
+                      value: Gender.female,
+                      child: Text('Female'),
+                    ),
+                    DropdownMenuItem(value: Gender.other, child: Text('Other')),
+                  ],
+                  onChanged: (Gender? value) {
+                    selectedGender.value = value;
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Date of Birth picker
+              Obx(
+                () => InkWell(
+                  onTap: () async {
+                    final DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate:
+                          selectedDate.value ??
+                          DateTime.now().subtract(
+                            const Duration(days: 6570),
+                          ), // 18 years ago
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (pickedDate != null) {
+                      selectedDate.value = pickedDate;
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            selectedDate.value != null
+                                ? '${selectedDate.value!.day}/${selectedDate.value!.month}/${selectedDate.value!.year}'
+                                : 'Select Date of Birth',
+                            style: TextStyle(
+                              color: selectedDate.value != null
+                                  ? Colors.black
+                                  : Colors.grey,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Member since (read-only)
               AppTextField(
                 controller: TextEditingController(
@@ -157,6 +314,10 @@ class EditProfileView extends StatelessWidget {
                         user,
                         fullNameController.text.trim(),
                         usernameController.text.trim(),
+                        phoneController.text.trim(),
+                        addressController.text.trim(),
+                        selectedGender.value,
+                        selectedDate.value,
                         isLoading,
                       );
                     }
@@ -276,6 +437,10 @@ class EditProfileView extends StatelessWidget {
     user,
     String newFullName,
     String newUsername,
+    String newPhone,
+    String newAddress,
+    Gender? newGender,
+    DateTime? newDob,
     RxBool isLoading,
   ) async {
     try {
@@ -285,6 +450,10 @@ class EditProfileView extends StatelessWidget {
       await firebaseService.updateUser(user.id, {
         'fullName': newFullName,
         'username': newUsername,
+        'phone': newPhone.isEmpty ? null : newPhone,
+        'address': newAddress.isEmpty ? null : newAddress,
+        'gender': UserAccount.genderToString(newGender),
+        'dob': newDob?.millisecondsSinceEpoch,
       });
 
       // Reload user account to reflect changes immediately
@@ -370,21 +539,108 @@ class EditProfileView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Get.back();
-                Get.snackbar(
-                  'Coming Soon',
-                  'Password change will be available soon!',
-                  snackPosition: SnackPosition.BOTTOM,
-                );
-              }
-            },
-            child: const Text('Change'),
-          ),
+          Obx(() {
+            final authController = Get.find<AuthController>();
+            return TextButton(
+              onPressed: authController.isLoading
+                  ? null
+                  : () async {
+                      if (formKey.currentState!.validate()) {
+                        Get.back();
+                        await authController.changePassword(
+                          currentPassword: currentPasswordController.text,
+                          newPassword: newPasswordController.text,
+                        );
+                      }
+                    },
+              child: authController.isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Change'),
+            );
+          }),
         ],
       ),
     );
+  }
+
+  void _showImageSourceDialog(AuthController authController) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Select Image Source'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Get.back();
+                _pickImage(ImageSource.gallery, authController);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Get.back();
+                _pickImage(ImageSource.camera, authController);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
+
+  ImageProvider _getImageProvider(String imageUrl) {
+    if (imageUrl.startsWith('data:image')) {
+      // Base64 image
+      final base64Data = imageUrl.split(',')[1];
+      return MemoryImage(base64Decode(base64Data));
+    } else {
+      // Network URL
+      return NetworkImage(imageUrl);
+    }
+  }
+
+  void _pickImage(ImageSource source, AuthController authController) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: source,
+        maxWidth: 512, // Match ImageService settings
+        maxHeight: 512,
+        imageQuality: 70,
+      );
+
+      if (image != null) {
+        // Show immediate feedback
+        Get.snackbar(
+          'Uploading...',
+          'Please wait while we update your profile picture',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+
+        await authController.updateAvatar(image);
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 }

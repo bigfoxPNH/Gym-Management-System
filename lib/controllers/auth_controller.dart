@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/auth_service.dart';
 import '../services/firebase_service.dart';
+import '../services/image_service.dart';
 import '../models/user_account.dart';
 import '../routes/app_routes.dart';
 
@@ -44,6 +46,9 @@ class AuthController extends GetxController {
       final firebaseService = FirebaseService();
       final account = await firebaseService.getUser(userId);
       _userAccount.value = account;
+      print(
+        'User account reloaded: ${account?.avatarUrl?.substring(0, 50)}...',
+      );
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -154,6 +159,36 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      _isLoading.value = true;
+      await AuthService.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      Get.snackbar(
+        'Success',
+        'Password changed successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Password Change Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
   Future<void> deleteAccount() async {
     try {
       _isLoading.value = true;
@@ -169,6 +204,69 @@ class AuthController extends GetxController {
         'Delete Account Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  Future<void> updateAvatar(XFile imageFile) async {
+    try {
+      _isLoading.value = true;
+
+      if (_user.value == null || _userAccount.value == null) {
+        throw 'User not logged in';
+      }
+
+      // Validate image file
+      if (!ImageService.isValidImageFile(imageFile)) {
+        throw 'Please select a valid image file (JPG, PNG)';
+      }
+
+      // Check file size (max 500KB for Firestore)
+      final double fileSizeInKB = await ImageService.getImageSizeInKB(
+        imageFile,
+      );
+      if (fileSizeInKB > 500) {
+        throw 'Image size must be less than 500KB';
+      }
+
+      // Convert image to Base64
+      final String base64Avatar = await ImageService.imageToBase64(imageFile);
+
+      // Update local data immediately for instant UI update
+      if (_userAccount.value != null) {
+        _userAccount.value = _userAccount.value!.copyWith(
+          avatarUrl: base64Avatar,
+          updatedAt: DateTime.now(),
+        );
+      }
+
+      // Update user account in Firestore
+      final updatedData = {
+        'avatarUrl': base64Avatar,
+        'updatedAt': DateTime.now(),
+      };
+
+      await FirebaseService.updateUserProfile(_user.value!.uid, updatedData);
+
+      // Double-check by reloading from Firestore
+      await reloadUserAccount();
+
+      Get.snackbar(
+        'Success',
+        'Profile picture updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Upload Error',
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       _isLoading.value = false;

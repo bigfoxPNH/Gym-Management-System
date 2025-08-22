@@ -72,6 +72,15 @@ class FirebaseService {
     }
   }
 
+  // Alias for updateUser - for profile updates
+  static Future<void> updateUserProfile(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
+    final service = FirebaseService();
+    await service.updateUser(userId, data);
+  }
+
   Future<void> deleteUser(String userId) async {
     try {
       await usersCollection.doc(userId).delete();

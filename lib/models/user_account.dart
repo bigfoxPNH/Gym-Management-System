@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum Role { member, staff, manager, admin }
 
+enum Gender { male, female, other }
+
 class UserAccount {
   final String id; // uid từ Firebase Auth
   final String username; // tên đăng nhập (unique)
@@ -11,6 +13,7 @@ class UserAccount {
   final String email;
   final DateTime? dob;
   final String? address;
+  final Gender? gender;
   final Role role;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -24,6 +27,7 @@ class UserAccount {
     required this.email,
     this.dob,
     this.address,
+    this.gender,
     this.role = Role.member,
     required this.createdAt,
     required this.updatedAt,
@@ -41,6 +45,7 @@ class UserAccount {
           ? DateTime.fromMillisecondsSinceEpoch(map['dob'])
           : null,
       address: map['address'],
+      gender: genderFromString(map['gender']),
       role: roleFromString(map['role'] ?? 'member'),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] ?? 0),
@@ -57,6 +62,7 @@ class UserAccount {
       'email': email,
       'dob': dob?.millisecondsSinceEpoch,
       'address': address,
+      'gender': genderToString(gender),
       'role': roleToString(role),
       'createdAt': createdAt.millisecondsSinceEpoch,
       'updatedAt': updatedAt.millisecondsSinceEpoch,
@@ -81,6 +87,7 @@ class UserAccount {
     String? email,
     DateTime? dob,
     String? address,
+    Gender? gender,
     Role? role,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -94,6 +101,7 @@ class UserAccount {
       email: email ?? this.email,
       dob: dob ?? this.dob,
       address: address ?? this.address,
+      gender: gender ?? this.gender,
       role: role ?? this.role,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -126,6 +134,33 @@ class UserAccount {
         return 'manager';
       case Role.admin:
         return 'admin';
+    }
+  }
+
+  // Gender helper methods
+  static Gender? genderFromString(String? value) {
+    if (value == null) return null;
+    switch (value.toLowerCase()) {
+      case 'male':
+        return Gender.male;
+      case 'female':
+        return Gender.female;
+      case 'other':
+        return Gender.other;
+      default:
+        return null;
+    }
+  }
+
+  static String? genderToString(Gender? gender) {
+    if (gender == null) return null;
+    switch (gender) {
+      case Gender.male:
+        return 'male';
+      case Gender.female:
+        return 'female';
+      case Gender.other:
+        return 'other';
     }
   }
 
@@ -166,6 +201,7 @@ class UserAccount {
         other.email == email &&
         other.dob == dob &&
         other.address == address &&
+        other.gender == gender &&
         other.role == role &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
@@ -181,6 +217,7 @@ class UserAccount {
         email.hashCode ^
         dob.hashCode ^
         address.hashCode ^
+        gender.hashCode ^
         role.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;

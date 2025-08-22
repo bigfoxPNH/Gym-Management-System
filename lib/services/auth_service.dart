@@ -81,6 +81,33 @@ class AuthService {
     }
   }
 
+  // Change password
+  static Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        throw Exception('No user is currently signed in.');
+      }
+
+      // Re-authenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Update password
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw Exception('Failed to change password: $e');
+    }
+  }
+
   // Delete account
   static Future<void> deleteAccount() async {
     try {
@@ -114,6 +141,10 @@ class AuthService {
         return 'This operation is not allowed.';
       case 'too-many-requests':
         return 'Too many requests. Try again later.';
+      case 'requires-recent-login':
+        return 'Please log out and log back in to change your password.';
+      case 'invalid-credential':
+        return 'The current password is incorrect.';
       default:
         return e.message ?? 'An authentication error occurred.';
     }
