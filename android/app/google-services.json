@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "389819859108",
+    "project_id": "gym-pro-2026",
+    "storage_bucket": "gym-pro-2026.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389819859108:android:509491928cb90004ff6631",
+        "android_client_info": {
+          "package_name": "com.example.gympro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyx-Imvq_L6mQ3_5J7mAmgcrss86EeIHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
