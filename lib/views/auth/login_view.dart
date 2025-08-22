@@ -42,7 +42,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue',
+                  'Đăng nhập để tiếp tục',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
@@ -58,10 +58,10 @@ class LoginView extends StatelessWidget {
                   prefixIcon: const Icon(Icons.email_outlined),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Vui lòng nhập email của bạn';
                     }
                     if (!GetUtils.isEmail(value)) {
-                      return 'Please enter a valid email';
+                      return 'Vui lòng nhập email hợp lệ';
                     }
                     return null;
                   },
@@ -71,15 +71,15 @@ class LoginView extends StatelessWidget {
                 // Password Field
                 AppTextField(
                   controller: passwordController,
-                  labelText: 'Password',
+                  labelText: 'Mật khẩu',
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outline),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return 'Vui lòng nhập mật khẩu của bạn';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Mật khẩu phải có ít nhất 6 ký tự';
                     }
                     return null;
                   },
@@ -89,7 +89,7 @@ class LoginView extends StatelessWidget {
                 // Sign In Button
                 Obx(
                   () => AppButton(
-                    text: 'Sign In',
+                    text: 'Đăng Nhập',
                     isLoading: authController.isLoading,
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
@@ -108,7 +108,7 @@ class LoginView extends StatelessWidget {
                   onPressed: () {
                     _showForgotPasswordDialog(context, authController);
                   },
-                  child: const Text('Forgot Password?'),
+                  child: const Text('Quên mật khẩu?'),
                 ),
                 const SizedBox(height: 24),
 
@@ -117,14 +117,14 @@ class LoginView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account?",
+                      "Chưa có tài khoản?",
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () => Get.toNamed(AppRoutes.register),
                       child: const Text(
-                        'Sign Up',
+                        'Đăng Ký',
                         style: TextStyle(
                           color: Color(0xFF2196F3),
                           fontWeight: FontWeight.w600,
@@ -150,12 +150,12 @@ class LoginView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Password'),
+        title: const Text('Đặt Lại Mật Khẩu'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Enter your email address to receive a password reset link.',
+              'Nhập địa chỉ email của bạn để nhận liên kết đặt lại mật khẩu.',
             ),
             const SizedBox(height: 16),
             AppTextField(
@@ -166,7 +166,7 @@ class LoginView extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           TextButton(
             onPressed: () {
               if (emailController.text.isNotEmpty) {
@@ -174,7 +174,7 @@ class LoginView extends StatelessWidget {
                 Get.back();
               }
             },
-            child: const Text('Send'),
+            child: const Text('Gửi'),
           ),
         ],
       ),

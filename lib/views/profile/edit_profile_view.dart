@@ -32,7 +32,7 @@ class EditProfileView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text('Chỉnh Sửa Hồ Sơ'),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -131,7 +131,7 @@ class EditProfileView extends StatelessWidget {
 
               // Form Fields
               Text(
-                'Personal Information',
+                'Thông Tin Cá Nhân',
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -140,14 +140,14 @@ class EditProfileView extends StatelessWidget {
 
               AppTextField(
                 controller: fullNameController,
-                labelText: 'Full Name',
+                labelText: 'Họ và Tên',
                 prefixIcon: const Icon(Icons.person_outline),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
+                    return 'Vui lòng nhập họ và tên của bạn';
                   }
                   if (value.length < 2) {
-                    return 'Name must be at least 2 characters';
+                    return 'Tên phải có ít nhất 2 ký tự';
                   }
                   return null;
                 },
@@ -156,14 +156,14 @@ class EditProfileView extends StatelessWidget {
 
               AppTextField(
                 controller: usernameController,
-                labelText: 'Username',
+                labelText: 'Tên Đăng Nhập',
                 prefixIcon: const Icon(Icons.alternate_email),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a username';
+                    return 'Vui lòng nhập tên đăng nhập';
                   }
                   if (value.length < 3) {
-                    return 'Username must be at least 3 characters';
+                    return 'Tên đăng nhập phải có ít nhất 3 ký tự';
                   }
                   return null;
                 },
@@ -182,13 +182,13 @@ class EditProfileView extends StatelessWidget {
               // Phone field
               AppTextField(
                 controller: phoneController,
-                labelText: 'Phone Number',
+                labelText: 'Số Điện Thoại',
                 prefixIcon: const Icon(Icons.phone_outlined),
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     if (value.length < 10) {
-                      return 'Phone number must be at least 10 digits';
+                      return 'Số điện thoại phải có ít nhất 10 chữ số';
                     }
                   }
                   return null;
@@ -199,13 +199,13 @@ class EditProfileView extends StatelessWidget {
               // Address field
               AppTextField(
                 controller: addressController,
-                labelText: 'Address',
+                labelText: 'Địa Chỉ',
                 prefixIcon: const Icon(Icons.location_on_outlined),
                 maxLines: 2,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     if (value.length < 5) {
-                      return 'Address must be at least 5 characters';
+                      return 'Địa chỉ phải có ít nhất 5 ký tự';
                     }
                   }
                   return null;
@@ -218,18 +218,18 @@ class EditProfileView extends StatelessWidget {
                 () => DropdownButtonFormField<Gender>(
                   value: selectedGender.value,
                   decoration: const InputDecoration(
-                    labelText: 'Gender',
+                    labelText: 'Giới Tính',
                     prefixIcon: Icon(Icons.person_outline),
                     border: OutlineInputBorder(),
                   ),
                   items: const [
-                    DropdownMenuItem(value: null, child: Text('Select Gender')),
-                    DropdownMenuItem(value: Gender.male, child: Text('Male')),
                     DropdownMenuItem(
-                      value: Gender.female,
-                      child: Text('Female'),
+                      value: null,
+                      child: Text('Chọn Giới Tính'),
                     ),
-                    DropdownMenuItem(value: Gender.other, child: Text('Other')),
+                    DropdownMenuItem(value: Gender.male, child: Text('Nam')),
+                    DropdownMenuItem(value: Gender.female, child: Text('Nữ')),
+                    DropdownMenuItem(value: Gender.other, child: Text('Khác')),
                   ],
                   onChanged: (Gender? value) {
                     selectedGender.value = value;
@@ -276,7 +276,7 @@ class EditProfileView extends StatelessWidget {
                           child: Text(
                             selectedDate.value != null
                                 ? '${selectedDate.value!.day}/${selectedDate.value!.month}/${selectedDate.value!.year}'
-                                : 'Select Date of Birth',
+                                : 'Chọn Ngày Sinh',
                             style: TextStyle(
                               color: selectedDate.value != null
                                   ? Colors.black
@@ -298,7 +298,7 @@ class EditProfileView extends StatelessWidget {
                   text:
                       '${user.createdAt.day}/${user.createdAt.month}/${user.createdAt.year}',
                 ),
-                labelText: 'Member Since',
+                labelText: 'Thành Viên Từ',
                 prefixIcon: const Icon(Icons.calendar_today),
                 enabled: false,
               ),
@@ -307,7 +307,7 @@ class EditProfileView extends StatelessWidget {
               // Save Button
               Obx(
                 () => AppButton(
-                  text: 'Save Changes',
+                  text: 'Lưu Thay Đổi',
                   isLoading: isLoading.value,
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
@@ -329,7 +329,7 @@ class EditProfileView extends StatelessWidget {
 
               // Additional Options
               Text(
-                'Account Settings',
+                'Cài Đặt Tài Khoản',
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -339,8 +339,8 @@ class EditProfileView extends StatelessWidget {
               _buildSettingsOption(
                 context,
                 icon: Icons.lock_outline,
-                title: 'Change Password',
-                subtitle: 'Update your password',
+                title: 'Đổi Mật Khẩu',
+                subtitle: 'Cập nhật mật khẩu của bạn',
                 onTap: () => _showChangePasswordDialog(context),
               ),
               const SizedBox(height: 12),
@@ -348,12 +348,12 @@ class EditProfileView extends StatelessWidget {
               _buildSettingsOption(
                 context,
                 icon: Icons.notifications_outlined,
-                title: 'Notifications',
-                subtitle: 'Manage notification settings',
+                title: 'Thông Báo',
+                subtitle: 'Quản lý cài đặt thông báo',
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Notification settings will be available soon!',
+                    'Sắp Ra Mắt',
+                    'Cài đặt thông báo sẽ có sẵn sớm!',
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -363,8 +363,8 @@ class EditProfileView extends StatelessWidget {
               _buildSettingsOption(
                 context,
                 icon: Icons.privacy_tip_outlined,
-                title: 'Privacy Policy',
-                subtitle: 'View our complete privacy policy',
+                title: 'Chính Sách Bảo Mật',
+                subtitle: 'Xem chính sách bảo mật đầy đủ của chúng tôi',
                 onTap: () {
                   Get.toNamed('/privacy-policy');
                 },
@@ -470,16 +470,16 @@ class EditProfileView extends StatelessWidget {
 
       Get.back();
       Get.snackbar(
-        'Success',
-        'Profile updated successfully',
+        'Thành Công',
+        'Hồ sơ đã được cập nhật thành công',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to update profile: $e',
+        'Lỗi',
+        'Không thể cập nhật hồ sơ: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -498,7 +498,7 @@ class EditProfileView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Password'),
+        title: const Text('Đổi Mật Khẩu'),
         content: Form(
           key: formKey,
           child: Column(
@@ -506,11 +506,11 @@ class EditProfileView extends StatelessWidget {
             children: [
               AppTextField(
                 controller: currentPasswordController,
-                labelText: 'Current Password',
+                labelText: 'Mật Khẩu Hiện Tại',
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter your current password';
+                    return 'Vui lòng nhập mật khẩu hiện tại';
                   }
                   return null;
                 },
@@ -518,14 +518,14 @@ class EditProfileView extends StatelessWidget {
               const SizedBox(height: 16),
               AppTextField(
                 controller: newPasswordController,
-                labelText: 'New Password',
+                labelText: 'Mật Khẩu Mới',
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a new password';
+                    return 'Vui lòng nhập mật khẩu mới';
                   }
                   if (value.length < 6) {
-                    return 'Password must be at least 6 characters';
+                    return 'Mật khẩu phải có ít nhất 6 ký tự';
                   }
                   return null;
                 },
@@ -533,11 +533,11 @@ class EditProfileView extends StatelessWidget {
               const SizedBox(height: 16),
               AppTextField(
                 controller: confirmPasswordController,
-                labelText: 'Confirm New Password',
+                labelText: 'Xác Nhận Mật Khẩu Mới',
                 obscureText: true,
                 validator: (value) {
                   if (value != newPasswordController.text) {
-                    return 'Passwords do not match';
+                    return 'Mật khẩu không khớp';
                   }
                   return null;
                 },
@@ -546,7 +546,7 @@ class EditProfileView extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           Obx(() {
             final authController = Get.find<AuthController>();
             return TextButton(
@@ -567,7 +567,7 @@ class EditProfileView extends StatelessWidget {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Change'),
+                  : const Text('Đổi'),
             );
           }),
         ],
@@ -578,13 +578,13 @@ class EditProfileView extends StatelessWidget {
   void _showImageSourceDialog(AuthController authController) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Select Image Source'),
+        title: const Text('Chọn Nguồn Ảnh'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
+              title: const Text('Thư Viện'),
               onTap: () {
                 Get.back();
                 _pickImage(ImageSource.gallery, authController);
@@ -592,7 +592,7 @@ class EditProfileView extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
+              title: const Text('Máy Ảnh'),
               onTap: () {
                 Get.back();
                 _pickImage(ImageSource.camera, authController);
@@ -601,7 +601,7 @@ class EditProfileView extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
         ],
       ),
     );
@@ -631,8 +631,8 @@ class EditProfileView extends StatelessWidget {
       if (image != null) {
         // Show immediate feedback
         Get.snackbar(
-          'Uploading...',
-          'Please wait while we update your profile picture',
+          'Đang tải lên...',
+          'Vui lòng đợi trong khi chúng tôi cập nhật ảnh đại diện của bạn',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.orange,
           colorText: Colors.white,
@@ -643,8 +643,8 @@ class EditProfileView extends StatelessWidget {
       }
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to pick image: $e',
+        'Lỗi',
+        'Không thể chọn ảnh: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

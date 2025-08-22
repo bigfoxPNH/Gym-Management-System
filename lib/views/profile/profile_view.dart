@@ -15,7 +15,7 @@ class ProfileView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Hồ Sơ'),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -93,7 +93,7 @@ class ProfileView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Account Information',
+                  'Thông Tin Tài Khoản',
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -103,7 +103,7 @@ class ProfileView extends StatelessWidget {
                 _buildInfoCard(
                   context,
                   icon: Icons.person_outline,
-                  title: 'Full Name',
+                  title: 'Họ và Tên',
                   subtitle: user.fullName,
                 ),
                 const SizedBox(height: 12),
@@ -111,7 +111,7 @@ class ProfileView extends StatelessWidget {
                 _buildInfoCard(
                   context,
                   icon: Icons.alternate_email,
-                  title: 'Username',
+                  title: 'Tên Đăng Nhập',
                   subtitle: user.username,
                 ),
                 const SizedBox(height: 12),
@@ -119,7 +119,7 @@ class ProfileView extends StatelessWidget {
                 _buildInfoCard(
                   context,
                   icon: Icons.email_outlined,
-                  title: 'Email Address',
+                  title: 'Địa Chỉ Email',
                   subtitle: user.email,
                 ),
                 const SizedBox(height: 12),
@@ -128,7 +128,7 @@ class ProfileView extends StatelessWidget {
                   _buildInfoCard(
                     context,
                     icon: Icons.phone_outlined,
-                    title: 'Phone Number',
+                    title: 'Số Điện Thoại',
                     subtitle: user.phone!,
                   ),
                 if (user.phone != null && user.phone!.isNotEmpty)
@@ -138,7 +138,7 @@ class ProfileView extends StatelessWidget {
                   _buildInfoCard(
                     context,
                     icon: Icons.location_on_outlined,
-                    title: 'Address',
+                    title: 'Địa Chỉ',
                     subtitle: user.address!,
                   ),
                 if (user.address != null && user.address!.isNotEmpty)
@@ -148,7 +148,7 @@ class ProfileView extends StatelessWidget {
                   _buildInfoCard(
                     context,
                     icon: Icons.person_outline,
-                    title: 'Gender',
+                    title: 'Giới Tính',
                     subtitle: _getGenderDisplayName(user.gender!),
                   ),
                 if (user.gender != null) const SizedBox(height: 12),
@@ -157,7 +157,7 @@ class ProfileView extends StatelessWidget {
                   _buildInfoCard(
                     context,
                     icon: Icons.cake_outlined,
-                    title: 'Date of Birth',
+                    title: 'Ngày Sinh',
                     subtitle: DateFormat('dd/MM/yyyy').format(user.dob!),
                   ),
                 if (user.dob != null) const SizedBox(height: 12),
@@ -165,7 +165,7 @@ class ProfileView extends StatelessWidget {
                 _buildInfoCard(
                   context,
                   icon: Icons.calendar_today,
-                  title: 'Member Since',
+                  title: 'Thành Viên Từ',
                   subtitle: dateFormat.format(user.createdAt),
                 ),
                 const SizedBox(height: 12),
@@ -173,14 +173,14 @@ class ProfileView extends StatelessWidget {
                 _buildInfoCard(
                   context,
                   icon: Icons.update,
-                  title: 'Last Updated',
+                  title: 'Cập Nhật Lần Cuối',
                   subtitle: dateFormat.format(user.updatedAt),
                 ),
                 const SizedBox(height: 32),
 
                 // Action Buttons
                 Text(
-                  'Actions',
+                  'Hành Động',
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -190,8 +190,8 @@ class ProfileView extends StatelessWidget {
                 _buildActionButton(
                   context,
                   icon: Icons.edit_outlined,
-                  title: 'Edit Profile',
-                  subtitle: 'Update your information',
+                  title: 'Chỉnh Sửa Hồ Sơ',
+                  subtitle: 'Cập nhật thông tin của bạn',
                   onTap: () => Get.toNamed(AppRoutes.editProfile),
                 ),
                 const SizedBox(height: 12),
@@ -199,8 +199,8 @@ class ProfileView extends StatelessWidget {
                 _buildActionButton(
                   context,
                   icon: Icons.logout,
-                  title: 'Sign Out',
-                  subtitle: 'Sign out of your account',
+                  title: 'Đăng Xuất',
+                  subtitle: 'Đăng xuất khỏi tài khoản của bạn',
                   textColor: Colors.orange,
                   onTap: () => _showSignOutDialog(context, authController),
                 ),
@@ -209,8 +209,8 @@ class ProfileView extends StatelessWidget {
                 _buildActionButton(
                   context,
                   icon: Icons.delete_forever,
-                  title: 'Delete Account',
-                  subtitle: 'Permanently delete your account',
+                  title: 'Xóa Tài Khoản',
+                  subtitle: 'Xóa vĩnh viễn tài khoản của bạn',
                   textColor: Colors.red,
                   onTap: () =>
                       _showDeleteAccountDialog(context, authController),
@@ -332,16 +332,16 @@ class ProfileView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Are you sure you want to sign out?'),
+        title: const Text('Đăng Xuất'),
+        content: const Text('Bạn có chắc chắn muốn đăng xuất không?'),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           TextButton(
             onPressed: () {
               Get.back();
               authController.signOut();
             },
-            child: const Text('Sign Out'),
+            child: const Text('Đăng Xuất'),
           ),
         ],
       ),
@@ -355,19 +355,19 @@ class ProfileView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account'),
+        title: const Text('Xóa Tài Khoản'),
         content: const Text(
-          'Are you sure you want to delete your account? This action cannot be undone.',
+          'Bạn có chắc chắn muốn xóa tài khoản của mình không? Hành động này không thể hoàn tác.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           TextButton(
             onPressed: () {
               Get.back();
               authController.deleteAccount();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
@@ -388,11 +388,11 @@ class ProfileView extends StatelessWidget {
   String _getGenderDisplayName(Gender gender) {
     switch (gender) {
       case Gender.male:
-        return 'Male';
+        return 'Nam';
       case Gender.female:
-        return 'Female';
+        return 'Nữ';
       case Gender.other:
-        return 'Other';
+        return 'Khác';
     }
   }
 }

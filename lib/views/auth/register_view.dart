@@ -19,7 +19,7 @@ class RegisterView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Account'),
+        title: const Text('Tạo Tài Khoản'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: const Color(0xFF2196F3),
@@ -40,7 +40,7 @@ class RegisterView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Join Gym Pro',
+                  'Tham Gia Gym Pro',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF2196F3),
@@ -49,7 +49,7 @@ class RegisterView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Create your account to get started',
+                  'Tạo tài khoản của bạn để bắt đầu',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
@@ -60,14 +60,14 @@ class RegisterView extends StatelessWidget {
                 // Full Name Field
                 AppTextField(
                   controller: fullNameController,
-                  labelText: 'Full Name',
+                  labelText: 'Họ và Tên',
                   prefixIcon: const Icon(Icons.person_outline),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
+                      return 'Vui lòng nhập họ và tên của bạn';
                     }
                     if (value.length < 2) {
-                      return 'Name must be at least 2 characters';
+                      return 'Tên phải có ít nhất 2 ký tự';
                     }
                     return null;
                   },
@@ -77,14 +77,14 @@ class RegisterView extends StatelessWidget {
                 // Username Field
                 AppTextField(
                   controller: usernameController,
-                  labelText: 'Username',
+                  labelText: 'Tên Đăng Nhập',
                   prefixIcon: const Icon(Icons.alternate_email),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
+                      return 'Vui lòng nhập tên đăng nhập';
                     }
                     if (value.length < 3) {
-                      return 'Username must be at least 3 characters';
+                      return 'Tên đăng nhập phải có ít nhất 3 ký tự';
                     }
                     return null;
                   },
@@ -99,10 +99,10 @@ class RegisterView extends StatelessWidget {
                   prefixIcon: const Icon(Icons.email_outlined),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return 'Vui lòng nhập email của bạn';
                     }
                     if (!GetUtils.isEmail(value)) {
-                      return 'Please enter a valid email';
+                      return 'Vui lòng nhập email hợp lệ';
                     }
                     return null;
                   },
@@ -112,15 +112,15 @@ class RegisterView extends StatelessWidget {
                 // Password Field
                 AppTextField(
                   controller: passwordController,
-                  labelText: 'Password',
+                  labelText: 'Mật Khẩu',
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outline),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
+                      return 'Vui lòng nhập mật khẩu';
                     }
                     if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                      return 'Mật khẩu phải có ít nhất 6 ký tự';
                     }
                     return null;
                   },
@@ -130,15 +130,15 @@ class RegisterView extends StatelessWidget {
                 // Confirm Password Field
                 AppTextField(
                   controller: confirmPasswordController,
-                  labelText: 'Confirm Password',
+                  labelText: 'Xác Nhận Mật Khẩu',
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock_outline),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return 'Vui lòng xác nhận mật khẩu của bạn';
                     }
                     if (value != passwordController.text) {
-                      return 'Passwords do not match';
+                      return 'Mật khẩu không khớp';
                     }
                     return null;
                   },
@@ -148,7 +148,7 @@ class RegisterView extends StatelessWidget {
                 // Sign Up Button
                 Obx(
                   () => AppButton(
-                    text: 'Create Account',
+                    text: 'Tạo Tài Khoản',
                     isLoading: authController.isLoading,
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
@@ -169,13 +169,13 @@ class RegisterView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      'Đã có tài khoản? ',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     GestureDetector(
                       onTap: () => Get.back(),
                       child: const Text(
-                        'Sign In',
+                        'Đăng Nhập',
                         style: TextStyle(
                           color: Color(0xFF2196F3),
                           fontWeight: FontWeight.w600,

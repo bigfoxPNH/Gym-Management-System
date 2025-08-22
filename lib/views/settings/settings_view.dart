@@ -13,7 +13,7 @@ class SettingsView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: const Text('Cài Đặt'),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -22,27 +22,27 @@ class SettingsView extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // Theme Section
-          _buildSectionTitle('Theme', Icons.palette),
+          _buildSectionTitle('Giao Diện', Icons.palette),
           _buildThemeSelector(),
           const SizedBox(height: 24),
 
           // Notifications Section
-          _buildSectionTitle('Notifications', Icons.notifications),
+          _buildSectionTitle('Thông Báo', Icons.notifications),
           _buildNotificationSettings(),
           const SizedBox(height: 24),
 
           // App Updates Section
-          _buildSectionTitle('Update App', Icons.system_update),
+          _buildSectionTitle('Cập Nhật Ứng Dụng', Icons.system_update),
           _buildUpdateSettings(),
           const SizedBox(height: 24),
 
           // Contact Support Section
-          _buildSectionTitle('Contact Support', Icons.contact_support),
+          _buildSectionTitle('Liên Hệ Hỗ Trợ', Icons.contact_support),
           _buildContactSupport(),
           const SizedBox(height: 24),
 
           // Account Actions
-          _buildSectionTitle('Account Settings', Icons.account_circle),
+          _buildSectionTitle('Cài Đặt Tài Khoản', Icons.account_circle),
           _buildAccountActions(authController),
         ],
       ),
@@ -75,7 +75,7 @@ class SettingsView extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.light_mode, color: Colors.orange),
-            title: const Text('Light Mode'),
+            title: const Text('Chế Độ Sáng'),
             trailing: Radio<String>(
               value: 'light',
               groupValue: 'light', // You can implement theme controller
@@ -84,7 +84,7 @@ class SettingsView extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.dark_mode, color: Colors.grey),
-            title: const Text('Dark Mode'),
+            title: const Text('Chế Độ Tối'),
             trailing: Radio<String>(
               value: 'dark',
               groupValue: 'light',
@@ -96,7 +96,7 @@ class SettingsView extends StatelessWidget {
               Icons.settings_system_daydream,
               color: Colors.blue,
             ),
-            title: const Text('System'),
+            title: const Text('Hệ Thống'),
             trailing: Radio<String>(
               value: 'system',
               groupValue: 'light',
@@ -114,16 +114,16 @@ class SettingsView extends StatelessWidget {
         children: [
           SwitchListTile(
             secondary: const Icon(Icons.notifications_active),
-            title: const Text('Push Notifications'),
-            subtitle: const Text('Receive workout reminders and updates'),
+            title: const Text('Thông Báo Đẩy'),
+            subtitle: const Text('Nhận nhắc nhở tập luyện và cập nhật'),
             value: true, // You can implement notification controller
             onChanged: (value) => _showComingSoonSnackBar(),
           ),
           const Divider(height: 1),
           SwitchListTile(
             secondary: const Icon(Icons.email),
-            title: const Text('Email Notifications'),
-            subtitle: const Text('Receive weekly progress reports'),
+            title: const Text('Thông Báo Email'),
+            subtitle: const Text('Nhận báo cáo tiến độ hàng tuần'),
             value: false,
             onChanged: (value) => _showComingSoonSnackBar(),
           ),
@@ -136,8 +136,8 @@ class SettingsView extends StatelessWidget {
     return Card(
       child: ListTile(
         leading: const Icon(Icons.update, color: Colors.green),
-        title: const Text('Check for Updates'),
-        subtitle: const Text('Version 1.0.0 - Latest'),
+        title: const Text('Kiểm Tra Cập Nhật'),
+        subtitle: const Text('Phiên bản 1.0.0 - Mới nhất'),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () => _showComingSoonSnackBar(),
       ),
@@ -159,7 +159,7 @@ class SettingsView extends StatelessWidget {
               child: const Icon(Icons.facebook, color: Colors.white, size: 16),
             ),
             title: const Text('Facebook'),
-            subtitle: const Text('Follow us on Facebook'),
+            subtitle: const Text('Theo dõi chúng tôi trên Facebook'),
             trailing: const Icon(Icons.open_in_new, size: 16),
             onTap: () => _launchUrl(
               'https://www.facebook.com/people/Gym-Pro/61576247638943/',
@@ -186,15 +186,15 @@ class SettingsView extends StatelessWidget {
               ),
             ),
             title: const Text('Zalo'),
-            subtitle: const Text('Chat with us on Zalo'),
+            subtitle: const Text('Chat với chúng tôi trên Zalo'),
             trailing: const Icon(Icons.open_in_new, size: 16),
             onTap: () => _launchUrl('https://zalo.me/0326658276'),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.location_on, color: Colors.red),
-            title: const Text('Address'),
-            subtitle: const Text('Gym Pro - Click to view location on map'),
+            title: const Text('Địa Chỉ'),
+            subtitle: const Text('Gym Pro - Nhấn để xem vị trí trên bản đồ'),
             trailing: const Icon(Icons.open_in_new, size: 16),
             onTap: () =>
                 _launchUrl('https://maps.app.goo.gl/JavEQA2nVqxE6mry5'),
@@ -210,24 +210,24 @@ class SettingsView extends StatelessWidget {
         children: [
           ListTile(
             leading: const Icon(Icons.person, color: Color(0xFF2196F3)),
-            title: const Text('Profile'),
-            subtitle: const Text('Edit Profile'),
+            title: const Text('Hồ Sơ'),
+            subtitle: const Text('Chỉnh Sửa Hồ Sơ'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => Get.toNamed(AppRoutes.profile),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.privacy_tip, color: Colors.green),
-            title: const Text('Privacy Policy'),
-            subtitle: const Text('View our complete privacy policy'),
+            title: const Text('Chính Sách Bảo Mật'),
+            subtitle: const Text('Xem chính sách bảo mật đầy đủ của chúng tôi'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => Get.toNamed(AppRoutes.privacyPolicy),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Sign Out'),
-            subtitle: const Text('Sign out of your account'),
+            title: const Text('Đăng Xuất'),
+            subtitle: const Text('Đăng xuất khỏi tài khoản của bạn'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showSignOutDialog(authController),
           ),
@@ -239,16 +239,16 @@ class SettingsView extends StatelessWidget {
   void _showSignOutDialog(AuthController authController) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text('Sign out of your account?'),
+        title: const Text('Đăng Xuất'),
+        content: const Text('Bạn có muốn đăng xuất khỏi tài khoản?'),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           TextButton(
             onPressed: () {
               Get.back();
               authController.signOut();
             },
-            child: const Text('Confirm'),
+            child: const Text('Xác Nhận'),
           ),
         ],
       ),
@@ -257,8 +257,8 @@ class SettingsView extends StatelessWidget {
 
   void _showComingSoonSnackBar() {
     Get.snackbar(
-      'Coming Soon',
-      'This feature will be available in a future update.',
+      'Sắp Ra Mắt',
+      'Tính năng này sẽ có sẵn trong bản cập nhật tương lai.',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: const Color(0xFF2196F3),
       colorText: Colors.white,
@@ -270,8 +270,8 @@ class SettingsView extends StatelessWidget {
     final Uri url = Uri.parse(urlString);
     if (!await launchUrl(url)) {
       Get.snackbar(
-        'Error',
-        'Could not open link',
+        'Lỗi',
+        'Không thể mở liên kết',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

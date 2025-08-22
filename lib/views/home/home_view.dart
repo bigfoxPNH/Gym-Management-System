@@ -62,7 +62,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome back,',
+                  'Chào mừng trở lại,',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
@@ -77,7 +77,7 @@ class HomeView extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ready for your workout today?',
+                  'Sẵn sàng cho buổi tập hôm nay chưa?',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
@@ -89,7 +89,7 @@ class HomeView extends StatelessWidget {
 
           // Quick Actions
           Text(
-            'Quick Actions',
+            'Thao Tác Nhanh',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -106,13 +106,13 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.fitness_center,
-                title: 'Start Workout',
-                subtitle: 'Begin your session',
+                title: 'Bắt Đầu Tập',
+                subtitle: 'Bắt đầu buổi tập',
                 color: Colors.orange,
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Workout feature will be available soon!',
+                    'Sắp Ra Mắt',
+                    'Tính năng tập luyện sẽ sớm có sẵn!',
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -120,13 +120,13 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.timeline,
-                title: 'Progress',
-                subtitle: 'Track your gains',
+                title: 'Tiến Trình',
+                subtitle: 'Theo dõi kết quả',
                 color: Colors.green,
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Progress tracking will be available soon!',
+                    'Sắp Ra Mắt',
+                    'Theo dõi tiến trình sẽ sớm có sẵn!',
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -134,13 +134,13 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.restaurant_menu,
-                title: 'Nutrition',
-                subtitle: 'Plan your meals',
+                title: 'Dinh Dưỡng',
+                subtitle: 'Lập kế hoạch bữa ăn',
                 color: Colors.purple,
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Nutrition tracking will be available soon!',
+                    'Sắp Ra Mắt',
+                    'Theo dõi dinh dưỡng sẽ sớm có sẵn!',
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -148,13 +148,13 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.calendar_today,
-                title: 'Schedule',
-                subtitle: 'Plan workouts',
+                title: 'Lịch Trình',
+                subtitle: 'Lập kế hoạch tập',
                 color: Colors.teal,
                 onTap: () {
                   Get.snackbar(
-                    'Coming Soon',
-                    'Workout scheduling will be available soon!',
+                    'Sắp Ra Mắt',
+                    'Lập lịch tập luyện sẽ sớm có sẵn!',
                     snackPosition: SnackPosition.BOTTOM,
                   );
                 },
@@ -165,7 +165,7 @@ class HomeView extends StatelessWidget {
 
           // Recent Activity
           Text(
-            'Recent Activity',
+            'Hoạt Động Gần Đây',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -184,14 +184,14 @@ class HomeView extends StatelessWidget {
                 Icon(Icons.history, size: 48, color: Colors.grey[400]),
                 const SizedBox(height: 12),
                 Text(
-                  'No recent activity',
+                  'Không có hoạt động gần đây',
                   style: Theme.of(
                     context,
                   ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Start your first workout to see activity here',
+                  'Bắt đầu buổi tập đầu tiên để xem hoạt động tại đây',
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),

@@ -7,7 +7,7 @@ class PrivacyPolicyView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy Policy'),
+        title: const Text('Chính Sách Riêng Tư'),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -39,7 +39,7 @@ class PrivacyPolicyView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Gym Pro Privacy Policy',
+                    'Chính Sách Riêng Tư Gym Pro',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -48,7 +48,7 @@ class PrivacyPolicyView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Last updated: August 22, 2025',
+                    'Cập nhật lần cuối: 22 tháng 8, 2025',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -62,197 +62,200 @@ class PrivacyPolicyView extends StatelessWidget {
 
             // Introduction
             _buildSection(
-              title: '1. Introduction',
+              title: '1. Giới Thiệu',
               content:
-                  '''Welcome to Gym Pro, your comprehensive fitness management application. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, protect, and share your information when you use our mobile application and related services.
+                  '''Chào mừng bạn đến với Gym Pro, ứng dụng quản lý thể dục toàn diện của bạn. Chúng tôi cam kết bảo vệ quyền riêng tư của bạn và đảm bảo tính bảo mật của thông tin cá nhân. Chính Sách Riêng Tư này giải thích cách chúng tôi thu thập, sử dụng, bảo vệ và chia sẻ thông tin của bạn khi sử dụng ứng dụng di động và các dịch vụ liên quan.
 
-By using Gym Pro, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies and practices, please do not use our services.''',
+Bằng cách sử dụng Gym Pro, bạn đồng ý với việc thu thập và sử dụng thông tin theo Chính Sách Riêng Tư này. Nếu bạn không đồng ý với các chính sách và thực tiễn của chúng tôi, vui lòng không sử dụng dịch vụ của chúng tôi.''',
             ),
 
             // Information We Collect
             _buildSection(
-              title: '2. Information We Collect',
+              title: '2. Thông Tin Chúng Tôi Thu Thập',
               content:
-                  '''We collect several types of information to provide and improve our services:
+                  '''Chúng tôi thu thập nhiều loại thông tin để cung cấp và cải thiện dịch vụ:
 
-**2.1 Personal Information**
-- Account Information: Full name, username, email address
-- Contact Details: Phone number, address
-- Personal Details: Date of birth, gender
-- Profile Information: Profile pictures, fitness goals, preferences
+**2.1 Thông Tin Cá Nhân**
+- Thông Tin Tài Khoản: Họ tên đầy đủ, tên đăng nhập, địa chỉ email
+- Chi Tiết Liên Hệ: Số điện thoại, địa chỉ
+- Chi Tiết Cá Nhân: Ngày sinh, giới tính
+- Thông Tin Hồ Sơ: Ảnh đại diện, mục tiêu thể dục, sở thích
 
-**2.2 Automatically Collected Information**
-- Device Information: Device type, operating system, unique device identifiers
-- Usage Data: App interactions, feature usage, session duration
-- Technical Data: IP address, browser type, app version
-- Location Data: General location information (with your permission)
+**2.2 Thông Tin Thu Thập Tự Động**
+- Thông Tin Thiết Bị: Loại thiết bị, hệ điều hành, mã định danh thiết bị duy nhất
+- Dữ Liệu Sử Dụng: Tương tác ứng dụng, sử dụng tính năng, thời lượng phiên
+- Dữ Liệu Kỹ Thuật: Địa chỉ IP, loại trình duyệt, phiên bản ứng dụng
+- Dữ Liệu Vị Trí: Thông tin vị trí chung (với sự cho phép của bạn)
 
-**2.3 Information from Third Parties**
-- Social Media: If you connect your social media accounts
-- Fitness Devices: Data from connected fitness trackers or wearables
-- Analytics: Anonymous usage statistics and crash reports''',
+**2.3 Thông Tin Từ Bên Thứ Ba**
+- Mạng Xã Hội: Nếu bạn kết nối tài khoản mạng xã hội
+- Thiết Bị Thể Dục: Dữ liệu từ máy theo dõi thể dục hoặc thiết bị đeo được kết nối
+- Phân Tích: Thống kê sử dụng ẩn danh và báo cáo lỗi''',
             ),
 
             // How We Use Information
             _buildSection(
-              title: '3. How We Use Your Information',
-              content: '''We use your information for the following purposes:
+              title: '3. Cách Chúng Tôi Sử Dụng Thông Tin Của Bạn',
+              content:
+                  '''Chúng tôi sử dụng thông tin của bạn cho các mục đích sau:
 
-**3.1 Service Provision**
-- Create and manage your user account
-- Provide personalized fitness recommendations
-- Track your workout progress and achievements
-- Enable social features and community interactions
+**3.1 Cung Cấp Dịch Vụ**
+- Tạo và quản lý tài khoản người dùng của bạn
+- Cung cấp đề xuất thể dục cá nhân hóa
+- Theo dõi tiến trình tập luyện và thành tích của bạn
+- Kích hoạt các tính năng xã hội và tương tác cộng đồng
 
-**3.2 Communication**
-- Send important service notifications
-- Provide customer support and assistance
-- Share fitness tips and educational content
-- Notify you about app updates and new features
+**3.2 Giao Tiếp**
+- Gửi thông báo dịch vụ quan trọng
+- Cung cấp hỗ trợ và trợ giúp khách hàng
+- Chia sẻ mẹo thể dục và nội dung giáo dục
+- Thông báo về cập nhật ứng dụng và tính năng mới
 
-**3.3 Improvement and Analytics**
-- Analyze app usage to improve user experience
-- Develop new features and services
-- Conduct research and analytics
-- Fix bugs and technical issues
+**3.3 Cải Thiện và Phân Tích**
+- Phân tích việc sử dụng ứng dụng để cải thiện trải nghiệm người dùng
+- Phát triển tính năng và dịch vụ mới
+- Tiến hành nghiên cứu và phân tích
+- Sửa lỗi và các vấn đề kỹ thuật
 
-**3.4 Safety and Security**
-- Prevent fraud and abuse
-- Protect against security threats
-- Comply with legal requirements
-- Ensure platform integrity''',
+**3.4 An Toàn và Bảo Mật**
+- Ngăn chặn gian lận và lạm dụng
+- Bảo vệ chống lại các mối đe dọa bảo mật
+- Tuân thủ các yêu cầu pháp lý
+- Đảm bảo tính toàn vẹn của nền tảng''',
             ),
 
             // Data Sharing
             _buildSection(
-              title: '4. Information Sharing and Disclosure',
+              title: '4. Chia Sẻ và Tiết Lộ Thông Tin',
               content:
-                  '''We do not sell, trade, or rent your personal information to third parties. We may share your information in the following limited circumstances:
+                  '''Chúng tôi không bán, trao đổi hoặc cho thuê thông tin cá nhân của bạn cho bên thứ ba. Chúng tôi có thể chia sẻ thông tin của bạn trong các trường hợp hạn chế sau:
 
-**4.1 Service Providers**
-We work with trusted third-party service providers who assist us in operating our app:
-- Cloud storage providers (Google Firebase)
-- Analytics services (crash reporting, usage analytics)
-- Communication services (email, push notifications)
+**4.1 Nhà Cung Cấp Dịch Vụ**
+Chúng tôi làm việc với các nhà cung cấp dịch vụ bên thứ ba đáng tin cậy hỗ trợ chúng tôi vận hành ứng dụng:
+- Nhà cung cấp lưu trữ đám mây (Google Firebase)
+- Dịch vụ phân tích (báo cáo lỗi, phân tích sử dụng)
+- Dịch vụ giao tiếp (email, thông báo đẩy)
 
-**4.2 Legal Requirements**
-We may disclose your information if required by law or in good faith belief that such disclosure is necessary to:
-- Comply with legal processes or government requests
-- Protect our rights, property, or safety
-- Prevent fraud or illegal activities
-- Enforce our Terms of Service
+**4.2 Yêu Cầu Pháp Lý**
+Chúng tôi có thể tiết lộ thông tin của bạn nếu được yêu cầu bởi pháp luật hoặc với thiện chí tin rằng việc tiết lộ như vậy là cần thiết để:
+- Tuân thủ các thủ tục pháp lý hoặc yêu cầu của chính phủ
+- Bảo vệ quyền, tài sản hoặc sự an toàn của chúng tôi
+- Ngăn chặn gian lận hoặc hoạt động bất hợp pháp
+- Thực thi Điều khoản Dịch vụ của chúng tôi
 
-**4.3 Business Transfers**
-In the event of a merger, acquisition, or asset sale, your information may be transferred as part of the business transaction.''',
+**4.3 Chuyển Giao Kinh Doanh**
+Trong trường hợp sáp nhập, mua lại hoặc bán tài sản, thông tin của bạn có thể được chuyển giao như một phần của giao dịch kinh doanh.''',
             ),
 
             // Data Security
             _buildSection(
-              title: '5. Data Security and Protection',
+              title: '5. Bảo Mật và Bảo Vệ Dữ Liệu',
               content:
-                  '''We implement appropriate technical and organizational measures to protect your personal information:
+                  '''Chúng tôi thực hiện các biện pháp kỹ thuật và tổ chức thích hợp để bảo vệ thông tin cá nhân của bạn:
 
-**5.1 Technical Safeguards**
-- Encryption of data in transit and at rest
-- Secure authentication systems
-- Regular security assessments and updates
-- Access controls and monitoring
+**5.1 Các Biện Pháp Bảo Vệ Kỹ Thuật**
+- Mã hóa dữ liệu khi truyền tải và lưu trữ
+- Hệ thống xác thực an toàn
+- Đánh giá và cập nhật bảo mật thường xuyên
+- Kiểm soát truy cập và giám sát
 
-**5.2 Organizational Measures**
-- Employee training on data protection
-- Strict access controls based on job requirements
-- Regular security audits and compliance checks
-- Incident response procedures
+**5.2 Các Biện Pháp Bảo Vệ Tổ Chức**
+- Đào tạo nhân viên về bảo mật dữ liệu
+- Các chính sách và quy trình bảo mật nghiêm ngặt
+- Kiểm tra quyền truy cập thường xuyên
+- Kế hoạch ứng phó sự cố
 
-**5.3 Data Retention**
-We retain your personal information only as long as necessary to:
-- Provide our services to you
-- Comply with legal obligations
-- Resolve disputes and enforce agreements
-- Maintain business records as required
+Tuy nhiên, không có phương pháp truyền tải qua internet hoặc lưu trữ điện tử nào là 100% an toàn. Chúng tôi không thể đảm bảo tuyệt đối về tính bảo mật.
 
-When information is no longer needed, we securely delete or anonymize it.''',
+**5.3 Lưu Trữ Dữ Liệu**
+Chúng tôi chỉ giữ lại thông tin cá nhân của bạn trong thời gian cần thiết để:
+- Cung cấp dịch vụ cho bạn
+- Tuân thủ các nghĩa vụ pháp lý
+- Giải quyết tranh chấp và thực thi thỏa thuận
+- Duy trì hồ sơ kinh doanh theo yêu cầu
+
+Khi thông tin không còn cần thiết, chúng tôi sẽ xóa an toàn hoặc ẩn danh hóa.''',
             ),
 
             // User Rights
             _buildSection(
-              title: '6. Your Rights and Choices',
+              title: '6. Quyền và Lựa Chọn Của Bạn',
               content:
-                  '''You have several rights regarding your personal information:
+                  '''Bạn có một số quyền liên quan đến thông tin cá nhân của mình:
 
-**6.1 Access and Portability**
-- View and download your personal data
-- Request a copy of your information in a portable format
-- Access your data processing history
+**6.1 Truy Cập và Khả Năng Chuyển Đổi**
+- Xem và tải xuống dữ liệu cá nhân của bạn
+- Yêu cầu bản sao thông tin của bạn ở định dạng di động
+- Truy cập lịch sử xử lý dữ liệu của bạn
 
-**6.2 Correction and Updates**
-- Update your profile information at any time
-- Correct inaccurate or incomplete data
-- Request verification of data accuracy
+**6.2 Sửa Chữa và Cập Nhật**
+- Cập nhật thông tin hồ sơ của bạn bất cứ lúc nào
+- Sửa chữa dữ liệu không chính xác hoặc không đầy đủ
+- Yêu cầu xác minh độ chính xác của dữ liệu
 
-**6.3 Deletion and Restriction**
-- Delete your account and associated data
-- Request restriction of data processing
-- Opt-out of certain data uses
+**6.3 Xóa và Hạn Chế**
+- Xóa tài khoản và dữ liệu liên quan của bạn
+- Yêu cầu hạn chế xử lý dữ liệu
+- Từ chối một số việc sử dụng dữ liệu nhất định
 
-**6.4 Communication Preferences**
-- Manage notification settings
-- Unsubscribe from marketing communications
-- Control data sharing preferences
+**6.4 Tùy Chọn Giao Tiếp**
+- Quản lý cài đặt thông báo
+- Hủy đăng ký khỏi thông tin tiếp thị
+- Kiểm soát tùy chọn chia sẻ dữ liệu
 
-To exercise these rights, please contact us through the app settings or our support channels.''',
+Để thực hiện những quyền này, vui lòng liên hệ với chúng tôi thông qua cài đặt ứng dụng hoặc các kênh hỗ trợ của chúng tôi.''',
             ),
 
             // International Transfers
             _buildSection(
-              title: '7. International Data Transfers',
+              title: '7. Chuyển Giao Dữ Liệu Quốc Tế',
               content:
-                  '''Our services are provided globally, and your information may be processed in countries other than your residence. We ensure adequate protection through:
+                  '''Dịch vụ của chúng tôi được cung cấp toàn cầu, và thông tin của bạn có thể được xử lý ở các quốc gia khác ngoài nơi bạn cư trú. Chúng tôi đảm bảo sự bảo vệ đầy đủ thông qua:
 
-- Standard contractual clauses approved by regulatory authorities
-- Adequacy decisions for certain countries
-- Certification schemes and binding corporate rules
-- Your explicit consent where required
+- Các điều khoản hợp đồng tiêu chuẩn được phê duyệt bởi các cơ quan quản lý
+- Quyết định về tính đầy đủ cho một số quốc gia nhất định
+- Chương trình chứng nhận và quy tắc doanh nghiệp ràng buộc
+- Sự đồng ý rõ ràng của bạn khi được yêu cầu
 
-We maintain the same level of protection regardless of where your data is processed.''',
+Chúng tôi duy trì cùng mức độ bảo vệ bất kể dữ liệu của bạn được xử lý ở đâu.''',
             ),
 
             // Children's Privacy
             _buildSection(
-              title: '8. Children\'s Privacy',
+              title: '8. Quyền Riêng Tư Trẻ Em',
               content:
-                  '''Gym Pro is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+                  '''Gym Pro không dành cho trẻ em dưới 13 tuổi. Chúng tôi không cố ý thu thập thông tin cá nhân từ trẻ em dưới 13 tuổi. Nếu bạn là cha mẹ hoặc người giám hộ và tin rằng con bạn đã cung cấp thông tin cá nhân cho chúng tôi, vui lòng liên hệ với chúng tôi ngay lập tức.
 
-For users aged 13-18, we recommend parental supervision and guidance when using our services. We take extra care to protect the privacy of younger users.''',
+Đối với người dùng từ 13-18 tuổi, chúng tôi khuyến nghị sự giám sát và hướng dẫn của cha mẹ khi sử dụng dịch vụ của chúng tôi. Chúng tôi đặc biệt quan tâm đến việc bảo vệ quyền riêng tư của người dùng trẻ tuổi.''',
             ),
 
             // Changes to Policy
             _buildSection(
-              title: '9. Changes to This Privacy Policy',
+              title: '9. Thay Đổi Chính Sách Riêng Tư Này',
               content:
-                  '''We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make changes:
+                  '''Chúng tôi có thể cập nhật Chính Sách Riêng Tư này theo thời gian để phản ánh những thay đổi trong thực tiễn, công nghệ, yêu cầu pháp lý hoặc các yếu tố khác của chúng tôi. Khi chúng tôi thực hiện thay đổi:
 
-- We will notify you through the app or via email
-- The "Last updated" date will be revised
-- Material changes will be prominently displayed
-- Continued use constitutes acceptance of the updated policy
+- Chúng tôi sẽ thông báo cho bạn thông qua ứng dụng hoặc qua email
+- Ngày "Cập nhật lần cuối" sẽ được sửa đổi
+- Những thay đổi quan trọng sẽ được hiển thị nổi bật
+- Việc tiếp tục sử dụng được coi là chấp nhận chính sách đã cập nhật
 
-We encourage you to review this Privacy Policy periodically to stay informed about how we protect your information.''',
+Chúng tôi khuyến khích bạn xem lại Chính Sách Riêng Tư này định kỳ để được thông báo về cách chúng tôi bảo vệ thông tin của bạn.''',
             ),
 
             // Contact Information
             _buildSection(
-              title: '10. Contact Us',
+              title: '10. Liên Hệ Với Chúng Tôi',
               content:
-                  '''If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
+                  '''Nếu bạn có câu hỏi, quan ngại hoặc yêu cầu liên quan đến Chính Sách Riêng Tư này hoặc các thực tiễn dữ liệu của chúng tôi, vui lòng liên hệ:
 
 **Email:** privacy@gympro.app
-**Address:** Gym Pro Privacy Team, 123 Fitness Street, Health City, HC 12345
-**Phone:** +1 (555) 123-4567
+**Địa chỉ:** Đội Riêng Tư Gym Pro, 123 Fitness Street, Health City, HC 12345
+**Điện thoại:** +1 (555) 123-4567
 
-For immediate assistance with privacy matters, you can also reach us through the in-app support feature.
+Để được hỗ trợ ngay lập tức về các vấn đề riêng tư, bạn cũng có thể liên hệ với chúng tôi thông qua tính năng hỗ trợ trong ứng dụng.
 
-We are committed to addressing your privacy concerns promptly and effectively.''',
+Chúng tôi cam kết giải quyết các mối quan ngại về quyền riêng tư của bạn một cách nhanh chóng và hiệu quả.''',
             ),
 
             const SizedBox(height: 32),
@@ -268,7 +271,7 @@ We are committed to addressing your privacy concerns promptly and effectively.''
               child: Column(
                 children: [
                   const Text(
-                    'Thank you for trusting Gym Pro with your fitness journey.',
+                    'Cảm ơn bạn đã tin tưởng Gym Pro trong hành trình thể dục của mình.',
                     style: TextStyle(
                       fontStyle: FontStyle.italic,
                       fontSize: 14,
@@ -278,7 +281,7 @@ We are committed to addressing your privacy concerns promptly and effectively.''
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your privacy is our priority.',
+                    'Quyền riêng tư của bạn là ưu tiên hàng đầu của chúng tôi.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

@@ -51,8 +51,8 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to load user account: $e',
+        'Lỗi',
+        'Không thể tải tài khoản người dùng: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
     }
@@ -75,7 +75,7 @@ class AuthController extends GetxController {
       Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       Get.snackbar(
-        'Sign In Error',
+        'Lỗi Đăng Nhập',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -105,8 +105,8 @@ class AuthController extends GetxController {
       // Navigate back to login with success message
       Get.offAllNamed(AppRoutes.login);
       Get.snackbar(
-        'Registration Successful',
-        'Account created successfully! Please sign in.',
+        'Đăng Ký Thành Công',
+        'Tài khoản đã được tạo thành công! Vui lòng đăng nhập.',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
@@ -114,7 +114,7 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Registration Error',
+        'Lỗi Đăng Ký',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -130,7 +130,7 @@ class AuthController extends GetxController {
       Get.offAllNamed(AppRoutes.login);
     } catch (e) {
       Get.snackbar(
-        'Sign Out Error',
+        'Lỗi Đăng Xuất',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -144,13 +144,13 @@ class AuthController extends GetxController {
       _isLoading.value = true;
       await AuthService.resetPassword(email);
       Get.snackbar(
-        'Password Reset',
-        'Password reset email sent to $email',
+        'Đặt Lại Mật Khẩu',
+        'Email đặt lại mật khẩu đã được gửi đến $email',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       Get.snackbar(
-        'Password Reset Error',
+        'Lỗi Đặt Lại Mật Khẩu',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -170,15 +170,15 @@ class AuthController extends GetxController {
         newPassword: newPassword,
       );
       Get.snackbar(
-        'Success',
-        'Password changed successfully',
+        'Thành Công',
+        'Mật khẩu đã được thay đổi thành công',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } catch (e) {
       Get.snackbar(
-        'Password Change Error',
+        'Lỗi Đổi Mật Khẩu',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
@@ -195,13 +195,13 @@ class AuthController extends GetxController {
       await AuthService.deleteAccount();
       Get.offAllNamed(AppRoutes.login);
       Get.snackbar(
-        'Account Deleted',
-        'Your account has been successfully deleted',
+        'Tài Khoản Đã Xóa',
+        'Tài khoản của bạn đã được xóa thành công',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       Get.snackbar(
-        'Delete Account Error',
+        'Lỗi Xóa Tài Khoản',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
@@ -254,15 +254,15 @@ class AuthController extends GetxController {
       await reloadUserAccount();
 
       Get.snackbar(
-        'Success',
-        'Profile picture updated successfully',
+        'Thành Công',
+        'Ảnh đại diện đã được cập nhật thành công',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } catch (e) {
       Get.snackbar(
-        'Upload Error',
+        'Lỗi Tải Lên',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,

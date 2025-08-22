@@ -8,7 +8,7 @@ class DataSettingsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy & Data Settings'),
+        title: const Text('Cài Đặt Riêng Tư & Dữ Liệu'),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -20,22 +20,25 @@ class DataSettingsView extends StatelessWidget {
           children: [
             // Data Collection Section
             _buildSection(
-              title: 'Data Collection',
-              description: 'Control what data we collect from your usage',
+              title: 'Thu Thập Dữ Liệu',
+              description:
+                  'Kiểm soát dữ liệu chúng tôi thu thập từ việc sử dụng của bạn',
               children: [
                 _buildSwitchTile(
-                  title: 'Analytics Data',
-                  subtitle: 'Help improve the app with anonymous usage data',
+                  title: 'Dữ Liệu Phân Tích',
+                  subtitle:
+                      'Giúp cải thiện ứng dụng bằng dữ liệu sử dụng ẩn danh',
                   value: true.obs,
                 ),
                 _buildSwitchTile(
-                  title: 'Performance Data',
-                  subtitle: 'Share performance metrics to help us optimize',
+                  title: 'Dữ Liệu Hiệu Suất',
+                  subtitle:
+                      'Chia sẻ số liệu hiệu suất để giúp chúng tôi tối ưu hóa',
                   value: true.obs,
                 ),
                 _buildSwitchTile(
-                  title: 'Crash Reports',
-                  subtitle: 'Send crash reports to help fix bugs',
+                  title: 'Báo Cáo Lỗi',
+                  subtitle: 'Gửi báo cáo lỗi để giúp sửa chữa lỗi',
                   value: true.obs,
                 ),
               ],
@@ -45,18 +48,19 @@ class DataSettingsView extends StatelessWidget {
 
             // Data Usage Section
             _buildSection(
-              title: 'Data Usage',
-              description: 'Manage how your data is used for personalization',
+              title: 'Sử Dụng Dữ Liệu',
+              description:
+                  'Quản lý cách dữ liệu của bạn được sử dụng để cá nhân hóa',
               children: [
                 _buildSwitchTile(
-                  title: 'Personalized Recommendations',
+                  title: 'Đề Xuất Cá Nhân Hóa',
                   subtitle:
-                      'Use your data to provide better workout suggestions',
+                      'Sử dụng dữ liệu của bạn để cung cấp gợi ý tập luyện tốt hơn',
                   value: true.obs,
                 ),
                 _buildSwitchTile(
-                  title: 'Marketing Communications',
-                  subtitle: 'Receive personalized fitness tips and offers',
+                  title: 'Thông Tin Tiếp Thị',
+                  subtitle: 'Nhận mẹo thể dục và ưu đãi cá nhân hóa',
                   value: false.obs,
                 ),
               ],
@@ -66,18 +70,18 @@ class DataSettingsView extends StatelessWidget {
 
             // Data Export & Deletion
             _buildSection(
-              title: 'Your Data Rights',
-              description: 'Download or delete your personal data',
+              title: 'Quyền Dữ Liệu Của Bạn',
+              description: 'Tải xuống hoặc xóa dữ liệu cá nhân của bạn',
               children: [
                 _buildActionTile(
-                  title: 'Download My Data',
-                  subtitle: 'Export all your personal data',
+                  title: 'Tải Xuống Dữ Liệu Của Tôi',
+                  subtitle: 'Xuất tất cả dữ liệu cá nhân của bạn',
                   icon: Icons.download_outlined,
                   onTap: () => _showDataExportDialog(context),
                 ),
                 _buildActionTile(
-                  title: 'Delete My Data',
-                  subtitle: 'Permanently remove all your data',
+                  title: 'Xóa Dữ Liệu Của Tôi',
+                  subtitle: 'Xóa vĩnh viễn tất cả dữ liệu của bạn',
                   icon: Icons.delete_outline,
                   isDestructive: true,
                   onTap: () => _showDataDeletionDialog(context),
@@ -94,8 +98,10 @@ class DataSettingsView extends StatelessWidget {
                   Icons.policy_outlined,
                   color: Color(0xFF2196F3),
                 ),
-                title: const Text('View Full Privacy Policy'),
-                subtitle: const Text('Read our complete privacy policy'),
+                title: const Text('Xem Chính Sách Riêng Tư Đầy Đủ'),
+                subtitle: const Text(
+                  'Đọc chính sách riêng tư đầy đủ của chúng tôi',
+                ),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () => Get.toNamed('/privacy-policy'),
               ),
@@ -177,8 +183,8 @@ class DataSettingsView extends StatelessWidget {
   void _savePreference(String key, bool value) {
     // Here you would typically save to SharedPreferences or similar
     Get.snackbar(
-      'Settings Updated',
-      '$key has been ${value ? 'enabled' : 'disabled'}',
+      'Cài Đặt Đã Cập Nhật',
+      '$key đã được ${value ? 'bật' : 'tắt'}',
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration(seconds: 2),
     );
@@ -187,24 +193,24 @@ class DataSettingsView extends StatelessWidget {
   void _showDataExportDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Export Your Data'),
+        title: const Text('Xuất Dữ Liệu Của Bạn'),
         content: const Text(
-          'We will prepare a file containing all your personal data and send it to your registered email address. This may take up to 24 hours.',
+          'Chúng tôi sẽ chuẩn bị một tập tin chứa tất cả dữ liệu cá nhân của bạn và gửi đến địa chỉ email đã đăng ký. Quá trình này có thể mất đến 24 giờ.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               Get.back();
               Get.snackbar(
-                'Export Requested',
-                'Your data export has been requested. You will receive an email shortly.',
+                'Yêu Cầu Xuất Dữ Liệu',
+                'Yêu cầu xuất dữ liệu của bạn đã được gửi. Bạn sẽ nhận được email sớm.',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.green,
                 colorText: Colors.white,
               );
             },
-            child: const Text('Export'),
+            child: const Text('Xuất'),
           ),
         ],
       ),
@@ -214,19 +220,19 @@ class DataSettingsView extends StatelessWidget {
   void _showDataDeletionDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Delete All Data'),
+        title: const Text('Xóa Tất Cả Dữ Liệu'),
         content: const Text(
-          'This will permanently delete all your personal data from our servers. This action cannot be undone. Your account will also be deleted.',
+          'Điều này sẽ xóa vĩnh viễn tất cả dữ liệu cá nhân của bạn khỏi máy chủ của chúng tôi. Hành động này không thể hoàn tác. Tài khoản của bạn cũng sẽ bị xóa.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               Get.back();
               _confirmDataDeletion();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete All Data'),
+            child: const Text('Xóa Tất Cả Dữ Liệu'),
           ),
         ],
       ),
@@ -236,19 +242,19 @@ class DataSettingsView extends StatelessWidget {
   void _confirmDataDeletion() {
     Get.dialog(
       AlertDialog(
-        title: const Text('Final Confirmation'),
+        title: const Text('Xác Nhận Cuối Cùng'),
         content: const Text(
-          'Are you absolutely sure? This will delete your account and all associated data permanently.',
+          'Bạn có hoàn toàn chắc chắn không? Điều này sẽ xóa tài khoản của bạn và tất cả dữ liệu liên quan vĩnh viễn.',
         ),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               Get.back();
               // Here you would call the actual deletion logic
               Get.snackbar(
-                'Data Deletion Requested',
-                'Your data deletion request has been submitted. This will be processed within 7 days.',
+                'Yêu Cầu Xóa Dữ Liệu',
+                'Yêu cầu xóa dữ liệu của bạn đã được gửi. Điều này sẽ được xử lý trong vòng 7 ngày.',
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.orange,
                 colorText: Colors.white,
@@ -256,7 +262,7 @@ class DataSettingsView extends StatelessWidget {
               );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Yes, Delete Everything'),
+            child: const Text('Có, Xóa Mọi Thứ'),
           ),
         ],
       ),
