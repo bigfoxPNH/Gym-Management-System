@@ -16,15 +16,10 @@ class FirebaseService {
   static Future<void> createUserDocument(
     User firebaseUser, {
     String? fullName,
-    String? username,
   }) async {
     try {
       final userAccount = UserAccount(
         id: firebaseUser.uid,
-        username:
-            username ??
-            firebaseUser.email?.split('@')[0] ??
-            'user_${firebaseUser.uid.substring(0, 8)}',
         fullName: fullName ?? firebaseUser.displayName ?? '',
         avatarUrl: firebaseUser.photoURL,
         email: firebaseUser.email ?? '',

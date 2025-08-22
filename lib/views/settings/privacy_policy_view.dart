@@ -76,7 +76,7 @@ Bằng cách sử dụng Gym Pro, bạn đồng ý với việc thu thập và s
                   '''Chúng tôi thu thập nhiều loại thông tin để cung cấp và cải thiện dịch vụ:
 
 **2.1 Thông Tin Cá Nhân**
-- Thông Tin Tài Khoản: Họ tên đầy đủ, tên đăng nhập, địa chỉ email
+- Thông Tin Tài Khoản: Họ tên đầy đủ, địa chỉ email
 - Chi Tiết Liên Hệ: Số điện thoại, địa chỉ
 - Chi Tiết Cá Nhân: Ngày sinh, giới tính
 - Thông Tin Hồ Sơ: Ảnh đại diện, mục tiêu thể dục, sở thích

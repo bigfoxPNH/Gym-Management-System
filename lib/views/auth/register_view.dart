@@ -11,7 +11,6 @@ class RegisterView extends StatelessWidget {
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
     final fullNameController = TextEditingController();
-    final usernameController = TextEditingController();
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
@@ -68,23 +67,6 @@ class RegisterView extends StatelessWidget {
                     }
                     if (value.length < 2) {
                       return 'Tên phải có ít nhất 2 ký tự';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Username Field
-                AppTextField(
-                  controller: usernameController,
-                  labelText: 'Tên Đăng Nhập',
-                  prefixIcon: const Icon(Icons.alternate_email),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vui lòng nhập tên đăng nhập';
-                    }
-                    if (value.length < 3) {
-                      return 'Tên đăng nhập phải có ít nhất 3 ký tự';
                     }
                     return null;
                   },
@@ -156,7 +138,6 @@ class RegisterView extends StatelessWidget {
                           emailController.text.trim(),
                           passwordController.text,
                           fullNameController.text.trim(),
-                          username: usernameController.text.trim(),
                         );
                       }
                     },

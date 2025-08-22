@@ -6,7 +6,6 @@ enum Gender { male, female, other }
 
 class UserAccount {
   final String id; // uid từ Firebase Auth
-  final String username; // tên đăng nhập (unique)
   final String fullName;
   final String? avatarUrl;
   final String? phone;
@@ -20,7 +19,6 @@ class UserAccount {
 
   UserAccount({
     required this.id,
-    required this.username,
     required this.fullName,
     this.avatarUrl,
     this.phone,
@@ -36,7 +34,6 @@ class UserAccount {
   factory UserAccount.fromMap(Map<String, dynamic> map) {
     return UserAccount(
       id: map['id'] ?? '',
-      username: map['username'] ?? '',
       fullName: map['fullName'] ?? '',
       avatarUrl: map['avatarUrl'],
       phone: map['phone'],
@@ -55,7 +52,6 @@ class UserAccount {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'username': username,
       'fullName': fullName,
       'avatarUrl': avatarUrl,
       'phone': phone,
@@ -80,7 +76,6 @@ class UserAccount {
 
   UserAccount copyWith({
     String? id,
-    String? username,
     String? fullName,
     String? avatarUrl,
     String? phone,
@@ -94,7 +89,6 @@ class UserAccount {
   }) {
     return UserAccount(
       id: id ?? this.id,
-      username: username ?? this.username,
       fullName: fullName ?? this.fullName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       phone: phone ?? this.phone,
@@ -185,7 +179,7 @@ class UserAccount {
 
   @override
   String toString() {
-    return 'UserAccount{id: $id, username: $username, fullName: $fullName, email: $email, role: ${roleToString(role)}}';
+    return 'UserAccount{id: $id, fullName: $fullName, email: $email, role: ${roleToString(role)}}';
   }
 
   @override
@@ -194,7 +188,6 @@ class UserAccount {
 
     return other is UserAccount &&
         other.id == id &&
-        other.username == username &&
         other.fullName == fullName &&
         other.avatarUrl == avatarUrl &&
         other.phone == phone &&
@@ -210,7 +203,6 @@ class UserAccount {
   @override
   int get hashCode {
     return id.hashCode ^
-        username.hashCode ^
         fullName.hashCode ^
         avatarUrl.hashCode ^
         phone.hashCode ^

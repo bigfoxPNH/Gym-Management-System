@@ -22,7 +22,6 @@ class EditProfileView extends StatelessWidget {
     }
 
     final fullNameController = TextEditingController(text: user.fullName);
-    final usernameController = TextEditingController(text: user.username);
     final phoneController = TextEditingController(text: user.phone ?? '');
     final addressController = TextEditingController(text: user.address ?? '');
     final selectedGender = Rx<Gender?>(user.gender);
@@ -148,22 +147,6 @@ class EditProfileView extends StatelessWidget {
                   }
                   if (value.length < 2) {
                     return 'Tên phải có ít nhất 2 ký tự';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              AppTextField(
-                controller: usernameController,
-                labelText: 'Tên Đăng Nhập',
-                prefixIcon: const Icon(Icons.alternate_email),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập tên đăng nhập';
-                  }
-                  if (value.length < 3) {
-                    return 'Tên đăng nhập phải có ít nhất 3 ký tự';
                   }
                   return null;
                 },
@@ -314,7 +297,6 @@ class EditProfileView extends StatelessWidget {
                       await _updateProfile(
                         user,
                         fullNameController.text.trim(),
-                        usernameController.text.trim(),
                         phoneController.text.trim(),
                         addressController.text.trim(),
                         selectedGender.value,
@@ -444,7 +426,6 @@ class EditProfileView extends StatelessWidget {
   Future<void> _updateProfile(
     user,
     String newFullName,
-    String newUsername,
     String newPhone,
     String newAddress,
     Gender? newGender,
@@ -457,7 +438,6 @@ class EditProfileView extends StatelessWidget {
       final firebaseService = FirebaseService();
       await firebaseService.updateUser(user.id, {
         'fullName': newFullName,
-        'username': newUsername,
         'phone': newPhone.isEmpty ? null : newPhone,
         'address': newAddress.isEmpty ? null : newAddress,
         'gender': UserAccount.genderToString(newGender),

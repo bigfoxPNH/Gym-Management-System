@@ -33,7 +33,6 @@ class AuthService {
     required String email,
     required String password,
     required String fullName,
-    String? username,
   }) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
@@ -49,7 +48,6 @@ class AuthService {
         await FirebaseService.createUserDocument(
           credential.user!,
           fullName: fullName,
-          username: username,
         );
       }
 

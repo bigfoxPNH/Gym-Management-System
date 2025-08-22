@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/user_account.dart';
 import '../../routes/app_routes.dart';
@@ -51,20 +52,52 @@ class ProfileView extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage:
-                      user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                      ? _getImageProvider(user.avatarUrl!)
-                      : null,
-                  backgroundColor: Colors.white,
-                  child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                      ? const Icon(
-                          Icons.person,
-                          size: 50,
-                          color: Color(0xFF2196F3),
-                        )
-                      : null,
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                          ? _getImageProvider(user.avatarUrl!)
+                          : null,
+                      backgroundColor: Colors.white,
+                      child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              size: 50,
+                              color: Color(0xFF2196F3),
+                            )
+                          : null,
+                    ),
+                    Positioned(
+                      right: -5,
+                      top: -5,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          onPressed: () => _showQRDialog(context, user),
+                          icon: const Icon(
+                            Icons.qr_code,
+                            color: Color(0xFF2196F3),
+                            size: 24,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          constraints: const BoxConstraints(),
+                          tooltip: 'Xem QR Code thông tin cá nhân',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -105,14 +138,6 @@ class ProfileView extends StatelessWidget {
                   icon: Icons.person_outline,
                   title: 'Họ và Tên',
                   subtitle: user.fullName,
-                ),
-                const SizedBox(height: 12),
-
-                _buildInfoCard(
-                  context,
-                  icon: Icons.alternate_email,
-                  title: 'Tên Đăng Nhập',
-                  subtitle: user.username,
                 ),
                 const SizedBox(height: 12),
 
@@ -364,7 +389,7 @@ class ProfileView extends StatelessWidget {
           TextButton(
             onPressed: () {
               Get.back();
-              authController.deleteAccount();
+              _showFinalDeleteConfirmation(context, authController);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Xóa'),
@@ -372,6 +397,119 @@ class ProfileView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showFinalDeleteConfirmation(
+    BuildContext context,
+    AuthController authController,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black87, // Màn hình tối nhẹ lại
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red[600], size: 28),
+            const SizedBox(width: 12),
+            const Text(
+              'Xác Nhận Cuối Cùng',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'CẢNH BÁO: Hành động này sẽ:',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text('• Xóa vĩnh viễn tất cả dữ liệu của bạn'),
+            const Text('• Xóa toàn bộ lịch sử tập luyện'),
+            const Text('• Xóa thông tin hồ sơ cá nhân'),
+            const Text('• Không thể khôi phục lại'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                border: Border.all(color: Colors.red[200]!),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Nếu bạn chắc chắn muốn tiếp tục, vui lòng nhấn "XÁC NHẬN XÓA" bên dưới.',
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Hủy Bỏ', style: TextStyle(fontSize: 16)),
+          ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              _performDeleteAccount(authController);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'XÁC NHẬN XÓA',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _performDeleteAccount(AuthController authController) {
+    // Hiển thị loading dialog
+    Get.dialog(
+      barrierDismissible: false,
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              const Text(
+                'Đang xóa tài khoản...',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Vui lòng đợi trong giây lát',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Thực hiện xóa tài khoản
+    authController.deleteAccount();
   }
 
   ImageProvider _getImageProvider(String imageUrl) {
@@ -394,5 +532,161 @@ class ProfileView extends StatelessWidget {
       case Gender.other:
         return 'Khác';
     }
+  }
+
+  void _showQRDialog(BuildContext context, UserAccount user) {
+    final qrData = _generateQRData(user);
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 350),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'QR Code Thông Tin Cá Nhân',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2196F3),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Get.back(),
+                    icon: const Icon(Icons.close),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // User info preview
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2196F3).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage:
+                          user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                          ? _getImageProvider(user.avatarUrl!)
+                          : null,
+                      backgroundColor: const Color(0xFF2196F3),
+                      child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+                          ? const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 20,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.fullName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          Text(
+                            user.email,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF2196F3),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Quét mã QR này để lưu thông tin liên hệ vào danh bạ',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Get.back(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Đóng'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _generateQRData(UserAccount user) {
+    // Tạo dữ liệu QR theo định dạng vCard (danh bạ điện tử)
+    final vCard = StringBuffer();
+    vCard.writeln('BEGIN:VCARD');
+    vCard.writeln('VERSION:3.0');
+    vCard.writeln('FN:${user.fullName}');
+    vCard.writeln('EMAIL:${user.email}');
+
+    if (user.phone != null && user.phone!.isNotEmpty) {
+      vCard.writeln('TEL:${user.phone}');
+    }
+
+    if (user.address != null && user.address!.isNotEmpty) {
+      vCard.writeln('ADR:;;${user.address};;;;');
+    }
+
+    vCard.writeln('NOTE:Gym Pro Member');
+    vCard.writeln('END:VCARD');
+
+    return vCard.toString();
   }
 }

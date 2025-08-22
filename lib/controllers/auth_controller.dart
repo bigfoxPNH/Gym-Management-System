@@ -84,19 +84,13 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> register(
-    String email,
-    String password,
-    String fullName, {
-    String? username,
-  }) async {
+  Future<void> register(String email, String password, String fullName) async {
     try {
       _isLoading.value = true;
       await AuthService.registerWithEmailAndPassword(
         email: email,
         password: password,
         fullName: fullName,
-        username: username,
       );
 
       // Sign out after registration to force user to login
@@ -193,17 +187,32 @@ class AuthController extends GetxController {
     try {
       _isLoading.value = true;
       await AuthService.deleteAccount();
+
+      // Đóng loading dialog nếu đang mở
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
       Get.offAllNamed(AppRoutes.login);
       Get.snackbar(
         'Tài Khoản Đã Xóa',
         'Tài khoản của bạn đã được xóa thành công',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
     } catch (e) {
+      // Đóng loading dialog nếu đang mở
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
       Get.snackbar(
         'Lỗi Xóa Tài Khoản',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       _isLoading.value = false;
