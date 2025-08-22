@@ -141,6 +141,22 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
+                // Role Information
+                _buildInfoCard(
+                  context,
+                  icon: user.isAdmin 
+                      ? Icons.admin_panel_settings
+                      : user.isManager
+                          ? Icons.manage_accounts
+                          : user.isStaff
+                              ? Icons.work
+                              : Icons.person,
+                  title: 'Vai Trò',
+                  subtitle: _getRoleDisplayName(user.role),
+                  specialColor: user.isAdmin ? Colors.red[600] : null,
+                ),
+                const SizedBox(height: 12),
+
                 _buildInfoCard(
                   context,
                   icon: Icons.email_outlined,
@@ -253,15 +269,21 @@ class ProfileView extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    Color? specialColor,
   }) {
+    final iconColor = specialColor ?? const Color(0xFF2196F3);
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: specialColor != null 
+            ? Border.all(color: specialColor.withOpacity(0.3), width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: specialColor?.withOpacity(0.1) ?? Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -269,25 +291,48 @@ class ProfileView extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF2196F3), size: 24),
+          Icon(icon, color: iconColor, size: 24),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (specialColor != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: specialColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'ADMIN',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: specialColor != null ? specialColor : null,
+                  ),
                 ),
               ],
             ),
@@ -531,6 +576,19 @@ class ProfileView extends StatelessWidget {
         return 'Nữ';
       case Gender.other:
         return 'Khác';
+    }
+  }
+
+  String _getRoleDisplayName(Role role) {
+    switch (role) {
+      case Role.admin:
+        return 'Quản Trị Viên';
+      case Role.manager:
+        return 'Quản Lý';
+      case Role.staff:
+        return 'Nhân Viên';
+      case Role.member:
+        return 'Thành Viên';
     }
   }
 

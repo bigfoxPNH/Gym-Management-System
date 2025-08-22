@@ -12,7 +12,32 @@ class HomeView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gym Pro'),
+        title: Obx(() {
+          final user = authController.userAccount;
+          return Row(
+            children: [
+              const Text('Gym Pro'),
+              if (user != null && user.isAdmin) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.red[600],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'ADMIN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          );
+        }),
         backgroundColor: const Color(0xFF2196F3),
         foregroundColor: Colors.white,
         elevation: 0,
@@ -87,7 +112,96 @@ class HomeView extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Quick Actions
+          // Admin Features (chỉ hiển thị cho admin)
+          if (user.isAdmin) ...[
+            Text(
+              'Quản Trị Viên',
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.red[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: [
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.fitness_center,
+                  title: 'Quản Lý Bài Tập',
+                  subtitle: 'Tạo & chỉnh sửa động tác',
+                  color: Colors.red,
+                  onTap: () {
+                    Get.snackbar(
+                      'Sắp Ra Mắt',
+                      'Quản lý bài tập sẽ sớm có sẵn!',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange,
+                      colorText: Colors.white,
+                    );
+                  },
+                ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.card_membership,
+                  title: 'Quản Lý Gói Tập',
+                  subtitle: 'Ngày, tháng, năm...',
+                  color: Colors.deepPurple,
+                  onTap: () {
+                    Get.snackbar(
+                      'Sắp Ra Mắt', 
+                      'Quản lý gói tập sẽ sớm có sẵn!',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange,
+                      colorText: Colors.white,
+                    );
+                  },
+                ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.people,
+                  title: 'Quản Lý Thành Viên',
+                  subtitle: 'Xem & quản lý users',
+                  color: Colors.indigo,
+                  onTap: () {
+                    Get.snackbar(
+                      'Sắp Ra Mắt',
+                      'Quản lý thành viên sẽ sớm có sẵn!',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange,
+                      colorText: Colors.white,
+                    );
+                  },
+                ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.analytics,
+                  title: 'Báo Cáo & Thống Kê',
+                  subtitle: 'Dashboard & analytics',
+                  color: Colors.teal,
+                  onTap: () {
+                    Get.snackbar(
+                      'Sắp Ra Mắt',
+                      'Báo cáo thống kê sẽ sớm có sẵn!',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.orange,
+                      colorText: Colors.white,
+                    );
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Quick Actions (cho tất cả users)
           Text(
             'Thao Tác Nhanh',
             style: Theme.of(
@@ -99,9 +213,10 @@ class HomeView extends StatelessWidget {
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            crossAxisCount: 3,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.9,
             children: [
               _buildActionCard(
                 context,
@@ -133,6 +248,22 @@ class HomeView extends StatelessWidget {
               ),
               _buildActionCard(
                 context,
+                icon: Icons.list_alt,
+                title: 'Xem Bài Tập',
+                subtitle: 'Danh sách bài tập',
+                color: Colors.blue,
+                onTap: () {
+                  Get.snackbar(
+                    'Sắp Ra Mắt',
+                    'Xem bài tập sẽ sớm có sẵn!',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.blue,
+                    colorText: Colors.white,
+                  );
+                },
+              ),
+              _buildActionCard(
+                context,
                 icon: Icons.restaurant_menu,
                 title: 'Dinh Dưỡng',
                 subtitle: 'Lập kế hoạch bữa ăn',
@@ -156,6 +287,22 @@ class HomeView extends StatelessWidget {
                     'Sắp Ra Mắt',
                     'Lập lịch tập luyện sẽ sớm có sẵn!',
                     snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              ),
+              _buildActionCard(
+                context,
+                icon: Icons.shopping_cart,
+                title: 'Mua Gói Tập',
+                subtitle: 'Mua gói thành viên',
+                color: Colors.indigo,
+                onTap: () {
+                  Get.snackbar(
+                    'Sắp Ra Mắt',
+                    'Mua gói tập sẽ sớm có sẵn!',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.indigo,
+                    colorText: Colors.white,
                   );
                 },
               ),
@@ -248,6 +395,93 @@ class HomeView extends StatelessWidget {
                 context,
               ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdminActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              color.withOpacity(0.1),
+              color.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 28, color: color),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color.withOpacity(0.9),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+                fontSize: 11,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                'ADMIN',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         ),
