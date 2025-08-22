@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/theme_controller.dart';
 import '../../routes/app_routes.dart';
 
 class SettingsView extends StatelessWidget {
@@ -10,6 +11,7 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
+    final themeController = Get.find<ThemeController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +25,7 @@ class SettingsView extends StatelessWidget {
         children: [
           // Theme Section
           _buildSectionTitle('Giao Diện', Icons.palette),
-          _buildThemeSelector(),
+          _buildThemeSelector(themeController),
           const SizedBox(height: 24),
 
           // Notifications Section
@@ -69,38 +71,38 @@ class SettingsView extends StatelessWidget {
     );
   }
 
-  Widget _buildThemeSelector() {
+  Widget _buildThemeSelector(ThemeController themeController) {
     return Card(
       child: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.light_mode, color: Colors.orange),
-            title: const Text('Chế Độ Sáng'),
-            trailing: Radio<String>(
-              value: 'light',
-              groupValue: 'light', // You can implement theme controller
-              onChanged: (value) => _showComingSoonSnackBar(),
+          Obx(
+            () => ListTile(
+              leading: const Icon(Icons.light_mode, color: Colors.orange),
+              title: const Text('Chế Độ Sáng'),
+              trailing: Radio<ThemeMode>(
+                value: ThemeMode.light,
+                groupValue: themeController.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeController.changeTheme(value);
+                  }
+                },
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.dark_mode, color: Colors.grey),
-            title: const Text('Chế Độ Tối'),
-            trailing: Radio<String>(
-              value: 'dark',
-              groupValue: 'light',
-              onChanged: (value) => _showComingSoonSnackBar(),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.settings_system_daydream,
-              color: Colors.blue,
-            ),
-            title: const Text('Hệ Thống'),
-            trailing: Radio<String>(
-              value: 'system',
-              groupValue: 'light',
-              onChanged: (value) => _showComingSoonSnackBar(),
+          Obx(
+            () => ListTile(
+              leading: const Icon(Icons.dark_mode, color: Colors.grey),
+              title: const Text('Chế Độ Tối'),
+              trailing: Radio<ThemeMode>(
+                value: ThemeMode.dark,
+                groupValue: themeController.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeController.changeTheme(value);
+                  }
+                },
+              ),
             ),
           ),
         ],

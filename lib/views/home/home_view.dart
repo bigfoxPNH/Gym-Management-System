@@ -20,7 +20,10 @@ class HomeView extends StatelessWidget {
               if (user != null && user.isAdmin) ...[
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red[600],
                     borderRadius: BorderRadius.circular(12),
@@ -76,12 +79,25 @@ class HomeView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+              gradient: LinearGradient(
+                colors: Theme.of(context).brightness == Brightness.dark
+                    ? [const Color(0xFF90CAF9), const Color(0xFF81C784)]
+                    : [const Color(0xFF2196F3), const Color(0xFF1976D2)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      (Theme.of(context).brightness == Brightness.dark
+                              ? const Color(0xFF90CAF9)
+                              : const Color(0xFF2196F3))
+                          .withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,15 +132,13 @@ class HomeView extends StatelessWidget {
           if (user.isAdmin) ...[
             Text(
               'Quản Trị Viên',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.red[600],
               ),
             ),
             const SizedBox(height: 16),
-            
+
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -156,7 +170,7 @@ class HomeView extends StatelessWidget {
                   color: Colors.deepPurple,
                   onTap: () {
                     Get.snackbar(
-                      'Sắp Ra Mắt', 
+                      'Sắp Ra Mắt',
                       'Quản lý gói tập sẽ sớm có sẵn!',
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: Colors.orange,
@@ -323,25 +337,40 @@ class HomeView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey[50],
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF2D2D30)
+                  : Colors.grey[50],
               borderRadius: BorderRadius.circular(12),
+              border: Theme.of(context).brightness == Brightness.dark
+                  ? Border.all(color: const Color(0xFF4A4A4A), width: 0.5)
+                  : null,
             ),
             child: Column(
               children: [
-                Icon(Icons.history, size: 48, color: Colors.grey[400]),
+                Icon(
+                  Icons.history,
+                  size: 48,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0xFFB0B0B0)
+                      : Colors.grey[400],
+                ),
                 const SizedBox(height: 12),
                 Text(
                   'Không có hoạt động gần đây',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFFE8E8E8)
+                        : Colors.grey[600],
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Bắt đầu buổi tập đầu tiên để xem hoạt động tại đây',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? const Color(0xFFB0B0B0)
+                        : Colors.grey[500],
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -391,9 +420,11 @@ class HomeView extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFFB0B0B0)
+                    : Colors.grey[600],
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -417,18 +448,12 @@ class HomeView extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              color.withOpacity(0.1),
-              color.withOpacity(0.05),
-            ],
+            colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1.5,
-          ),
+          border: Border.all(color: color.withOpacity(0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.2),
@@ -461,7 +486,9 @@ class HomeView extends StatelessWidget {
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? const Color(0xFFB0B0B0)
+                    : Colors.grey[600],
                 fontSize: 11,
               ),
               textAlign: TextAlign.center,

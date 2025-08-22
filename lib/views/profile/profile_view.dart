@@ -144,13 +144,13 @@ class ProfileView extends StatelessWidget {
                 // Role Information
                 _buildInfoCard(
                   context,
-                  icon: user.isAdmin 
+                  icon: user.isAdmin
                       ? Icons.admin_panel_settings
                       : user.isManager
-                          ? Icons.manage_accounts
-                          : user.isStaff
-                              ? Icons.work
-                              : Icons.person,
+                      ? Icons.manage_accounts
+                      : user.isStaff
+                      ? Icons.work
+                      : Icons.person,
                   title: 'Vai Trò',
                   subtitle: _getRoleDisplayName(user.role),
                   specialColor: user.isAdmin ? Colors.red[600] : null,
@@ -272,18 +272,20 @@ class ProfileView extends StatelessWidget {
     Color? specialColor,
   }) {
     final iconColor = specialColor ?? const Color(0xFF2196F3);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: specialColor != null 
+        border: specialColor != null
             ? Border.all(color: specialColor.withOpacity(0.3), width: 1.5)
             : null,
         boxShadow: [
           BoxShadow(
-            color: specialColor?.withOpacity(0.1) ?? Colors.black.withOpacity(0.05),
+            color:
+                specialColor?.withOpacity(0.1) ??
+                Colors.black.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -309,7 +311,10 @@ class ProfileView extends StatelessWidget {
                     if (specialColor != null) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: specialColor,
                           borderRadius: BorderRadius.circular(8),
