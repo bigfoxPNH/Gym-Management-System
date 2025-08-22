@@ -7,6 +7,7 @@ import '../../models/user_account.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/app_button.dart';
 import '../../services/firebase_service.dart';
+import '../settings/data_settings_view.dart';
 
 class EditProfileView extends StatelessWidget {
   const EditProfileView({super.key});
@@ -362,14 +363,21 @@ class EditProfileView extends StatelessWidget {
               _buildSettingsOption(
                 context,
                 icon: Icons.privacy_tip_outlined,
-                title: 'Privacy',
-                subtitle: 'Privacy and data settings',
+                title: 'Privacy Policy',
+                subtitle: 'View our complete privacy policy',
                 onTap: () {
-                  Get.snackbar(
-                    'Coming Soon',
-                    'Privacy settings will be available soon!',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.toNamed('/privacy-policy');
+                },
+              ),
+              const SizedBox(height: 12),
+
+              _buildSettingsOption(
+                context,
+                icon: Icons.settings_outlined,
+                title: 'Data Settings',
+                subtitle: 'Manage your data and privacy preferences',
+                onTap: () {
+                  Get.to(() => const DataSettingsView());
                 },
               ),
             ],
