@@ -50,7 +50,8 @@ class DataSettingsView extends StatelessWidget {
               children: [
                 _buildSwitchTile(
                   title: 'Personalized Recommendations',
-                  subtitle: 'Use your data to provide better workout suggestions',
+                  subtitle:
+                      'Use your data to provide better workout suggestions',
                   value: true.obs,
                 ),
                 _buildSwitchTile(
@@ -89,7 +90,10 @@ class DataSettingsView extends StatelessWidget {
             // Privacy Policy Link
             Card(
               child: ListTile(
-                leading: const Icon(Icons.policy_outlined, color: Color(0xFF2196F3)),
+                leading: const Icon(
+                  Icons.policy_outlined,
+                  color: Color(0xFF2196F3),
+                ),
                 title: const Text('View Full Privacy Policy'),
                 subtitle: const Text('Read our complete privacy policy'),
                 trailing: const Icon(Icons.arrow_forward_ios),
@@ -121,17 +125,10 @@ class DataSettingsView extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           description,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         const SizedBox(height: 12),
-        Card(
-          child: Column(
-            children: children,
-          ),
-        ),
+        Card(child: Column(children: children)),
       ],
     );
   }
@@ -141,19 +138,18 @@ class DataSettingsView extends StatelessWidget {
     required String subtitle,
     required RxBool value,
   }) {
-    return Obx(() => SwitchListTile(
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: Colors.grey[600]),
+    return Obx(
+      () => SwitchListTile(
+        title: Text(title),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600])),
+        value: value.value,
+        onChanged: (bool newValue) {
+          value.value = newValue;
+          _savePreference(title, newValue);
+        },
+        activeColor: const Color(0xFF2196F3),
       ),
-      value: value.value,
-      onChanged: (bool newValue) {
-        value.value = newValue;
-        _savePreference(title, newValue);
-      },
-      activeColor: const Color(0xFF2196F3),
-    ));
+    );
   }
 
   Widget _buildActionTile({
@@ -170,14 +166,9 @@ class DataSettingsView extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          color: isDestructive ? Colors.red : Colors.black87,
-        ),
+        style: TextStyle(color: isDestructive ? Colors.red : Colors.black87),
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: Colors.grey[600]),
-      ),
+      subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600])),
       trailing: const Icon(Icons.arrow_forward_ios),
       onTap: onTap,
     );
@@ -201,10 +192,7 @@ class DataSettingsView extends StatelessWidget {
           'We will prepare a file containing all your personal data and send it to your registered email address. This may take up to 24 hours.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -231,10 +219,7 @@ class DataSettingsView extends StatelessWidget {
           'This will permanently delete all your personal data from our servers. This action cannot be undone. Your account will also be deleted.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -256,10 +241,7 @@ class DataSettingsView extends StatelessWidget {
           'Are you absolutely sure? This will delete your account and all associated data permanently.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               Get.back();

@@ -6,4 +6,5 @@ abstract class AppRoutes {
   static const profile = '/profile';
   static const editProfile = '/edit-profile';
   static const privacyPolicy = '/privacy-policy';
+  static const settings = '/settings';
 }

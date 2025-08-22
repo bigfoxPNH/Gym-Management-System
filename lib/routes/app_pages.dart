@@ -6,6 +6,7 @@ import '../views/home/home_view.dart';
 import '../views/profile/profile_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/settings/privacy_policy_view.dart';
+import '../views/settings/settings_view.dart';
 import '../controllers/auth_controller.dart';
 import 'app_routes.dart';
 
@@ -17,7 +18,11 @@ class AppPages {
     GetPage(name: AppRoutes.home, page: () => const HomeView()),
     GetPage(name: AppRoutes.profile, page: () => const ProfileView()),
     GetPage(name: AppRoutes.editProfile, page: () => const EditProfileView()),
-    GetPage(name: AppRoutes.privacyPolicy, page: () => const PrivacyPolicyView()),
+    GetPage(
+      name: AppRoutes.privacyPolicy,
+      page: () => const PrivacyPolicyView(),
+    ),
+    GetPage(name: AppRoutes.settings, page: () => const SettingsView()),
   ];
 }
 

@@ -42,12 +42,21 @@ dependencies:
 
   # State management and utilities
   get: ^4.6.6
-  intl: ^0.19.0
+  intl: ^0.20.2
   google_fonts: ^6.2.1
 
   # Image handling
   image_picker: ^1.0.8
   path: ^1.8.3
+
+  # URL launcher
+  url_launcher: ^6.2.4
+
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  country_flags: ^3.0.0
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

@@ -8,7 +8,7 @@ A comprehensive Flutter-based gym management and fitness tracking application.
 - **Comprehensive User Profiles**: Complete profile management with personal information
   - Full name, username, email
   - Phone number, address
-  - Gender selection (Male/Female/Other)  
+  - Gender selection (Male/Female/Other)
   - Date of birth picker
 - **Profile Pictures**: Upload and manage profile photos with Firestore (FREE)
 - **Real-time Updates**: Instant UI refresh after profile changes
@@ -18,7 +18,7 @@ A comprehensive Flutter-based gym management and fitness tracking application.
   - Data settings and preferences management
   - User data export and deletion options
   - Transparency in data collection and usage
-- **State Management**: GetX for reactive state management  
+- **State Management**: GetX for reactive state management
 - **Modern UI**: Material 3 design with Google Fonts
 - **Firebase Integration**: Firestore database for data persistence
 - **Image Upload**: Support for gallery and camera image selection (Base64 storage)## Project Structure

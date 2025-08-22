@@ -18,6 +18,10 @@ class HomeView extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
+            onPressed: () => Get.toNamed(AppRoutes.settings),
+            icon: const Icon(Icons.settings),
+          ),
+          IconButton(
             onPressed: () => Get.toNamed(AppRoutes.profile),
             icon: const Icon(Icons.person),
           ),

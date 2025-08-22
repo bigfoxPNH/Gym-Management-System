@@ -31,7 +31,9 @@ class PrivacyPolicyView extends StatelessWidget {
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF2196F3).withOpacity(0.2)),
+                border: Border.all(
+                  color: const Color(0xFF2196F3).withOpacity(0.2),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +63,8 @@ class PrivacyPolicyView extends StatelessWidget {
             // Introduction
             _buildSection(
               title: '1. Introduction',
-              content: '''Welcome to Gym Pro, your comprehensive fitness management application. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, protect, and share your information when you use our mobile application and related services.
+              content:
+                  '''Welcome to Gym Pro, your comprehensive fitness management application. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, protect, and share your information when you use our mobile application and related services.
 
 By using Gym Pro, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies and practices, please do not use our services.''',
             ),
@@ -69,7 +72,8 @@ By using Gym Pro, you agree to the collection and use of information in accordan
             // Information We Collect
             _buildSection(
               title: '2. Information We Collect',
-              content: '''We collect several types of information to provide and improve our services:
+              content:
+                  '''We collect several types of information to provide and improve our services:
 
 **2.1 Personal Information**
 - Account Information: Full name, username, email address
@@ -122,7 +126,8 @@ By using Gym Pro, you agree to the collection and use of information in accordan
             // Data Sharing
             _buildSection(
               title: '4. Information Sharing and Disclosure',
-              content: '''We do not sell, trade, or rent your personal information to third parties. We may share your information in the following limited circumstances:
+              content:
+                  '''We do not sell, trade, or rent your personal information to third parties. We may share your information in the following limited circumstances:
 
 **4.1 Service Providers**
 We work with trusted third-party service providers who assist us in operating our app:
@@ -144,7 +149,8 @@ In the event of a merger, acquisition, or asset sale, your information may be tr
             // Data Security
             _buildSection(
               title: '5. Data Security and Protection',
-              content: '''We implement appropriate technical and organizational measures to protect your personal information:
+              content:
+                  '''We implement appropriate technical and organizational measures to protect your personal information:
 
 **5.1 Technical Safeguards**
 - Encryption of data in transit and at rest
@@ -171,7 +177,8 @@ When information is no longer needed, we securely delete or anonymize it.''',
             // User Rights
             _buildSection(
               title: '6. Your Rights and Choices',
-              content: '''You have several rights regarding your personal information:
+              content:
+                  '''You have several rights regarding your personal information:
 
 **6.1 Access and Portability**
 - View and download your personal data
@@ -199,7 +206,8 @@ To exercise these rights, please contact us through the app settings or our supp
             // International Transfers
             _buildSection(
               title: '7. International Data Transfers',
-              content: '''Our services are provided globally, and your information may be processed in countries other than your residence. We ensure adequate protection through:
+              content:
+                  '''Our services are provided globally, and your information may be processed in countries other than your residence. We ensure adequate protection through:
 
 - Standard contractual clauses approved by regulatory authorities
 - Adequacy decisions for certain countries
@@ -212,7 +220,8 @@ We maintain the same level of protection regardless of where your data is proces
             // Children's Privacy
             _buildSection(
               title: '8. Children\'s Privacy',
-              content: '''Gym Pro is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+              content:
+                  '''Gym Pro is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
 
 For users aged 13-18, we recommend parental supervision and guidance when using our services. We take extra care to protect the privacy of younger users.''',
             ),
@@ -220,7 +229,8 @@ For users aged 13-18, we recommend parental supervision and guidance when using 
             // Changes to Policy
             _buildSection(
               title: '9. Changes to This Privacy Policy',
-              content: '''We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make changes:
+              content:
+                  '''We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. When we make changes:
 
 - We will notify you through the app or via email
 - The "Last updated" date will be revised
@@ -233,7 +243,8 @@ We encourage you to review this Privacy Policy periodically to stay informed abo
             // Contact Information
             _buildSection(
               title: '10. Contact Us',
-              content: '''If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
+              content:
+                  '''If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
 
 **Email:** privacy@gympro.app
 **Address:** Gym Pro Privacy Team, 123 Fitness Street, Health City, HC 12345
