@@ -29,24 +29,70 @@ class UserAccount {
     this.role = Role.member,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) {
+    // Validate data in constructor
+    try {
+      if (id.isEmpty) throw ArgumentError('ID cannot be empty');
+      if (fullName.isEmpty) throw ArgumentError('Full name cannot be empty');
+      if (email.isEmpty) throw ArgumentError('Email cannot be empty');
+      // Additional validation for dates
+      if (dob != null) {
+        final now = DateTime.now();
+        if (dob!.isAfter(now) || dob!.year < 1900) {
+          print('Invalid birth date: $dob');
+        }
+      }
+    } catch (e) {
+      print('UserAccount validation warning: $e');
+    }
+  }
 
   factory UserAccount.fromMap(Map<String, dynamic> map) {
-    return UserAccount(
-      id: map['id'] ?? '',
-      fullName: map['fullName'] ?? '',
-      avatarUrl: map['avatarUrl'],
-      phone: map['phone'],
-      email: map['email'] ?? '',
-      dob: map['dob'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['dob'])
-          : null,
-      address: map['address'],
-      gender: genderFromString(map['gender']),
-      role: roleFromString(map['role'] ?? 'member'),
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] ?? 0),
-    );
+    try {
+      return UserAccount(
+        id: map['id'] ?? '',
+        fullName: map['fullName'] ?? '',
+        avatarUrl: map['avatarUrl'],
+        phone: map['phone'],
+        email: map['email'] ?? '',
+        dob: _parseDateTime(map['dob']),
+        address: map['address'],
+        gender: genderFromString(map['gender']),
+        role: roleFromString(map['role'] ?? 'member'),
+        createdAt: _parseDateTime(map['createdAt']) ?? DateTime.now(),
+        updatedAt: _parseDateTime(map['updatedAt']) ?? DateTime.now(),
+      );
+    } catch (e) {
+      print('Error parsing UserAccount from map: $e');
+      print('Map data: $map');
+      rethrow;
+    }
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    try {
+      if (value is int) {
+        // Check if timestamp is reasonable (after 1970 and before 2100)
+        if (value < 0 || value > 4102444800000) {
+          print('Invalid timestamp: $value');
+          return null;
+        }
+        return DateTime.fromMillisecondsSinceEpoch(value);
+      } else if (value is Timestamp) {
+        return value.toDate();
+      } else if (value is String) {
+        // Try to parse as timestamp string
+        final intValue = int.tryParse(value);
+        if (intValue != null) {
+          return _parseDateTime(intValue);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Error parsing DateTime from value: $value, error: $e');
+      return null;
+    }
   }
 
   Map<String, dynamic> toMap() {

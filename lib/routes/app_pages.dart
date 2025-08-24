@@ -25,7 +25,7 @@ class AppPages {
     ),
     GetPage(name: AppRoutes.settings, page: () => const SettingsView()),
     GetPage(
-      name: AppRoutes.memberManagement, 
+      name: AppRoutes.memberManagement,
       page: () => const MemberManagementView(),
     ),
   ];

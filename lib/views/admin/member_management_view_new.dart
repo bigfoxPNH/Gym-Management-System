@@ -353,7 +353,9 @@ class MemberManagementView extends StatelessWidget {
                     Icon(Icons.cake, size: 16, color: Colors.grey[500]),
                     const SizedBox(width: 4),
                     Text(
-                      _safeFormatDate(user.dob),
+                      '${user.dob!.day.toString().padLeft(2, '0')}/'
+                      '${user.dob!.month.toString().padLeft(2, '0')}/'
+                      '${user.dob!.year}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(width: 16),
@@ -462,7 +464,14 @@ class MemberManagementView extends StatelessWidget {
               _buildDetailRow('Họ tên', user.fullName),
               _buildDetailRow('Email', user.email),
               _buildDetailRow('Số điện thoại', user.phone ?? ''),
-              _buildDetailRow('Ngày sinh', _safeFormatDate(user.dob)),
+              _buildDetailRow(
+                'Ngày sinh',
+                user.dob != null
+                    ? '${user.dob!.day.toString().padLeft(2, '0')}/'
+                          '${user.dob!.month.toString().padLeft(2, '0')}/'
+                          '${user.dob!.year}'
+                    : '',
+              ),
               _buildDetailRow('Địa chỉ', user.address ?? ''),
               _buildDetailRow('Quyền', _getRoleDisplayName(user.role.name)),
               _buildDetailRow('ID', user.id),
@@ -525,7 +534,11 @@ class MemberManagementView extends StatelessWidget {
     final phoneController = TextEditingController(text: user?.phone ?? '');
     final addressController = TextEditingController(text: user?.address ?? '');
     final dobController = TextEditingController(
-      text: _safeFormatDate(user?.dob),
+      text: user?.dob != null
+          ? '${user!.dob!.day.toString().padLeft(2, '0')}/'
+                '${user.dob!.month.toString().padLeft(2, '0')}/'
+                '${user.dob!.year}'
+          : '',
     );
     final passwordController = TextEditingController();
 
@@ -619,7 +632,10 @@ class MemberManagementView extends StatelessWidget {
                         lastDate: DateTime.now(),
                       );
                       if (date != null) {
-                        dobController.text = _safeFormatDate(date);
+                        dobController.text =
+                            '${date.day.toString().padLeft(2, '0')}/'
+                            '${date.month.toString().padLeft(2, '0')}/'
+                            '${date.year}';
                       }
                     },
                   ),
@@ -716,42 +732,5 @@ class MemberManagementView extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // Safe wrapper methods to prevent RangeError
-  String _safeFormatDate(DateTime? date) {
-    if (date == null) return '';
-    try {
-      return '${date.day.toString().padLeft(2, '0')}/'
-          '${date.month.toString().padLeft(2, '0')}/'
-          '${date.year}';
-    } catch (e) {
-      return 'N/A';
-    }
-  }
-
-  Widget _safeUserCard(
-    BuildContext context,
-    UserAccount user,
-    MemberManagementController controller,
-  ) {
-    try {
-      return _buildUserCard(context, user, controller);
-    } catch (e) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.grey[300],
-            child: const Icon(Icons.person, color: Colors.grey),
-          ),
-          title: Text(
-            user.fullName.isNotEmpty ? user.fullName : 'Unknown User',
-          ),
-          subtitle: const Text('Lỗi hiển thị dữ liệu'),
-          trailing: Icon(Icons.error, color: Colors.red[300]),
-        ),
-      );
-    }
   }
 }

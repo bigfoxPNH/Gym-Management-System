@@ -588,13 +588,21 @@ class EditProfileView extends StatelessWidget {
   }
 
   ImageProvider _getImageProvider(String imageUrl) {
-    if (imageUrl.startsWith('data:image')) {
-      // Base64 image
-      final base64Data = imageUrl.split(',')[1];
-      return MemoryImage(base64Decode(base64Data));
-    } else {
-      // Network URL
+    try {
+      if (imageUrl.startsWith('data:image')) {
+        // Base64 image - safe split
+        final parts = imageUrl.split(',');
+        if (parts.length > 1) {
+          final base64Data = parts[1];
+          return MemoryImage(base64Decode(base64Data));
+        }
+      }
+      // Network URL or fallback
       return NetworkImage(imageUrl);
+    } catch (e) {
+      print('Error creating image provider: $e');
+      // Return a placeholder or default image provider
+      return const NetworkImage('');
     }
   }
 

@@ -19,47 +19,114 @@ class MemberManagementController extends GetxController {
   void onInit() {
     super.onInit();
     loadAllUsers();
-    
+
     // Listen to search query changes
     searchQuery.listen((_) => _applyFilters());
     selectedRole.listen((_) => _applyFilters());
   }
 
-  // Statistics getters
-  int get adminCount => users.where((u) => u.role == Role.admin).length;
-  int get managerCount => users.where((u) => u.role == Role.manager).length;
-  int get staffCount => users.where((u) => u.role == Role.staff).length;
-  int get memberCount => users.where((u) => u.role == Role.member).length;
+  // Statistics getters with error handling
+  int get adminCount {
+    try {
+      return users.where((u) => u.role == Role.admin).length;
+    } catch (e) {
+      print('Error calculating adminCount: $e');
+      return 0;
+    }
+  }
+
+  int get managerCount {
+    try {
+      return users.where((u) => u.role == Role.manager).length;
+    } catch (e) {
+      print('Error calculating managerCount: $e');
+      return 0;
+    }
+  }
+
+  int get staffCount {
+    try {
+      return users.where((u) => u.role == Role.staff).length;
+    } catch (e) {
+      print('Error calculating staffCount: $e');
+      return 0;
+    }
+  }
+
+  int get memberCount {
+    try {
+      return users.where((u) => u.role == Role.member).length;
+    } catch (e) {
+      print('Error calculating memberCount: $e');
+      return 0;
+    }
+  }
 
   // Load all users from Firestore
   Future<void> loadAllUsers() async {
     try {
       isLoading.value = true;
-      
+
       final querySnapshot = await _firestore
           .collection('users')
           .orderBy('fullName')
           .get();
-      
+
       users.clear();
       for (final doc in querySnapshot.docs) {
         try {
-          final user = UserAccount.fromMap({...doc.data(), 'id': doc.id});
+          final data = doc.data();
+          print('Processing user ${doc.id}');
+          print('Raw data: $data');
+
+          // Validate data before parsing
+          if (data.isEmpty) {
+            print('Empty data for user ${doc.id}');
+            continue;
+          }
+
+          // Clean problematic fields
+          if (data['avatarUrl'] != null) {
+            final avatarUrl = data['avatarUrl'].toString();
+            if (avatarUrl.contains('data:image/') || avatarUrl.length > 1000) {
+              print('Removing problematic avatarUrl for user ${doc.id}');
+              data['avatarUrl'] = null;
+            }
+          }
+
+          // Validate timestamp fields
+          final fieldsToCheck = ['dob', 'createdAt', 'updatedAt'];
+          for (final field in fieldsToCheck) {
+            if (data[field] != null) {
+              print(
+                '$field value: ${data[field]} (type: ${data[field].runtimeType})',
+              );
+              // Convert invalid timestamps
+              if (data[field] is String) {
+                final parsed = int.tryParse(data[field]);
+                if (parsed != null && parsed > 0) {
+                  data[field] = parsed;
+                } else {
+                  print('Removing invalid $field for user ${doc.id}');
+                  data[field] = null;
+                }
+              }
+            }
+          }
+
+          final user = UserAccount.fromMap({...data, 'id': doc.id});
           users.add(user);
-        } catch (e) {
+          print('Successfully parsed user ${doc.id}: ${user.fullName}');
+        } catch (e, stackTrace) {
           print('Error parsing user ${doc.id}: $e');
+          print('Stack trace: $stackTrace');
+          print('User data: ${doc.data()}');
+          // Skip this user and continue with others
+          continue;
         }
       }
-      
+
       _applyFilters(); // Apply current filters after loading
-      
-      Get.snackbar(
-        'Thành công',
-        'Đã tải ${users.length} thành viên',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF4CAF50),
-        colorText: const Color(0xFFFFFFFF),
-      );
     } catch (e) {
       print('Error loading users: $e');
       Get.snackbar(
@@ -96,8 +163,10 @@ class MemberManagementController extends GetxController {
         fullName: userData['fullName'],
         phone: userData['phoneNumber'] ?? '',
         address: userData['address'] ?? '',
-        dob: userData['dateOfBirth'] != null && userData['dateOfBirth'].isNotEmpty 
-            ? _parseDate(userData['dateOfBirth']) 
+        dob:
+            userData['dateOfBirth'] != null &&
+                userData['dateOfBirth'].isNotEmpty
+            ? _parseDate(userData['dateOfBirth'])
             : null,
         avatarUrl: '',
         role: _parseRole(userData['role']),
@@ -142,19 +211,23 @@ class MemberManagementController extends GetxController {
       // Update user document in Firestore
       final updateData = {
         'fullName': userData['fullName'],
+        'email': userData['email'], // Add email update
         'phone': userData['phoneNumber'] ?? '',
         'address': userData['address'] ?? '',
-        'dob': userData['dateOfBirth'] != null && userData['dateOfBirth'].isNotEmpty 
+        'dob':
+            userData['dateOfBirth'] != null &&
+                userData['dateOfBirth'].isNotEmpty
             ? _parseDate(userData['dateOfBirth'])?.millisecondsSinceEpoch
             : null,
         'role': userData['role'],
-        'updatedAt': Timestamp.now().millisecondsSinceEpoch,
+        'updatedAt': DateTime.now()
+            .millisecondsSinceEpoch, // Fix: Use DateTime instead of Timestamp
       };
 
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .update(updateData);
+      // Remove null values to avoid Firestore issues
+      updateData.removeWhere((key, value) => value == null);
+
+      await _firestore.collection('users').doc(userId).update(updateData);
 
       // Reload users list
       await loadAllUsers();
@@ -186,10 +259,7 @@ class MemberManagementController extends GetxController {
       isLoading.value = true;
 
       // Delete user document from Firestore
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .delete();
+      await _firestore.collection('users').doc(userId).delete();
 
       // Note: We can't delete the user from Firebase Auth here
       // because we don't have admin privileges to do so
@@ -237,11 +307,14 @@ class MemberManagementController extends GetxController {
   // Search users by name or email
   List<UserAccount> searchUsers(String query) {
     if (query.isEmpty) return users;
-    
-    return users.where((user) =>
-      user.fullName.toLowerCase().contains(query.toLowerCase()) ||
-      user.email.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+
+    return users
+        .where(
+          (user) =>
+              user.fullName.toLowerCase().contains(query.toLowerCase()) ||
+              user.email.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
   }
 
   // Filter users by role
@@ -251,23 +324,42 @@ class MemberManagementController extends GetxController {
 
   // Apply search and role filters
   void _applyFilters() {
-    List<UserAccount> filtered = users.toList();
-    
-    // Apply search filter
-    if (searchQuery.value.isNotEmpty) {
-      filtered = filtered.where((user) =>
-        user.fullName.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-        user.email.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-        (user.phone?.toLowerCase().contains(searchQuery.value.toLowerCase()) ?? false)
-      ).toList();
+    try {
+      List<UserAccount> filtered = users.toList();
+
+      // Apply search filter
+      if (searchQuery.value.isNotEmpty) {
+        filtered = filtered.where((user) {
+          try {
+            return user.fullName.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                user.email.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                (user.phone?.toLowerCase().contains(
+                      searchQuery.value.toLowerCase(),
+                    ) ??
+                    false);
+          } catch (e) {
+            print('Error filtering user ${user.id}: $e');
+            return false;
+          }
+        }).toList();
+      }
+
+      // Apply role filter
+      if (selectedRole.value != null) {
+        filtered = filtered
+            .where((user) => user.role == selectedRole.value)
+            .toList();
+      }
+
+      filteredUsers.value = filtered;
+    } catch (e) {
+      print('Error applying filters: $e');
+      filteredUsers.value = users.toList();
     }
-    
-    // Apply role filter
-    if (selectedRole.value != null) {
-      filtered = filtered.where((user) => user.role == selectedRole.value).toList();
-    }
-    
-    filteredUsers.value = filtered;
   }
 
   // Update search query
@@ -289,17 +381,22 @@ class MemberManagementController extends GetxController {
   // Helper method to parse date from string (dd/mm/yyyy)
   DateTime? _parseDate(String dateString) {
     if (dateString.isEmpty) return null;
-    
+
     try {
-      final parts = dateString.split('/');
+      final parts = dateString.trim().split('/');
       if (parts.length != 3) return null;
-      
-      final day = int.parse(parts[0]);
-      final month = int.parse(parts[1]);
-      final year = int.parse(parts[2]);
-      
+
+      final day = int.tryParse(parts[0].trim());
+      final month = int.tryParse(parts[1].trim());
+      final year = int.tryParse(parts[2].trim());
+
+      if (day == null || month == null || year == null) return null;
+      if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900)
+        return null;
+
       return DateTime(year, month, day);
     } catch (e) {
+      print('Error parsing date from string: $dateString - $e');
       return null;
     }
   }

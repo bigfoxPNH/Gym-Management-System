@@ -9,5 +9,13 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // Global error handling
+  FlutterError.onError = (FlutterErrorDetails details) {
+    print('Flutter Error: ${details.exception}');
+    if (details.exception.toString().contains('RangeError')) {
+      print('RangeError caught: ${details.stack}');
+    }
+  };
+
   runApp(const GymProApp());
 }

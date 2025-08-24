@@ -46,10 +46,19 @@ class AuthController extends GetxController {
       final firebaseService = FirebaseService();
       final account = await firebaseService.getUser(userId);
       _userAccount.value = account;
-      print(
-        'User account reloaded: ${account?.avatarUrl?.substring(0, 50)}...',
-      );
+
+      // Safe substring to avoid RangeError
+      String avatarPreview = '';
+      if (account?.avatarUrl != null && account!.avatarUrl!.isNotEmpty) {
+        final avatarUrl = account.avatarUrl!;
+        avatarPreview = avatarUrl.length > 50
+            ? '${avatarUrl.substring(0, 50)}...'
+            : avatarUrl;
+      }
+
+      print('User account reloaded: $avatarPreview');
     } catch (e) {
+      print('Error loading user account: $e');
       Get.snackbar(
         'Lỗi',
         'Không thể tải tài khoản người dùng: $e',
