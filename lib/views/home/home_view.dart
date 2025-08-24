@@ -185,13 +185,7 @@ class HomeView extends StatelessWidget {
                   subtitle: 'Xem & quản lý users',
                   color: Colors.indigo,
                   onTap: () {
-                    Get.snackbar(
-                      'Sắp Ra Mắt',
-                      'Quản lý thành viên sẽ sớm có sẵn!',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orange,
-                      colorText: Colors.white,
-                    );
+                    Get.toNamed(AppRoutes.memberManagement);
                   },
                 ),
                 _buildAdminActionCard(
