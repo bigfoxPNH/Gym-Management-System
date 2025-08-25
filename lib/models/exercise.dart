@@ -54,7 +54,7 @@ class Exercise {
   final ExerciseLevel doKho; // Độ khó
   final List<ExerciseGoal> mucTieu; // Mục tiêu
   final String moTa; // Mô tả chi tiết
-  final String? anhMinhHoa; // Link hình ảnh
+  final List<String> anhMinhHoa; // Danh sách link hình ảnh (tối đa 5 ảnh)
   final String? videoMinhHoa; // Link video
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -104,7 +104,7 @@ class Exercise {
     required this.doKho,
     required this.mucTieu,
     required this.moTa,
-    this.anhMinhHoa,
+    this.anhMinhHoa = const [],
     this.videoMinhHoa,
     required this.createdAt,
     required this.updatedAt,
@@ -145,22 +145,27 @@ class Exercise {
       tenBaiTap: map['tenBaiTap'] ?? '',
       cochinh: List<String>.from(map['cochinh'] ?? []),
       coPhu: List<String>.from(map['coPhu'] ?? []),
-      loaiBaiTap: List<String>.from(map['loaiBaiTap'] ?? []), // Now List<String>
+      loaiBaiTap: List<String>.from(
+        map['loaiBaiTap'] ?? [],
+      ), // Now List<String>
       dungCu: List<String>.from(map['dungCu'] ?? []),
       tuThe: List<String>.from(map['tuThe'] ?? []), // Now List<String>
       doKho: ExerciseLevel.values.firstWhere(
         (level) => level.name == map['doKho'],
         orElse: () => ExerciseLevel.beginner,
       ),
-      mucTieu: (map['mucTieu'] as List<dynamic>?)
-              ?.map((goalName) => ExerciseGoal.values.firstWhere(
-                    (goal) => goal.name == goalName,
-                    orElse: () => ExerciseGoal.strength,
-                  ))
+      mucTieu:
+          (map['mucTieu'] as List<dynamic>?)
+              ?.map(
+                (goalName) => ExerciseGoal.values.firstWhere(
+                  (goal) => goal.name == goalName,
+                  orElse: () => ExerciseGoal.strength,
+                ),
+              )
               .toList() ??
           [],
       moTa: map['moTa'] ?? '',
-      anhMinhHoa: map['anhMinhHoa'],
+      anhMinhHoa: _parseImageUrls(map['anhMinhHoa']),
       videoMinhHoa: map['videoMinhHoa'],
       createdAt: DateTime.fromMillisecondsSinceEpoch(
         map['createdAt'] ?? DateTime.now().millisecondsSinceEpoch,
@@ -170,6 +175,23 @@ class Exercise {
       ),
       createdBy: map['createdBy'] ?? '',
     );
+  }
+
+  // Helper method to parse image URLs from both old (String) and new (List<String>) formats
+  static List<String> _parseImageUrls(dynamic imageData) {
+    if (imageData == null) return [];
+    
+    // If it's already a List, convert to List<String>
+    if (imageData is List) {
+      return List<String>.from(imageData);
+    }
+    
+    // If it's a String (old format), put it in a List
+    if (imageData is String && imageData.isNotEmpty) {
+      return [imageData];
+    }
+    
+    return [];
   }
 
   // Copy with method for updates
@@ -184,7 +206,7 @@ class Exercise {
     ExerciseLevel? doKho,
     List<ExerciseGoal>? mucTieu,
     String? moTa,
-    String? anhMinhHoa,
+    List<String>? anhMinhHoa,
     String? videoMinhHoa,
     DateTime? createdAt,
     DateTime? updatedAt,

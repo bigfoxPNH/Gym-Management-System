@@ -19,9 +19,11 @@ class ExerciseManagementController extends GetxController {
   // Form controllers
   final TextEditingController tenBaiTapController = TextEditingController();
   final TextEditingController moTaController = TextEditingController();
-  final TextEditingController anhMinhHoaController = TextEditingController();
   final TextEditingController videoMinhHoaController = TextEditingController();
   
+  // Image URLs list (tối đa 5 ảnh)
+  final RxList<String> imageUrls = <String>[].obs;
+
   // Form state
   final RxList<String> selectedCochinh = <String>[].obs;
   final RxList<String> selectedCoPhu = <String>[].obs;
@@ -34,13 +36,32 @@ class ExerciseManagementController extends GetxController {
 
   // Predefined options
   final List<String> muscleGroups = [
-    'Ngực', 'Vai', 'Lưng', 'Bụng', 'Tay trước', 'Tay sau', 
-    'Chân trước', 'Chân sau', 'Mông', 'Bắp chân', 'Cổ', 'Cẳng tay'
+    'Ngực',
+    'Vai',
+    'Lưng',
+    'Bụng',
+    'Tay trước',
+    'Tay sau',
+    'Chân trước',
+    'Chân sau',
+    'Mông',
+    'Bắp chân',
+    'Cổ',
+    'Cẳng tay',
   ];
 
   final List<String> equipmentOptions = [
-    'Bodyweight', 'Tạ đơn', 'Tạ đòn', 'Máy tập', 'Dây kháng lực',
-    'Kettlebell', 'TRX', 'Bóng tập', 'Thảm tập', 'Xà đơn', 'Xà kép'
+    'Bodyweight',
+    'Tạ đơn',
+    'Tạ đòn',
+    'Máy tập',
+    'Dây kháng lực',
+    'Kettlebell',
+    'TRX',
+    'Bóng tập',
+    'Thảm tập',
+    'Xà đơn',
+    'Xà kép',
   ];
 
   @override
@@ -48,7 +69,7 @@ class ExerciseManagementController extends GetxController {
     super.onInit();
     loadAllExercises();
     loadStatistics();
-    
+
     // Listen to search query changes
     searchQuery.listen((_) => filterExercises());
     selectedFilter.listen((_) => filterExercises());
@@ -58,9 +79,27 @@ class ExerciseManagementController extends GetxController {
   void onClose() {
     tenBaiTapController.dispose();
     moTaController.dispose();
-    anhMinhHoaController.dispose();
     videoMinhHoaController.dispose();
     super.onClose();
+  }
+
+  // Image URLs management methods
+  void addImageUrl() {
+    if (imageUrls.length < 5) {
+      imageUrls.add('');
+    }
+  }
+
+  void removeImageUrl(int index) {
+    if (index >= 0 && index < imageUrls.length) {
+      imageUrls.removeAt(index);
+    }
+  }
+
+  void updateImageUrl(int index, String url) {
+    if (index >= 0 && index < imageUrls.length) {
+      imageUrls[index] = url;
+    }
   }
 
   // Load all exercises
@@ -100,30 +139,55 @@ class ExerciseManagementController extends GetxController {
 
     // Apply search filter
     if (searchQuery.value.isNotEmpty) {
-      filtered = filtered.where((exercise) =>
-          exercise.tenBaiTap.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-          exercise.moTa.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-          exercise.cochinh.any((muscle) => 
-              muscle.toLowerCase().contains(searchQuery.value.toLowerCase())) ||
-          exercise.dungCu.any((equipment) => 
-              equipment.toLowerCase().contains(searchQuery.value.toLowerCase())) ||
-          exercise.loaiBaiTap.any((type) => 
-              type.toLowerCase().contains(searchQuery.value.toLowerCase())) ||
-          exercise.tuThe.any((position) => 
-              position.toLowerCase().contains(searchQuery.value.toLowerCase()))
-      ).toList();
+      filtered = filtered
+          .where(
+            (exercise) =>
+                exercise.tenBaiTap.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                exercise.moTa.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                exercise.cochinh.any(
+                  (muscle) => muscle.toLowerCase().contains(
+                    searchQuery.value.toLowerCase(),
+                  ),
+                ) ||
+                exercise.dungCu.any(
+                  (equipment) => equipment.toLowerCase().contains(
+                    searchQuery.value.toLowerCase(),
+                  ),
+                ) ||
+                exercise.loaiBaiTap.any(
+                  (type) => type.toLowerCase().contains(
+                    searchQuery.value.toLowerCase(),
+                  ),
+                ) ||
+                exercise.tuThe.any(
+                  (position) => position.toLowerCase().contains(
+                    searchQuery.value.toLowerCase(),
+                  ),
+                ),
+          )
+          .toList();
     }
 
     // Apply category filter
     switch (selectedFilter.value) {
       case 'beginner':
-        filtered = filtered.where((e) => e.doKho == ExerciseLevel.beginner).toList();
+        filtered = filtered
+            .where((e) => e.doKho == ExerciseLevel.beginner)
+            .toList();
         break;
       case 'intermediate':
-        filtered = filtered.where((e) => e.doKho == ExerciseLevel.intermediate).toList();
+        filtered = filtered
+            .where((e) => e.doKho == ExerciseLevel.intermediate)
+            .toList();
         break;
       case 'advanced':
-        filtered = filtered.where((e) => e.doKho == ExerciseLevel.advanced).toList();
+        filtered = filtered
+            .where((e) => e.doKho == ExerciseLevel.advanced)
+            .toList();
         break;
       case 'push':
         filtered = filtered.where((e) => e.loaiBaiTap.contains('Đẩy')).toList();
@@ -132,16 +196,24 @@ class ExerciseManagementController extends GetxController {
         filtered = filtered.where((e) => e.loaiBaiTap.contains('Kéo')).toList();
         break;
       case 'compound':
-        filtered = filtered.where((e) => e.loaiBaiTap.contains('Compound')).toList();
+        filtered = filtered
+            .where((e) => e.loaiBaiTap.contains('Compound'))
+            .toList();
         break;
       case 'isolation':
-        filtered = filtered.where((e) => e.loaiBaiTap.contains('Isolation')).toList();
+        filtered = filtered
+            .where((e) => e.loaiBaiTap.contains('Isolation'))
+            .toList();
         break;
       case 'cardio':
-        filtered = filtered.where((e) => e.loaiBaiTap.contains('Cardio')).toList();
+        filtered = filtered
+            .where((e) => e.loaiBaiTap.contains('Cardio'))
+            .toList();
         break;
       case 'strength':
-        filtered = filtered.where((e) => e.loaiBaiTap.contains('Sức mạnh')).toList();
+        filtered = filtered
+            .where((e) => e.loaiBaiTap.contains('Sức mạnh'))
+            .toList();
         break;
     }
 
@@ -166,10 +238,10 @@ class ExerciseManagementController extends GetxController {
         doKho: selectedDoKho.value,
         mucTieu: selectedMucTieu.toList(),
         moTa: moTaController.text.trim(),
-        anhMinhHoa: anhMinhHoaController.text.trim().isEmpty 
-            ? null : anhMinhHoaController.text.trim(),
-        videoMinhHoa: videoMinhHoaController.text.trim().isEmpty 
-            ? null : videoMinhHoaController.text.trim(),
+        anhMinhHoa: imageUrls.where((url) => url.trim().isNotEmpty).toList(),
+        videoMinhHoa: videoMinhHoaController.text.trim().isEmpty
+            ? null
+            : videoMinhHoaController.text.trim(),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         createdBy: _authController.userAccount?.id ?? '',
@@ -221,10 +293,10 @@ class ExerciseManagementController extends GetxController {
         doKho: selectedDoKho.value,
         mucTieu: selectedMucTieu.toList(),
         moTa: moTaController.text.trim(),
-        anhMinhHoa: anhMinhHoaController.text.trim().isEmpty 
-            ? null : anhMinhHoaController.text.trim(),
-        videoMinhHoa: videoMinhHoaController.text.trim().isEmpty 
-            ? null : videoMinhHoaController.text.trim(),
+        anhMinhHoa: imageUrls.where((url) => url.trim().isNotEmpty).toList(),
+        videoMinhHoa: videoMinhHoaController.text.trim().isEmpty
+            ? null
+            : videoMinhHoaController.text.trim(),
         createdAt: originalExercise.createdAt,
         updatedAt: DateTime.now(),
         createdBy: originalExercise.createdBy,
@@ -291,14 +363,16 @@ class ExerciseManagementController extends GetxController {
   void loadExerciseForEdit(Exercise exercise) {
     tenBaiTapController.text = exercise.tenBaiTap;
     moTaController.text = exercise.moTa;
-    anhMinhHoaController.text = exercise.anhMinhHoa ?? '';
+    imageUrls.value = List.from(exercise.anhMinhHoa);
     videoMinhHoaController.text = exercise.videoMinhHoa ?? '';
-    
+
     selectedCochinh.value = List.from(exercise.cochinh);
     selectedCoPhu.value = List.from(exercise.coPhu);
     selectedDungCu.value = List.from(exercise.dungCu);
     selectedMucTieu.value = List.from(exercise.mucTieu);
-    selectedLoaiBaiTap.value = List.from(exercise.loaiBaiTap); // Updated for List<String>
+    selectedLoaiBaiTap.value = List.from(
+      exercise.loaiBaiTap,
+    ); // Updated for List<String>
     selectedTuThe.value = List.from(exercise.tuThe); // Updated for List<String>
     selectedDoKho.value = exercise.doKho;
   }
@@ -307,9 +381,9 @@ class ExerciseManagementController extends GetxController {
   void clearForm() {
     tenBaiTapController.clear();
     moTaController.clear();
-    anhMinhHoaController.clear();
+    imageUrls.clear();
     videoMinhHoaController.clear();
-    
+
     selectedCochinh.clear();
     selectedCoPhu.clear();
     selectedDungCu.clear();

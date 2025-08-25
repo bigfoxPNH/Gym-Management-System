@@ -9,4 +9,5 @@ abstract class AppRoutes {
   static const settings = '/settings';
   static const memberManagement = '/member-management';
   static const exerciseManagement = '/admin/exercise-management';
+  static const exercises = '/exercises';
 }

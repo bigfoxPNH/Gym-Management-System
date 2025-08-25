@@ -223,15 +223,11 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.fitness_center,
-                title: 'Bắt Đầu Tập',
-                subtitle: 'Bắt đầu buổi tập',
+                title: 'Kho Bài Tập',
+                subtitle: 'Xem bài tập',
                 color: Colors.orange,
                 onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Tính năng tập luyện sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.toNamed('/exercises');
                 },
               ),
               _buildActionCard(

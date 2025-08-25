@@ -15,10 +15,7 @@ class ExerciseManagementView extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Quản Lý Bài Tập',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         elevation: 0,
         backgroundColor: Colors.blue[600],
@@ -35,14 +32,12 @@ class ExerciseManagementView extends StatelessWidget {
         children: [
           // Statistics Bar
           _buildStatisticsBar(controller),
-          
+
           // Search and Filter Section
           _buildSearchAndFilterSection(controller),
-          
+
           // Exercise List
-          Expanded(
-            child: _buildExerciseList(controller),
-          ),
+          Expanded(child: _buildExerciseList(controller)),
         ],
       ),
     );
@@ -58,49 +53,56 @@ class ExerciseManagementView extends StatelessWidget {
           end: Alignment.centerRight,
         ),
       ),
-      child: Obx(() => Row(
-        children: [
-          Expanded(
-            child: _buildStatCard(
-              'Tổng số',
-              controller.totalExercises.toString(),
-              Icons.fitness_center,
-              Colors.white,
+      child: Obx(
+        () => Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Tổng số',
+                controller.totalExercises.toString(),
+                Icons.fitness_center,
+                Colors.white,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Cơ bản',
-              controller.beginnerCount.toString(),
-              Icons.star_border,
-              Colors.green[100]!,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Cơ bản',
+                controller.beginnerCount.toString(),
+                Icons.star_border,
+                Colors.green[100]!,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Trung cấp',
-              controller.intermediateCount.toString(),
-              Icons.star_half,
-              Colors.orange[100]!,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Trung cấp',
+                controller.intermediateCount.toString(),
+                Icons.star_half,
+                Colors.orange[100]!,
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildStatCard(
-              'Nâng cao',
-              controller.advancedCount.toString(),
-              Icons.star,
-              Colors.red[100]!,
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Nâng cao',
+                controller.advancedCount.toString(),
+                Icons.star,
+                Colors.red[100]!,
+              ),
             ),
-          ),
-        ],
-      )),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
@@ -122,10 +124,7 @@ class ExerciseManagementView extends StatelessWidget {
           ),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -157,40 +156,46 @@ class ExerciseManagementView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Filter Chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Obx(() => Row(
-              children: [
-                _buildFilterChip(controller, 'all', 'Tất cả'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'beginner', 'Cơ bản'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'intermediate', 'Trung cấp'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'advanced', 'Nâng cao'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'compound', 'Compound'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'isolation', 'Isolation'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'push', 'Đẩy'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'pull', 'Kéo'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'cardio', 'Cardio'),
-                const SizedBox(width: 8),
-                _buildFilterChip(controller, 'strength', 'Sức mạnh'),
-              ],
-            )),
+            child: Obx(
+              () => Row(
+                children: [
+                  _buildFilterChip(controller, 'all', 'Tất cả'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'beginner', 'Cơ bản'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'intermediate', 'Trung cấp'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'advanced', 'Nâng cao'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'compound', 'Compound'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'isolation', 'Isolation'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'push', 'Đẩy'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'pull', 'Kéo'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'cardio', 'Cardio'),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(controller, 'strength', 'Sức mạnh'),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilterChip(ExerciseManagementController controller, String value, String label) {
+  Widget _buildFilterChip(
+    ExerciseManagementController controller,
+    String value,
+    String label,
+  ) {
     final isSelected = controller.selectedFilter.value == value;
     return FilterChip(
       label: Text(
@@ -213,9 +218,7 @@ class ExerciseManagementView extends StatelessWidget {
   Widget _buildExerciseList(ExerciseManagementController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
 
       if (controller.filteredExercises.isEmpty) {
@@ -240,9 +243,7 @@ class ExerciseManagementView extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Nhấn nút + để thêm bài tập đầu tiên',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                ),
+                style: TextStyle(color: Colors.grey[500]),
               ),
             ],
           ),
@@ -260,13 +261,15 @@ class ExerciseManagementView extends StatelessWidget {
     });
   }
 
-  Widget _buildExerciseCard(BuildContext context, Exercise exercise, ExerciseManagementController controller) {
+  Widget _buildExerciseCard(
+    BuildContext context,
+    Exercise exercise,
+    ExerciseManagementController controller,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => _showExerciseDetailDialog(context, exercise),
@@ -304,10 +307,18 @@ class ExerciseManagementView extends StatelessWidget {
                     onSelected: (value) {
                       switch (value) {
                         case 'edit':
-                          _showEditExerciseDialog(context, controller, exercise);
+                          _showEditExerciseDialog(
+                            context,
+                            controller,
+                            exercise,
+                          );
                           break;
                         case 'delete':
-                          _showDeleteConfirmDialog(context, controller, exercise);
+                          _showDeleteConfirmDialog(
+                            context,
+                            controller,
+                            exercise,
+                          );
                           break;
                       }
                     },
@@ -336,85 +347,93 @@ class ExerciseManagementView extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Muscle Groups
               if (exercise.cochinh.isNotEmpty) ...[
                 Row(
                   children: [
-                    Icon(Icons.accessibility_new, size: 16, color: Colors.grey[500]),
+                    Icon(
+                      Icons.accessibility_new,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Nhóm cơ: ${exercise.cochinh.join(', ')}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
               ],
-              
+
               // Equipment
               if (exercise.dungCu.isNotEmpty) ...[
                 Row(
                   children: [
-                    Icon(Icons.fitness_center, size: 16, color: Colors.grey[500]),
+                    Icon(
+                      Icons.fitness_center,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Dụng cụ: ${exercise.dungCu.join(', ')}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
               ],
-              
+
               // Description preview
               if (exercise.moTa.isNotEmpty) ...[
                 Text(
-                  exercise.moTa.length > 100 
+                  exercise.moTa.length > 100
                       ? '${exercise.moTa.substring(0, 100)}...'
                       : exercise.moTa,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 12),
               ],
-              
+
               // Video and Image indicators
               Row(
                 children: [
-                  if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty) ...[
-                    Icon(Icons.play_circle_filled, size: 16, color: Colors.red[600]),
+                  if (exercise.videoMinhHoa != null &&
+                      exercise.videoMinhHoa!.isNotEmpty) ...[
+                    Icon(
+                      Icons.play_circle_filled,
+                      size: 16,
+                      color: Colors.red[600],
+                    ),
                     const SizedBox(width: 4),
-                    Text('Video', style: TextStyle(fontSize: 12, color: Colors.red[600])),
+                    Text(
+                      'Video',
+                      style: TextStyle(fontSize: 12, color: Colors.red[600]),
+                    ),
                     const SizedBox(width: 12),
                   ],
-                  if (exercise.anhMinhHoa != null && exercise.anhMinhHoa!.isNotEmpty) ...[
+                  if (exercise.anhMinhHoa != null &&
+                      exercise.anhMinhHoa!.isNotEmpty) ...[
                     Icon(Icons.image, size: 16, color: Colors.green[600]),
                     const SizedBox(width: 4),
-                    Text('Hình ảnh', style: TextStyle(fontSize: 12, color: Colors.green[600])),
+                    Text(
+                      'Hình ảnh',
+                      style: TextStyle(fontSize: 12, color: Colors.green[600]),
+                    ),
                     const SizedBox(width: 12),
                   ],
                   const Spacer(),
                   Text(
                     DateFormat('dd/MM/yyyy').format(exercise.createdAt),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -478,7 +497,7 @@ class ExerciseManagementView extends StatelessWidget {
 
   Widget _buildMultiTypeChips(List<String> types) {
     if (types.isEmpty) return const Text('Không có');
-    
+
     return Wrap(
       spacing: 6,
       runSpacing: 4,
@@ -505,7 +524,7 @@ class ExerciseManagementView extends StatelessWidget {
 
   Widget _buildPositionChips(List<String> positions) {
     if (positions.isEmpty) return const Text('Không có');
-    
+
     return Wrap(
       spacing: 6,
       runSpacing: 4,
@@ -530,7 +549,10 @@ class ExerciseManagementView extends StatelessWidget {
     );
   }
 
-  void _showCreateExerciseDialog(BuildContext context, ExerciseManagementController controller) {
+  void _showCreateExerciseDialog(
+    BuildContext context,
+    ExerciseManagementController controller,
+  ) {
     controller.clearForm();
     Get.dialog(
       Dialog(
@@ -576,7 +598,7 @@ class ExerciseManagementView extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Form content
               Flexible(
                 child: SingleChildScrollView(
@@ -584,7 +606,7 @@ class ExerciseManagementView extends StatelessWidget {
                   child: _buildExerciseForm(controller, false),
                 ),
               ),
-              
+
               // Action buttons
               Container(
                 padding: const EdgeInsets.all(20),
@@ -601,25 +623,29 @@ class ExerciseManagementView extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value
-                            ? null
-                            : () => controller.createExercise(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[600],
-                          foregroundColor: Colors.white,
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () => controller.createExercise(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue[600],
+                            foregroundColor: Colors.white,
+                          ),
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Tạo Bài Tập'),
                         ),
-                        child: controller.isLoading.value
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text('Tạo Bài Tập'),
-                      )),
+                      ),
                     ),
                   ],
                 ),
@@ -632,7 +658,11 @@ class ExerciseManagementView extends StatelessWidget {
     );
   }
 
-  void _showEditExerciseDialog(BuildContext context, ExerciseManagementController controller, Exercise exercise) {
+  void _showEditExerciseDialog(
+    BuildContext context,
+    ExerciseManagementController controller,
+    Exercise exercise,
+  ) {
     controller.loadExerciseForEdit(exercise);
     Get.dialog(
       Dialog(
@@ -678,7 +708,7 @@ class ExerciseManagementView extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Form content
               Flexible(
                 child: SingleChildScrollView(
@@ -686,7 +716,7 @@ class ExerciseManagementView extends StatelessWidget {
                   child: _buildExerciseForm(controller, true),
                 ),
               ),
-              
+
               // Action buttons
               Container(
                 padding: const EdgeInsets.all(20),
@@ -703,25 +733,29 @@ class ExerciseManagementView extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Obx(() => ElevatedButton(
-                        onPressed: controller.isLoading.value
-                            ? null
-                            : () => controller.updateExercise(exercise.id),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange[600],
-                          foregroundColor: Colors.white,
+                      child: Obx(
+                        () => ElevatedButton(
+                          onPressed: controller.isLoading.value
+                              ? null
+                              : () => controller.updateExercise(exercise.id),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange[600],
+                            foregroundColor: Colors.white,
+                          ),
+                          child: controller.isLoading.value
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text('Cập Nhật'),
                         ),
-                        child: controller.isLoading.value
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text('Cập Nhật'),
-                      )),
+                      ),
                     ),
                   ],
                 ),
@@ -734,7 +768,10 @@ class ExerciseManagementView extends StatelessWidget {
     );
   }
 
-  Widget _buildExerciseForm(ExerciseManagementController controller, bool isEdit) {
+  Widget _buildExerciseForm(
+    ExerciseManagementController controller,
+    bool isEdit,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -748,9 +785,7 @@ class ExerciseManagementView extends StatelessWidget {
           controller: controller.tenBaiTapController,
           decoration: InputDecoration(
             hintText: 'Ví dụ: Hít đất cơ bản',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
             fillColor: Colors.grey[50],
           ),
@@ -763,25 +798,27 @@ class ExerciseManagementView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: controller.muscleGroups.map((muscle) {
-            final isSelected = controller.selectedCochinh.contains(muscle);
-            return FilterChip(
-              label: Text(muscle),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  controller.selectedCochinh.add(muscle);
-                } else {
-                  controller.selectedCochinh.remove(muscle);
-                }
-              },
-              selectedColor: Colors.blue[100],
-            );
-          }).toList(),
-        )),
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: controller.muscleGroups.map((muscle) {
+              final isSelected = controller.selectedCochinh.contains(muscle);
+              return FilterChip(
+                label: Text(muscle),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    controller.selectedCochinh.add(muscle);
+                  } else {
+                    controller.selectedCochinh.remove(muscle);
+                  }
+                },
+                selectedColor: Colors.blue[100],
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Secondary Muscles
@@ -790,25 +827,27 @@ class ExerciseManagementView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: controller.muscleGroups.map((muscle) {
-            final isSelected = controller.selectedCoPhu.contains(muscle);
-            return FilterChip(
-              label: Text(muscle),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  controller.selectedCoPhu.add(muscle);
-                } else {
-                  controller.selectedCoPhu.remove(muscle);
-                }
-              },
-              selectedColor: Colors.green[100],
-            );
-          }).toList(),
-        )),
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: controller.muscleGroups.map((muscle) {
+              final isSelected = controller.selectedCoPhu.contains(muscle);
+              return FilterChip(
+                label: Text(muscle),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    controller.selectedCoPhu.add(muscle);
+                  } else {
+                    controller.selectedCoPhu.remove(muscle);
+                  }
+                },
+                selectedColor: Colors.green[100],
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Exercise Type
@@ -817,137 +856,132 @@ class ExerciseManagementView extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: Exercise.loaiBaiTapOptions.map((loai) {
-            final isSelected = controller.selectedLoaiBaiTap.contains(loai);
-            return FilterChip(
-              label: Text(loai),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  if (!controller.selectedLoaiBaiTap.contains(loai)) {
-                    controller.selectedLoaiBaiTap.add(loai);
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: Exercise.loaiBaiTapOptions.map((loai) {
+              final isSelected = controller.selectedLoaiBaiTap.contains(loai);
+              return FilterChip(
+                label: Text(loai),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    if (!controller.selectedLoaiBaiTap.contains(loai)) {
+                      controller.selectedLoaiBaiTap.add(loai);
+                    }
+                  } else {
+                    controller.selectedLoaiBaiTap.remove(loai);
                   }
-                } else {
-                  controller.selectedLoaiBaiTap.remove(loai);
-                }
-              },
-              selectedColor: Colors.blue.shade100,
-              checkmarkColor: Colors.blue.shade600,
-            );
-          }).toList(),
-        )),
+                },
+                selectedColor: Colors.blue.shade100,
+                checkmarkColor: Colors.blue.shade600,
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Equipment
-        const Text(
-          'Dụng cụ *',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        const Text('Dụng cụ *', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: controller.equipmentOptions.map((equipment) {
-            final isSelected = controller.selectedDungCu.contains(equipment);
-            return FilterChip(
-              label: Text(equipment),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  controller.selectedDungCu.add(equipment);
-                } else {
-                  controller.selectedDungCu.remove(equipment);
-                }
-              },
-              selectedColor: Colors.purple[100],
-            );
-          }).toList(),
-        )),
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: controller.equipmentOptions.map((equipment) {
+              final isSelected = controller.selectedDungCu.contains(equipment);
+              return FilterChip(
+                label: Text(equipment),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    controller.selectedDungCu.add(equipment);
+                  } else {
+                    controller.selectedDungCu.remove(equipment);
+                  }
+                },
+                selectedColor: Colors.purple[100],
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Position
-        const Text(
-          'Tư thế *',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        const Text('Tư thế *', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: Exercise.tuTheOptions.map((tuThe) {
-            final isSelected = controller.selectedTuThe.contains(tuThe);
-            return FilterChip(
-              label: Text(tuThe),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  if (!controller.selectedTuThe.contains(tuThe)) {
-                    controller.selectedTuThe.add(tuThe);
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: Exercise.tuTheOptions.map((tuThe) {
+              final isSelected = controller.selectedTuThe.contains(tuThe);
+              return FilterChip(
+                label: Text(tuThe),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    if (!controller.selectedTuThe.contains(tuThe)) {
+                      controller.selectedTuThe.add(tuThe);
+                    }
+                  } else {
+                    controller.selectedTuThe.remove(tuThe);
                   }
-                } else {
-                  controller.selectedTuThe.remove(tuThe);
-                }
-              },
-              selectedColor: Colors.green.shade100,
-              checkmarkColor: Colors.green.shade600,
-            );
-          }).toList(),
-        )),
+                },
+                selectedColor: Colors.green.shade100,
+                checkmarkColor: Colors.green.shade600,
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Difficulty Level
-        const Text(
-          'Độ khó *',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        const Text('Độ khó *', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Obx(() => DropdownButtonFormField<ExerciseLevel>(
-          value: controller.selectedDoKho.value,
-          onChanged: (value) => controller.selectedDoKho.value = value!,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+        Obx(
+          () => DropdownButtonFormField<ExerciseLevel>(
+            value: controller.selectedDoKho.value,
+            onChanged: (value) => controller.selectedDoKho.value = value!,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
             ),
-            filled: true,
-            fillColor: Colors.grey[50],
+            items: ExerciseLevel.values.map((level) {
+              return DropdownMenuItem(value: level, child: Text(level.label));
+            }).toList(),
           ),
-          items: ExerciseLevel.values.map((level) {
-            return DropdownMenuItem(
-              value: level,
-              child: Text(level.label),
-            );
-          }).toList(),
-        )),
+        ),
         const SizedBox(height: 16),
 
         // Goals
-        const Text(
-          'Mục tiêu *',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        const Text('Mục tiêu *', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
-        Obx(() => Wrap(
-          spacing: 8,
-          runSpacing: 4,
-          children: ExerciseGoal.values.map((goal) {
-            final isSelected = controller.selectedMucTieu.contains(goal);
-            return FilterChip(
-              label: Text(goal.label),
-              selected: isSelected,
-              onSelected: (selected) {
-                if (selected) {
-                  controller.selectedMucTieu.add(goal);
-                } else {
-                  controller.selectedMucTieu.remove(goal);
-                }
-              },
-              selectedColor: Colors.teal[100],
-            );
-          }).toList(),
-        )),
+        Obx(
+          () => Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            children: ExerciseGoal.values.map((goal) {
+              final isSelected = controller.selectedMucTieu.contains(goal);
+              return FilterChip(
+                label: Text(goal.label),
+                selected: isSelected,
+                onSelected: (selected) {
+                  if (selected) {
+                    controller.selectedMucTieu.add(goal);
+                  } else {
+                    controller.selectedMucTieu.remove(goal);
+                  }
+                },
+                selectedColor: Colors.teal[100],
+              );
+            }).toList(),
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Description
@@ -960,34 +994,22 @@ class ExerciseManagementView extends StatelessWidget {
           controller: controller.moTaController,
           maxLines: 5,
           decoration: InputDecoration(
-            hintText: 'Mô tả cách thực hiện, lưu ý kỹ thuật, lỗi sai thường gặp...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            hintText:
+                'Mô tả cách thực hiện, lưu ý kỹ thuật, lỗi sai thường gặp...',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
             fillColor: Colors.grey[50],
           ),
         ),
         const SizedBox(height: 16),
 
-        // Image URL
+        // Image URLs (tối đa 5 ảnh)
         const Text(
-          'Link hình ảnh minh họa',
+          'Hình ảnh minh họa (tối đa 5 ảnh)',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        TextField(
-          controller: controller.anhMinhHoaController,
-          decoration: InputDecoration(
-            hintText: 'https://example.com/image.jpg',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            prefixIcon: const Icon(Icons.image),
-          ),
-        ),
+        _buildImageUrlsSection(controller),
         const SizedBox(height: 16),
 
         // Video URL
@@ -1000,9 +1022,7 @@ class ExerciseManagementView extends StatelessWidget {
           controller: controller.videoMinhHoaController,
           decoration: InputDecoration(
             hintText: 'https://youtube.com/watch?v=...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
             fillColor: Colors.grey[50],
             prefixIcon: const Icon(Icons.video_library),
@@ -1059,7 +1079,7 @@ class ExerciseManagementView extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Content
               Flexible(
                 child: SingleChildScrollView(
@@ -1130,10 +1150,7 @@ class ExerciseManagementView extends StatelessWidget {
         // Description
         const Text(
           'Mô tả chi tiết',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Container(
@@ -1152,13 +1169,11 @@ class ExerciseManagementView extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Media
-        if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty) ...[
+        if (exercise.videoMinhHoa != null &&
+            exercise.videoMinhHoa!.isNotEmpty) ...[
           const Text(
             'Video minh họa',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1170,15 +1185,16 @@ class ExerciseManagementView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.play_circle_filled, color: Colors.red[600], size: 20),
+                Icon(
+                  Icons.play_circle_filled,
+                  color: Colors.red[600],
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     exercise.videoMinhHoa!,
-                    style: TextStyle(
-                      color: Colors.red[700],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.red[700], fontSize: 12),
                   ),
                 ),
               ],
@@ -1190,10 +1206,7 @@ class ExerciseManagementView extends StatelessWidget {
         if (exercise.anhMinhHoa != null && exercise.anhMinhHoa!.isNotEmpty) ...[
           const Text(
             'Hình ảnh minh họa',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Container(
@@ -1209,11 +1222,8 @@ class ExerciseManagementView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    exercise.anhMinhHoa!,
-                    style: TextStyle(
-                      color: Colors.green[700],
-                      fontSize: 12,
-                    ),
+                    exercise.anhMinhHoa.isNotEmpty ? exercise.anhMinhHoa.first : 'Chưa có ảnh',
+                    style: TextStyle(color: Colors.green[700], fontSize: 12),
                   ),
                 ),
               ],
@@ -1235,10 +1245,7 @@ class ExerciseManagementView extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'Tạo lúc: ${DateFormat('dd/MM/yyyy HH:mm').format(exercise.createdAt)}',
-                style: TextStyle(
-                  color: Colors.blue[700],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.blue[700], fontSize: 12),
               ),
             ],
           ),
@@ -1268,10 +1275,7 @@ class ExerciseManagementView extends StatelessWidget {
                 ),
                 Text(
                   content,
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
                 ),
               ],
             ),
@@ -1281,16 +1285,19 @@ class ExerciseManagementView extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmDialog(BuildContext context, ExerciseManagementController controller, Exercise exercise) {
+  void _showDeleteConfirmDialog(
+    BuildContext context,
+    ExerciseManagementController controller,
+    Exercise exercise,
+  ) {
     Get.dialog(
       AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa bài tập "${exercise.tenBaiTap}"?'),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa bài tập "${exercise.tenBaiTap}"?',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Hủy'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -1301,6 +1308,133 @@ class ExerciseManagementView extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
             child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Method to build image URLs section
+  Widget _buildImageUrlsSection(ExerciseManagementController controller) {
+    return Obx(() => Column(
+      children: [
+        // Display existing image URLs
+        ...controller.imageUrls.asMap().entries.map((entry) {
+          int index = entry.key;
+          String url = entry.value;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.blue[100],
+                child: Text('${index + 1}'),
+              ),
+              title: Text(
+                url.isNotEmpty ? url : 'Chưa có URL',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: url.isNotEmpty ? Colors.black87 : Colors.grey,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 18),
+                    onPressed: () => _showEditImageUrlDialog(controller, index),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, size: 18, color: Colors.red),
+                    onPressed: () => controller.removeImageUrl(index),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+
+        // Add new image button (if less than 5 images)
+        if (controller.imageUrls.length < 5)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 8),
+            child: OutlinedButton.icon(
+              onPressed: () => controller.addImageUrl(),
+              icon: const Icon(Icons.add_photo_alternate),
+              label: Text('Thêm ảnh (${controller.imageUrls.length}/5)'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+      ],
+    ));
+  }
+
+  // Dialog to edit image URL
+  void _showEditImageUrlDialog(ExerciseManagementController controller, int index) {
+    final urlController = TextEditingController(text: controller.imageUrls[index]);
+    
+    Get.dialog(
+      AlertDialog(
+        title: Text('Chỉnh sửa ảnh ${index + 1}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: urlController,
+              decoration: InputDecoration(
+                labelText: 'URL hình ảnh',
+                hintText: 'https://example.com/image.jpg',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                prefixIcon: const Icon(Icons.image),
+              ),
+              maxLines: 3,
+              minLines: 1,
+            ),
+            const SizedBox(height: 16),
+            // Preview image if URL is valid
+            if (urlController.text.isNotEmpty)
+              Container(
+                height: 100,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    urlController.text,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(Icons.broken_image, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.updateImageUrl(index, urlController.text.trim());
+              Get.back();
+            },
+            child: const Text('Lưu'),
           ),
         ],
       ),
