@@ -1222,7 +1222,9 @@ class ExerciseManagementView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    exercise.anhMinhHoa.isNotEmpty ? exercise.anhMinhHoa.first : 'Chưa có ảnh',
+                    exercise.anhMinhHoa.isNotEmpty
+                        ? exercise.anhMinhHoa.first
+                        : 'Chưa có ảnh',
                     style: TextStyle(color: Colors.green[700], fontSize: 12),
                   ),
                 ),
@@ -1316,71 +1318,83 @@ class ExerciseManagementView extends StatelessWidget {
 
   // Method to build image URLs section
   Widget _buildImageUrlsSection(ExerciseManagementController controller) {
-    return Obx(() => Column(
-      children: [
-        // Display existing image URLs
-        ...controller.imageUrls.asMap().entries.map((entry) {
-          int index = entry.key;
-          String url = entry.value;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.blue[100],
-                child: Text('${index + 1}'),
+    return Obx(
+      () => Column(
+        children: [
+          // Display existing image URLs
+          ...controller.imageUrls.asMap().entries.map((entry) {
+            int index = entry.key;
+            String url = entry.value;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!),
+                borderRadius: BorderRadius.circular(8),
               ),
-              title: Text(
-                url.isNotEmpty ? url : 'Chưa có URL',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: url.isNotEmpty ? Colors.black87 : Colors.grey,
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blue[100],
+                  child: Text('${index + 1}'),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, size: 18),
-                    onPressed: () => _showEditImageUrlDialog(controller, index),
+                title: Text(
+                  url.isNotEmpty ? url : 'Chưa có URL',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: url.isNotEmpty ? Colors.black87 : Colors.grey,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, size: 18, color: Colors.red),
-                    onPressed: () => controller.removeImageUrl(index),
-                  ),
-                ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 18),
+                      onPressed: () =>
+                          _showEditImageUrlDialog(controller, index),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        size: 18,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => controller.removeImageUrl(index),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
 
-        // Add new image button (if less than 5 images)
-        if (controller.imageUrls.length < 5)
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 8),
-            child: OutlinedButton.icon(
-              onPressed: () => controller.addImageUrl(),
-              icon: const Icon(Icons.add_photo_alternate),
-              label: Text('Thêm ảnh (${controller.imageUrls.length}/5)'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+          // Add new image button (if less than 5 images)
+          if (controller.imageUrls.length < 5)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(top: 8),
+              child: OutlinedButton.icon(
+                onPressed: () => controller.addImageUrl(),
+                icon: const Icon(Icons.add_photo_alternate),
+                label: Text('Thêm ảnh (${controller.imageUrls.length}/5)'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             ),
-          ),
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
   // Dialog to edit image URL
-  void _showEditImageUrlDialog(ExerciseManagementController controller, int index) {
-    final urlController = TextEditingController(text: controller.imageUrls[index]);
-    
+  void _showEditImageUrlDialog(
+    ExerciseManagementController controller,
+    int index,
+  ) {
+    final urlController = TextEditingController(
+      text: controller.imageUrls[index],
+    );
+
     Get.dialog(
       AlertDialog(
         title: Text('Chỉnh sửa ảnh ${index + 1}'),
@@ -1392,7 +1406,9 @@ class ExerciseManagementView extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'URL hình ảnh',
                 hintText: 'https://example.com/image.jpg',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 prefixIcon: const Icon(Icons.image),
               ),
               maxLines: 3,
@@ -1425,10 +1441,7 @@ class ExerciseManagementView extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Hủy'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               controller.updateImageUrl(index, urlController.text.trim());

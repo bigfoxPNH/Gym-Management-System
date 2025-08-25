@@ -180,17 +180,17 @@ class Exercise {
   // Helper method to parse image URLs from both old (String) and new (List<String>) formats
   static List<String> _parseImageUrls(dynamic imageData) {
     if (imageData == null) return [];
-    
+
     // If it's already a List, convert to List<String>
     if (imageData is List) {
       return List<String>.from(imageData);
     }
-    
+
     // If it's a String (old format), put it in a List
     if (imageData is String && imageData.isNotEmpty) {
       return [imageData];
     }
-    
+
     return [];
   }
 

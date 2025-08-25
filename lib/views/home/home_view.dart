@@ -159,17 +159,11 @@ class HomeView extends StatelessWidget {
                 _buildAdminActionCard(
                   context,
                   icon: Icons.card_membership,
-                  title: 'Quản Lý Gói Tập',
+                  title: 'Quản Lý Thẻ Tập',
                   subtitle: 'Ngày, tháng, năm...',
                   color: Colors.deepPurple,
                   onTap: () {
-                    Get.snackbar(
-                      'Sắp Ra Mắt',
-                      'Quản lý gói tập sẽ sớm có sẵn!',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orange,
-                      colorText: Colors.white,
-                    );
+                    Get.toNamed('/admin/membership-card-management');
                   },
                 ),
                 _buildAdminActionCard(

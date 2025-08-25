@@ -161,12 +161,8 @@ class ExerciseService {
         'advanced': exercises
             .where((e) => e.doKho == ExerciseLevel.advanced)
             .length,
-        'push': exercises
-            .where((e) => e.loaiBaiTap.contains('Đẩy'))
-            .length,
-        'pull': exercises
-            .where((e) => e.loaiBaiTap.contains('Kéo'))
-            .length,
+        'push': exercises.where((e) => e.loaiBaiTap.contains('Đẩy')).length,
+        'pull': exercises.where((e) => e.loaiBaiTap.contains('Kéo')).length,
         'compound': exercises
             .where((e) => e.loaiBaiTap.contains('Compound'))
             .length,

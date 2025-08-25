@@ -9,6 +9,7 @@ import '../views/settings/privacy_policy_view.dart';
 import '../views/settings/settings_view.dart';
 import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
+import '../views/admin/membership_card_management_view.dart';
 import '../views/exercise/exercise_list_view.dart';
 import '../controllers/auth_controller.dart';
 import 'app_routes.dart';
@@ -33,6 +34,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.exerciseManagement,
       page: () => const ExerciseManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.membershipCardManagement,
+      page: () => const MembershipCardManagementView(),
     ),
     GetPage(name: AppRoutes.exercises, page: () => const ExerciseListView()),
   ];

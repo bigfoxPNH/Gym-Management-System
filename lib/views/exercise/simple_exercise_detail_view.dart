@@ -5,7 +5,8 @@ import '../../models/exercise.dart';
 class SimpleExerciseDetailView extends StatelessWidget {
   final Exercise exercise;
 
-  const SimpleExerciseDetailView({Key? key, required this.exercise}) : super(key: key);
+  const SimpleExerciseDetailView({Key? key, required this.exercise})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +30,24 @@ class SimpleExerciseDetailView extends StatelessWidget {
                 ),
                 child: exercise.anhMinhHoa.isNotEmpty
                     ? Image.network(
-                        exercise.anhMinhHoa.first, // Lấy ảnh đầu tiên làm header
+                        exercise
+                            .anhMinhHoa
+                            .first, // Lấy ảnh đầu tiên làm header
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildPlaceholderImage(),
                       )
                     : _buildPlaceholderImage(),
               ),
             ),
             actions: [
-              if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty)
+              if (exercise.videoMinhHoa != null &&
+                  exercise.videoMinhHoa!.isNotEmpty)
                 Container(
                   margin: const EdgeInsets.only(right: 8),
                   child: IconButton(
-                    onPressed: () => _launchVideo(exercise.videoMinhHoa!, context),
+                    onPressed: () =>
+                        _launchVideo(exercise.videoMinhHoa!, context),
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -80,9 +86,13 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     children: [
                       _buildLevelChip(exercise.doKho.label),
                       const SizedBox(width: 12),
-                      if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty)
+                      if (exercise.videoMinhHoa != null &&
+                          exercise.videoMinhHoa!.isNotEmpty)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.red.shade50,
                             borderRadius: BorderRadius.circular(12),
@@ -91,7 +101,11 @@ class SimpleExerciseDetailView extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.videocam, size: 14, color: Colors.red.shade600),
+                              Icon(
+                                Icons.videocam,
+                                size: 14,
+                                color: Colors.red.shade600,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Video hướng dẫn',
@@ -140,19 +154,26 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.loaiBaiTap.map((type) => _buildTypeChip(type)).toList(),
+                      children: exercise.loaiBaiTap
+                          .map((type) => _buildTypeChip(type))
+                          .toList(),
                     ),
                     const SizedBox(height: 20),
                   ],
 
                   // Muscle Groups
                   if (exercise.cochinh.isNotEmpty) ...[
-                    _buildSectionHeader('Nhóm cơ chính', Icons.accessibility_new),
+                    _buildSectionHeader(
+                      'Nhóm cơ chính',
+                      Icons.accessibility_new,
+                    ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.cochinh.map((muscle) => _buildMuscleChip(muscle)).toList(),
+                      children: exercise.cochinh
+                          .map((muscle) => _buildMuscleChip(muscle))
+                          .toList(),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -164,11 +185,13 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.coPhu.map((muscle) => _buildMuscleChip(muscle)).toList(),
+                      children: exercise.coPhu
+                          .map((muscle) => _buildMuscleChip(muscle))
+                          .toList(),
                     ),
                     const SizedBox(height: 20),
                   ],
-                  
+
                   // Equipment
                   if (exercise.dungCu.isNotEmpty) ...[
                     _buildSectionHeader('Dụng cụ', Icons.fitness_center),
@@ -176,11 +199,13 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.dungCu.map((equipment) => _buildEquipmentChip(equipment)).toList(),
+                      children: exercise.dungCu
+                          .map((equipment) => _buildEquipmentChip(equipment))
+                          .toList(),
                     ),
                     const SizedBox(height: 20),
                   ],
-                  
+
                   // Positions
                   if (exercise.tuThe.isNotEmpty) ...[
                     _buildSectionHeader('Tư thế', Icons.self_improvement),
@@ -188,7 +213,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.tuThe.map((position) => _buildPositionChip(position)).toList(),
+                      children: exercise.tuThe
+                          .map((position) => _buildPositionChip(position))
+                          .toList(),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -200,16 +227,19 @@ class SimpleExerciseDetailView extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: exercise.mucTieu.map((goal) => _buildGoalChip(goal.label)).toList(),
+                      children: exercise.mucTieu
+                          .map((goal) => _buildGoalChip(goal.label))
+                          .toList(),
                     ),
                     const SizedBox(height: 24),
                   ],
 
                   // Video Section
-                  if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty) ...[
+                  if (exercise.videoMinhHoa != null &&
+                      exercise.videoMinhHoa!.isNotEmpty) ...[
                     _buildSectionHeader('Video hướng dẫn', Icons.play_circle),
                     const SizedBox(height: 12),
-                    
+
                     Container(
                       height: 200,
                       decoration: BoxDecoration(
@@ -227,9 +257,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
                         child: _buildVideoThumbnail(context),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Video actions
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -237,34 +267,40 @@ class SimpleExerciseDetailView extends StatelessWidget {
                         _buildVideoAction(
                           icon: Icons.play_arrow,
                           label: 'Xem video',
-                          onTap: () => _launchVideo(exercise.videoMinhHoa!, context),
+                          onTap: () =>
+                              _launchVideo(exercise.videoMinhHoa!, context),
                         ),
                         _buildVideoAction(
                           icon: Icons.open_in_new,
                           label: 'Mở YouTube',
-                          onTap: () => _launchVideo(exercise.videoMinhHoa!, context),
+                          onTap: () =>
+                              _launchVideo(exercise.videoMinhHoa!, context),
                         ),
                         _buildVideoAction(
                           icon: Icons.share,
                           label: 'Chia sẻ',
-                          onTap: () => _shareVideo(exercise.videoMinhHoa!, context),
+                          onTap: () =>
+                              _shareVideo(exercise.videoMinhHoa!, context),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
                   ],
 
                   // Image Gallery Section
                   if (exercise.anhMinhHoa.isNotEmpty) ...[
-                    _buildSectionHeader('Hình ảnh minh họa', Icons.photo_library),
+                    _buildSectionHeader(
+                      'Hình ảnh minh họa',
+                      Icons.photo_library,
+                    ),
                     const SizedBox(height: 12),
                     _buildImageGallery(context),
                     const SizedBox(height: 24),
                   ],
 
                   // Instructions - Skip for now
-                  
+
                   // Tips - Skip for now
                 ],
               ),
@@ -355,10 +391,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       ),
       child: Text(
         type,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.blue.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.blue.shade700),
       ),
     );
   }
@@ -374,10 +407,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       ),
       child: Text(
         muscle,
-        style: TextStyle(
-          fontSize: 12,
-          color: color.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: color.shade700),
       ),
     );
   }
@@ -392,10 +422,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       ),
       child: Text(
         position,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.purple.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.purple.shade700),
       ),
     );
   }
@@ -410,10 +437,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       ),
       child: Text(
         goal,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.amber.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.amber.shade700),
       ),
     );
   }
@@ -428,10 +452,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       ),
       child: Text(
         equipment,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.teal.shade700,
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.teal.shade700),
       ),
     );
   }
@@ -441,7 +462,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
     if (exercise.videoMinhHoa != null) {
       // Extract video ID from YouTube URL
       final url = exercise.videoMinhHoa!;
-      final regExp = RegExp(r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)');
+      final regExp = RegExp(
+        r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)',
+      );
       final match = regExp.firstMatch(url);
       if (match != null) {
         videoId = match.group(1);
@@ -452,9 +475,7 @@ class SimpleExerciseDetailView extends StatelessWidget {
       onTap: () => _launchVideo(exercise.videoMinhHoa!, context),
       child: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black12,
-        ),
+        decoration: BoxDecoration(color: Colors.black12),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -466,13 +487,21 @@ class SimpleExerciseDetailView extends StatelessWidget {
                 height: double.infinity,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey[300],
-                  child: const Icon(Icons.video_library, size: 50, color: Colors.grey),
+                  child: const Icon(
+                    Icons.video_library,
+                    size: 50,
+                    color: Colors.grey,
+                  ),
                 ),
               )
             else
               Container(
                 color: Colors.grey[300],
-                child: const Icon(Icons.video_library, size: 50, color: Colors.grey),
+                child: const Icon(
+                  Icons.video_library,
+                  size: 50,
+                  color: Colors.grey,
+                ),
               ),
             Container(
               padding: const EdgeInsets.all(12),
@@ -480,7 +509,11 @@ class SimpleExerciseDetailView extends StatelessWidget {
                 color: Colors.red.withOpacity(0.9),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.play_arrow, color: Colors.white, size: 30),
+              child: const Icon(
+                Icons.play_arrow,
+                color: Colors.white,
+                size: 30,
+              ),
             ),
           ],
         ),
@@ -524,7 +557,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
         itemCount: imageUrls.length,
         itemBuilder: (context, index) {
           return Container(
-            margin: EdgeInsets.only(right: index == imageUrls.length - 1 ? 0 : 12),
+            margin: EdgeInsets.only(
+              right: index == imageUrls.length - 1 ? 0 : 12,
+            ),
             width: 150,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -549,7 +584,11 @@ class SimpleExerciseDetailView extends StatelessWidget {
                       height: double.infinity,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[300],
-                        child: const Icon(Icons.image, size: 40, color: Colors.grey),
+                        child: const Icon(
+                          Icons.image,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     // Badge hiển thị số thứ tự ảnh
@@ -557,7 +596,10 @@ class SimpleExerciseDetailView extends StatelessWidget {
                       top: 4,
                       right: 4,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(10),
@@ -601,7 +643,11 @@ class SimpleExerciseDetailView extends StatelessWidget {
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[300],
-                    child: const Icon(Icons.image, size: 100, color: Colors.grey),
+                    child: const Icon(
+                      Icons.image,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ),
@@ -616,7 +662,11 @@ class SimpleExerciseDetailView extends StatelessWidget {
                       color: Colors.black.withOpacity(0.5),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ),
@@ -628,9 +678,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
   }
 
   Future<void> _shareVideo(String videoUrl, BuildContext context) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Video URL: $videoUrl')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Video URL: $videoUrl')));
   }
 
   Future<void> _launchVideo(String url, BuildContext context) async {
@@ -642,9 +692,9 @@ class SimpleExerciseDetailView extends StatelessWidget {
         throw 'Could not launch $url';
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể mở video: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Không thể mở video: $e')));
     }
   }
 }

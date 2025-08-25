@@ -158,7 +158,8 @@ class ExerciseListView extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => SimpleExerciseDetailView(exercise: exercise),
+                              builder: (context) =>
+                                  SimpleExerciseDetailView(exercise: exercise),
                             ),
                           );
                         },
@@ -354,37 +355,37 @@ class ExerciseListView extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(
-                    exercise.anhMinhHoa.isNotEmpty ? exercise.anhMinhHoa.first : '',
+                    exercise.anhMinhHoa.isNotEmpty
+                        ? exercise.anhMinhHoa.first
+                        : '',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.fitness_center, size: 50, color: Colors.grey),
+                      child: const Icon(
+                        Icons.fitness_center,
+                        size: 50,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
               ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Title
             Text(
               exercise.tenBaiTap,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Description
             if (exercise.moTa.isNotEmpty) ...[
               const Text(
                 'Mô tả:',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Text(
@@ -393,30 +394,32 @@ class ExerciseListView extends StatelessWidget {
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // Exercise Types
             if (exercise.loaiBaiTap.isNotEmpty) ...[
               const Text(
                 'Loại bài tập:',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: exercise.loaiBaiTap.map((type) => Chip(
-                  label: Text(type, style: const TextStyle(fontSize: 12)),
-                  backgroundColor: Colors.blue.shade50,
-                )).toList(),
+                children: exercise.loaiBaiTap
+                    .map(
+                      (type) => Chip(
+                        label: Text(type, style: const TextStyle(fontSize: 12)),
+                        backgroundColor: Colors.blue.shade50,
+                      ),
+                    )
+                    .toList(),
               ),
               const SizedBox(height: 16),
             ],
-            
+
             // Video button
-            if (exercise.videoMinhHoa != null && exercise.videoMinhHoa!.isNotEmpty) ...[
+            if (exercise.videoMinhHoa != null &&
+                exercise.videoMinhHoa!.isNotEmpty) ...[
               Container(
                 width: double.infinity,
                 child: ElevatedButton.icon(

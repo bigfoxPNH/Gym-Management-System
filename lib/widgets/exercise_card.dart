@@ -32,8 +32,7 @@ class ExerciseCard extends StatelessWidget {
                       width: 60,
                       height: 60,
                       color: Colors.grey[200],
-                      child:
-                          exercise.anhMinhHoa.isNotEmpty
+                      child: exercise.anhMinhHoa.isNotEmpty
                           ? Image.network(
                               exercise.anhMinhHoa.first, // Lấy ảnh đầu tiên
                               width: 60,

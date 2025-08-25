@@ -20,7 +20,7 @@ class ExerciseManagementController extends GetxController {
   final TextEditingController tenBaiTapController = TextEditingController();
   final TextEditingController moTaController = TextEditingController();
   final TextEditingController videoMinhHoaController = TextEditingController();
-  
+
   // Image URLs list (tối đa 5 ảnh)
   final RxList<String> imageUrls = <String>[].obs;
 
