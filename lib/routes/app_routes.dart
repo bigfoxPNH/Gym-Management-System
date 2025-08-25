@@ -8,4 +8,5 @@ abstract class AppRoutes {
   static const privacyPolicy = '/privacy-policy';
   static const settings = '/settings';
   static const memberManagement = '/member-management';
+  static const exerciseManagement = '/admin/exercise-management';
 }

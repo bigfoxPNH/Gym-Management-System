@@ -8,6 +8,7 @@ import '../views/profile/edit_profile_view.dart';
 import '../views/settings/privacy_policy_view.dart';
 import '../views/settings/settings_view.dart';
 import '../views/admin/member_management_view.dart';
+import '../views/admin/exercise_management_view.dart';
 import '../controllers/auth_controller.dart';
 import 'app_routes.dart';
 
@@ -27,6 +28,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.memberManagement,
       page: () => const MemberManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.exerciseManagement,
+      page: () => const ExerciseManagementView(),
     ),
   ];
 }

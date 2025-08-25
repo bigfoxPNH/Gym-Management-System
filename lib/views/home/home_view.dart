@@ -153,13 +153,7 @@ class HomeView extends StatelessWidget {
                   subtitle: 'Tạo & chỉnh sửa động tác',
                   color: Colors.red,
                   onTap: () {
-                    Get.snackbar(
-                      'Sắp Ra Mắt',
-                      'Quản lý bài tập sẽ sớm có sẵn!',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orange,
-                      colorText: Colors.white,
-                    );
+                    Get.toNamed('/admin/exercise-management');
                   },
                 ),
                 _buildAdminActionCard(
