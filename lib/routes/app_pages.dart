@@ -10,8 +10,16 @@ import '../views/settings/settings_view.dart';
 import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
 import '../views/admin/membership_card_management_view.dart';
+import '../views/membership/membership_purchase_view.dart';
+import '../views/membership/checkout_view.dart';
+import '../views/payment/payment_status_view.dart';
+import '../views/payment/payment_result_view.dart';
 import '../views/exercise/exercise_list_view.dart';
+import '../controllers/payment_controller.dart';
+import '../views/payment/payment_test_page.dart';
+import '../views/test/cleanup_test_view.dart';
 import '../controllers/auth_controller.dart';
+import '../bindings/membership_purchase_binding.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -39,7 +47,29 @@ class AppPages {
       name: AppRoutes.membershipCardManagement,
       page: () => const MembershipCardManagementView(),
     ),
+    GetPage(
+      name: AppRoutes.membershipPurchase,
+      page: () => const MembershipPurchaseView(),
+      binding: MembershipPurchaseBinding(),
+    ),
+    GetPage(name: AppRoutes.checkout, page: () => CheckoutView()),
+    GetPage(
+      name: AppRoutes.paymentStatus,
+      page: () => PaymentStatusView(orderId: Get.arguments ?? ''),
+    ),
+    GetPage(
+      name: AppRoutes.paymentResult,
+      page: () => const PaymentResultView(),
+    ),
     GetPage(name: AppRoutes.exercises, page: () => const ExerciseListView()),
+    GetPage(
+      name: AppRoutes.paymentTest, 
+      page: () => const PaymentTestPage(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<PaymentController>(() => PaymentController());
+      }),
+    ),
+    GetPage(name: '/cleanup-test', page: () => const CleanupTestView()),
   ];
 }
 

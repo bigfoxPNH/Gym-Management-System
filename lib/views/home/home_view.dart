@@ -192,6 +192,16 @@ class HomeView extends StatelessWidget {
                     );
                   },
                 ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.payment,
+                  title: 'Test MoMo Payment',
+                  subtitle: 'Production deep linking test',
+                  color: Colors.purple,
+                  onTap: () {
+                    Get.toNamed(AppRoutes.paymentTest);
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -285,17 +295,11 @@ class HomeView extends StatelessWidget {
               _buildActionCard(
                 context,
                 icon: Icons.shopping_cart,
-                title: 'Mua Gói Tập',
-                subtitle: 'Mua gói thành viên',
+                title: 'Mua Thẻ Tập',
+                subtitle: 'Mua thẻ thành viên',
                 color: Colors.indigo,
                 onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Mua gói tập sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.indigo,
-                    colorText: Colors.white,
-                  );
+                  Get.toNamed(AppRoutes.membershipPurchase);
                 },
               ),
             ],

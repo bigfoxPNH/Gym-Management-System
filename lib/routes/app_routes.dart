@@ -10,5 +10,11 @@ abstract class AppRoutes {
   static const memberManagement = '/member-management';
   static const exerciseManagement = '/admin/exercise-management';
   static const membershipCardManagement = '/admin/membership-card-management';
+  static const membershipPurchase = '/membership-purchase';
+  static const checkout = '/checkout';
+  static const paymentStatus = '/payment/status';
+  static const paymentResult = '/payment-result';
   static const exercises = '/exercises';
+  static const paymentTest = '/payment-test';
+  static const cleanupTest = '/cleanup-test';
 }

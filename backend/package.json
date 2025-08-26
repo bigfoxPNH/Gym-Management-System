@@ -1,0 +1,28 @@
+{
+  "name": "momo-proxy-server",
+  "version": "1.0.0",
+  "description": "MoMo Payment Proxy Server for GymPro",
+  "main": "momo-proxy-server.js",
+  "scripts": {
+    "start": "node momo-proxy-server.js",
+    "dev": "nodemon momo-proxy-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "momo",
+    "payment",
+    "proxy",
+    "gym"
+  ],
+  "author": "GymPro",
+  "license": "MIT"
+}

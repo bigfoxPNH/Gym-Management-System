@@ -40,13 +40,16 @@ class MembershipCardService {
   // Get all membership cards
   Future<List<MembershipCard>> getAllCards() async {
     try {
-      final querySnapshot = await _collection
-          .orderBy('createdAt', descending: true)
-          .get();
+      final querySnapshot = await _collection.get();
 
-      return querySnapshot.docs
+      final cards = querySnapshot.docs
           .map((doc) => MembershipCard.fromFirestore(doc))
           .toList();
+
+      // Sort by createdAt in memory
+      cards.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return cards;
     } catch (e) {
       throw Exception('Không thể tải danh sách thẻ tập: $e');
     }
@@ -55,14 +58,18 @@ class MembershipCardService {
   // Get active membership cards only
   Future<List<MembershipCard>> getActiveCards() async {
     try {
-      final querySnapshot = await _collection
-          .where('isActive', isEqualTo: true)
-          .orderBy('createdAt', descending: true)
-          .get();
+      // Get all cards first, then filter in memory to avoid index requirement
+      final querySnapshot = await _collection.get();
 
-      return querySnapshot.docs
+      final cards = querySnapshot.docs
           .map((doc) => MembershipCard.fromFirestore(doc))
+          .where((card) => card.isActive) // Filter active cards in memory
           .toList();
+
+      // Sort by createdAt in memory
+      cards.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return cards;
     } catch (e) {
       throw Exception('Không thể tải danh sách thẻ tập hoạt động: $e');
     }
