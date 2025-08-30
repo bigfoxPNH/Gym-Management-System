@@ -7,51 +7,51 @@ import '../services/momo_payment_service.dart';
 import '../models/momo_models.dart';
 import '../models/payment_transaction.dart';
 import '../models/payment_method.dart';
-import '../services/payment_service.dart';
 
 class PaymentController extends GetxController {
   final MoMoPaymentService _momoService = MoMoPaymentService();
-  final PaymentService _paymentService = PaymentService();
-  
+
   // Observable states
   final RxBool isLoading = false.obs;
   final RxBool isProcessingPayment = false.obs;
   final RxBool isProcessing = false.obs; // Alias for UI compatibility
-  final Rx<PaymentTransaction?> currentTransaction = Rx<PaymentTransaction?>(null);
+  final Rx<PaymentTransaction?> currentTransaction = Rx<PaymentTransaction?>(
+    null,
+  );
   final RxString paymentStatus = ''.obs;
   final RxString paymentMessage = ''.obs;
   final RxString currentOrderId = ''.obs;
   final RxString currentTransactionId = ''.obs;
-  
+
   // Form fields for test UI
   final RxInt paymentAmount = 10000.obs;
   final RxString orderInfo = 'Test payment GymPro'.obs;
-  
+
   // Callback subscription
   StreamSubscription<MoMoCallbackResult>? _callbackSubscription;
-  
+
   @override
   void onInit() {
     super.onInit();
     _initializePaymentService();
-    
+
     // Sync isProcessing with isProcessingPayment
     ever(isProcessingPayment, (value) {
       isProcessing.value = value;
     });
   }
-  
+
   @override
   void onClose() {
     _callbackSubscription?.cancel();
     _momoService.dispose();
     super.onClose();
   }
-  
+
   Future<void> _initializePaymentService() async {
     try {
       await _momoService.initialize();
-      
+
       // Listen for payment callbacks
       _callbackSubscription = _momoService.callbackStream.listen(
         (MoMoCallbackResult result) {
@@ -61,7 +61,7 @@ class PaymentController extends GetxController {
           print('❌ Payment callback error: $error');
         },
       );
-      
+
       print('✅ PaymentController initialized');
     } catch (e) {
       print('❌ Failed to initialize PaymentController: $e');
@@ -78,7 +78,7 @@ class PaymentController extends GetxController {
       isProcessingPayment.value = true;
       paymentStatus.value = 'Đang xử lý...';
       paymentMessage.value = 'Vui lòng chờ...';
-      
+
       // 1. Create payment transaction
       final transaction = PaymentTransaction(
         id: 'GYM_${DateTime.now().millisecondsSinceEpoch}',
@@ -92,36 +92,36 @@ class PaymentController extends GetxController {
         description: orderInfo,
         createdAt: DateTime.now(),
       );
-      
+
       currentTransaction.value = transaction;
-      
+
       // 2. Create MoMo payment (skip database for now)
       // await _paymentService.createPaymentTransaction(transaction);
-      
+
       // 3. Create MoMo payment
       final momoResponse = await _momoService.createPayment(
         orderId: transaction.id,
         amount: amount,
         orderInfo: orderInfo,
       );
-      
+
       if (momoResponse == null || !momoResponse.isSuccess) {
         throw Exception(momoResponse?.message ?? 'Tạo thanh toán thất bại');
       }
-      
+
       // 4. For web platform, skip app launching and show QR code
       if (kIsWeb) {
         paymentStatus.value = 'Quét mã QR để thanh toán';
         paymentMessage.value = 'Sử dụng ứng dụng MoMo để quét mã QR';
-        
+
         // Show QR dialog for web
         _showQRCodeDialog(momoResponse);
-        
+
         currentOrderId.value = transaction.id;
         currentTransactionId.value = momoResponse.orderId;
         return true;
       }
-      
+
       // 5. Launch MoMo app (mobile only)
       final launched = await _momoService.launchMoMoPayment(momoResponse);
       if (!launched) {
@@ -130,65 +130,62 @@ class PaymentController extends GetxController {
         paymentMessage.value = 'Sử dụng ứng dụng MoMo để quét mã QR';
         _showQRCodeDialog(momoResponse);
       }
-      
+
       paymentStatus.value = 'Đang chờ thanh toán...';
       paymentMessage.value = 'Vui lòng hoàn tất thanh toán trên ứng dụng MoMo';
-      
+
       // Update current tracking IDs
       currentOrderId.value = transaction.id;
       currentTransactionId.value = momoResponse.orderId;
-      
+
       return true;
-      
     } catch (e) {
       print('❌ Error processing payment: $e');
       paymentStatus.value = 'Lỗi thanh toán';
       paymentMessage.value = e.toString();
-      
+
       _showErrorSnackbar('Lỗi thanh toán', e.toString());
       return false;
-      
     } finally {
       isLoading.value = false;
       isProcessingPayment.value = false;
     }
   }
-  
+
   /// Handle payment callback from MoMo
   Future<void> _handlePaymentCallback(MoMoCallbackResult result) async {
     try {
       print('📱 Processing payment callback: ${result.orderId}');
-      
+
       if (currentTransaction.value?.id != result.orderId) {
         print('⚠️ Callback order ID mismatch, ignoring');
         return;
       }
-      
+
       // Update UI immediately
       if (result.isSuccess) {
         paymentStatus.value = 'Thành công';
         paymentMessage.value = result.statusMessage;
-        
+
         // Update payment status in database (skip for now)
         // await _paymentService.updatePaymentStatus(
-        //   result.orderId, 
+        //   result.orderId,
         //   PaymentStatus.completed
         // );
-        
+
         _showSuccessDialog(result);
       } else {
         paymentStatus.value = 'Thất bại';
         paymentMessage.value = result.statusMessage;
-        
+
         // Update payment status in database (skip for now)
         // await _paymentService.updatePaymentStatus(
-        //   result.orderId, 
+        //   result.orderId,
         //   PaymentStatus.failed
         // );
-        
+
         _showFailureDialog(result);
       }
-      
     } catch (e) {
       print('❌ Error handling payment callback: $e');
       paymentStatus.value = 'Lỗi xử lý';
@@ -218,16 +215,11 @@ class PaymentController extends GetxController {
             Text('Thời gian: ${DateTime.now().toString().substring(0, 19)}'),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Đóng'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Get.back(), child: Text('Đóng'))],
       ),
     );
   }
-  
+
   /// Show failure payment dialog
   void _showFailureDialog(MoMoCallbackResult result) {
     Get.dialog(
@@ -253,10 +245,7 @@ class PaymentController extends GetxController {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Đóng'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('Đóng')),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -264,7 +253,8 @@ class PaymentController extends GetxController {
               if (currentTransaction.value != null) {
                 processGymProPayment(
                   amount: currentTransaction.value!.amount.toInt(),
-                  orderInfo: currentTransaction.value!.description ?? 'Thanh toán lại',
+                  orderInfo:
+                      currentTransaction.value!.description ?? 'Thanh toán lại',
                 );
               }
             },
@@ -274,7 +264,7 @@ class PaymentController extends GetxController {
       ),
     );
   }
-  
+
   /// Show QR code dialog for payment
   void _showQRCodeDialog(MoMoPaymentResponse paymentResponse) {
     Get.dialog(
@@ -283,7 +273,8 @@ class PaymentController extends GetxController {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (paymentResponse.qrCodeUrl != null && paymentResponse.qrCodeUrl!.isNotEmpty) ...[
+            if (paymentResponse.qrCodeUrl != null &&
+                paymentResponse.qrCodeUrl!.isNotEmpty) ...[
               Text('Quét mã QR bằng ứng dụng MoMo:'),
               SizedBox(height: 16),
               Container(
@@ -296,6 +287,10 @@ class PaymentController extends GetxController {
                 child: Image.network(
                   paymentResponse.qrCodeUrl!,
                   fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(child: CircularProgressIndicator());
+                  },
                   errorBuilder: (context, error, stackTrace) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -318,11 +313,8 @@ class PaymentController extends GetxController {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: SelectableText(
-                  paymentResponse.orderId ?? 'N/A',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  paymentResponse.orderId,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               SizedBox(height: 16),
@@ -330,19 +322,14 @@ class PaymentController extends GetxController {
             Text(
               'Thanh toán sẽ được xử lý tự động sau khi hoàn tất.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Đóng'),
-          ),
-          if (paymentResponse.payUrl != null && paymentResponse.payUrl!.isNotEmpty)
+          TextButton(onPressed: () => Get.back(), child: Text('Đóng')),
+          if (paymentResponse.payUrl != null &&
+              paymentResponse.payUrl!.isNotEmpty)
             ElevatedButton(
               onPressed: () {
                 // Try to open MoMo web payment
@@ -354,32 +341,7 @@ class PaymentController extends GetxController {
       ),
     );
   }
-  
-  /// Show install MoMo dialog
-  Future<void> _showInstallMoMoDialog() async {
-    return Get.dialog(
-      AlertDialog(
-        title: Text('Cài đặt ứng dụng MoMo'),
-        content: Text(
-          'Để thanh toán qua MoMo, bạn cần cài đặt ứng dụng MoMo trên thiết bị của mình.'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              _momoService.openMoMoStore();
-            },
-            child: Text('Cài đặt MoMo'),
-          ),
-        ],
-      ),
-    );
-  }
-  
+
   /// Show error snackbar
   void _showErrorSnackbar(String title, String message) {
     Get.snackbar(
@@ -391,28 +353,25 @@ class PaymentController extends GetxController {
       duration: Duration(seconds: 3),
     );
   }
-  
+
   /// Update payment amount (for test UI)
   void updateAmount(int amount) {
     paymentAmount.value = amount;
   }
-  
-  /// Update order info (for test UI)  
+
+  /// Update order info (for test UI)
   void updateOrderInfo(String info) {
     orderInfo.value = info;
   }
-  
+
   /// Process payment with current form values
   Future<void> processPayment({int? amount, String? orderInfo}) async {
     final finalAmount = amount ?? paymentAmount.value;
     final finalOrderInfo = orderInfo ?? this.orderInfo.value;
-    
-    await processGymProPayment(
-      amount: finalAmount, 
-      orderInfo: finalOrderInfo,
-    );
+
+    await processGymProPayment(amount: finalAmount, orderInfo: finalOrderInfo);
   }
-  
+
   /// Reset payment state
   void resetPaymentState() {
     currentTransaction.value = null;

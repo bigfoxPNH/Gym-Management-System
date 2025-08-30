@@ -1,20 +1,17 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import 'package:uni_links/uni_links.dart';
 
 class MoMoConfig {
   // MoMo Test Environment - Thay đổi thành production khi deploy
-  static const String partnerCode = 'MOMO'; // Sandbox partner code
-  static const String accessKey = 'F8BBA842ECF85'; // Sandbox access key
-  static const String secretKey =
-      'K951B6PE1waDMi640xX08PD3vg6EkVlz'; // Sandbox secret key
+  static const String partnerCode = 'YOUR_PARTNER_CODE';
+  static const String accessKey = 'YOUR_ACCESS_KEY';
+  static const String secretKey = 'YOUR_SECRET_KEY';
   static const String endpoint =
-      'https://test-payment.momo.vn/v2/gateway/api/create';
-  static const String ipnUrl =
-      'https://your-domain.com/momo/callback'; // Webhook URL
-  static const String redirectUrl =
-      'https://your-domain.com/momo/return'; // Return URL
+      'https://test-payment.momo.vn/v2/gateway/api/create'; // UAT
+  static const String ipnUrl = 'https://webhook.site/xxxx'; // URL public
+  static const String redirectUrl = 'https://momo.vn'; // URL public
   static const String requestType = 'payWithATM'; // Payment type
 }
 
@@ -103,114 +100,74 @@ class MoMoPaymentResponse {
 }
 
 class MoMoService {
-  final Dio _dio = Dio();
+  final String partnerCode = "MOMOXXXX2020";
+  final String accessKey = "F8BBA842ECF85";
+  final String secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+  final String endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
 
-  // Create MoMo payment request
-  Future<MoMoPaymentResponse?> createPayment({
-    required String orderId,
-    required double amount,
-    required String orderInfo,
-  }) async {
-    try {
-      final requestId = _generateRequestId();
+  /// Creates a payment request to MoMo API.
+  /// [amount] is the payment amount.
+  /// [orderInfo] is the description of the order.
+  Future<MoMoPaymentResponse> createPayment(
+    double amount,
+    String orderInfo,
+  ) async {
+    // Generate unique orderId and requestId based on timestamp
+    final String orderId = DateTime.now().millisecondsSinceEpoch.toString();
+    final String requestId = DateTime.now().millisecondsSinceEpoch.toString();
 
-      // Create raw signature string
-      final rawSignature =
-          'accessKey=${MoMoConfig.accessKey}'
-          '&amount=${amount.toInt()}'
-          '&extraData='
-          '&ipnUrl=${MoMoConfig.ipnUrl}'
-          '&orderId=$orderId'
-          '&orderInfo=$orderInfo'
-          '&partnerCode=${MoMoConfig.partnerCode}'
-          '&redirectUrl=${MoMoConfig.redirectUrl}'
-          '&requestId=$requestId'
-          '&requestType=${MoMoConfig.requestType}';
+    // Prepare raw data for the request
+    final Map<String, dynamic> rawData = {
+      "partnerCode": partnerCode,
+      "accessKey": accessKey,
+      "requestId": requestId,
+      "amount": amount.toString(),
+      "orderId": orderId,
+      "orderInfo": orderInfo,
+      "redirectUrl": "https://momo.vn",
+      "ipnUrl": "https://webhook.site/xxxx",
+      "requestType": "captureWallet",
+    };
 
-      // Generate HMAC SHA256 signature
-      final signature = _generateSignature(rawSignature);
+    // Generate HMAC SHA256 signature
+    final String rawSignature =
+        "accessKey=$accessKey&amount=${rawData['amount']}&ipnUrl=${rawData['ipnUrl']}&orderId=${rawData['orderId']}&orderInfo=${rawData['orderInfo']}&partnerCode=$partnerCode&redirectUrl=${rawData['redirectUrl']}&requestId=$requestId&requestType=${rawData['requestType']}";
+    final String signature = Hmac(
+      sha256,
+      utf8.encode(secretKey),
+    ).convert(utf8.encode(rawSignature)).toString();
 
-      final request = MoMoPaymentRequest(
-        partnerCode: MoMoConfig.partnerCode,
-        requestId: requestId,
-        amount: amount,
-        orderId: orderId,
-        orderInfo: orderInfo,
-        redirectUrl: MoMoConfig.redirectUrl,
-        ipnUrl: MoMoConfig.ipnUrl,
-        requestType: MoMoConfig.requestType,
-        signature: signature,
-      );
+    // Add signature to the request data
+    rawData['signature'] = signature;
 
-      print('MoMo Request: ${request.toJson()}');
+    // Send POST request to MoMo API
+    final response = await http.post(
+      Uri.parse(endpoint),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(rawData),
+    );
 
-      final response = await _dio.post(
-        MoMoConfig.endpoint,
-        data: request.toJson(),
-        options: Options(
-          headers: {'Content-Type': 'application/json'},
-          validateStatus: (status) =>
-              status! < 500, // Accept all responses < 500
-        ),
-      );
+    // Handle response
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      return MoMoPaymentResponse.fromJson(responseData);
+    } else {
+      throw Exception("Failed to create MoMo payment: ${response.body}");
+    }
+  }
+}
 
-      print('MoMo Response: ${response.data}');
-
-      if (response.statusCode == 200) {
-        return MoMoPaymentResponse.fromJson(response.data);
+void handleMoMoCallback() {
+  uriLinkStream.listen((Uri? uri) {
+    if (uri != null) {
+      final result = uri.queryParameters['result'];
+      if (result == 'success') {
+        print('Payment successful');
       } else {
-        print('MoMo API Error: Status ${response.statusCode}');
-        return null;
+        print('Payment failed');
       }
-    } catch (e) {
-      print('MoMo Service Error: $e');
-      return null;
     }
-  }
-
-  // Generate request ID
-  String _generateRequestId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final random = Random().nextInt(9999).toString().padLeft(4, '0');
-    return 'MM$timestamp$random';
-  }
-
-  // Generate HMAC SHA256 signature
-  String _generateSignature(String rawSignature) {
-    final key = utf8.encode(MoMoConfig.secretKey);
-    final message = utf8.encode(rawSignature);
-    final hmac = Hmac(sha256, key);
-    final digest = hmac.convert(message);
-    return digest.toString();
-  }
-
-  // Verify signature from callback
-  bool verifySignature(Map<String, dynamic> callbackData) {
-    try {
-      final receivedSignature = callbackData['signature'] ?? '';
-
-      final rawSignature =
-          'accessKey=${MoMoConfig.accessKey}'
-          '&amount=${callbackData['amount']}'
-          '&extraData=${callbackData['extraData'] ?? ''}'
-          '&message=${callbackData['message']}'
-          '&orderId=${callbackData['orderId']}'
-          '&orderInfo=${callbackData['orderInfo']}'
-          '&orderType=${callbackData['orderType']}'
-          '&partnerCode=${callbackData['partnerCode']}'
-          '&payType=${callbackData['payType']}'
-          '&requestId=${callbackData['requestId']}'
-          '&responseTime=${callbackData['responseTime']}'
-          '&resultCode=${callbackData['resultCode']}'
-          '&transId=${callbackData['transId']}';
-
-      final expectedSignature = _generateSignature(rawSignature);
-      return expectedSignature == receivedSignature;
-    } catch (e) {
-      print('Signature verification error: $e');
-      return false;
-    }
-  }
+  });
 }
 
 // MoMo callback/IPN response model

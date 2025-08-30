@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MoMo UAT Test</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+      }
+      .btn {
+        padding: 10px 20px;
+        background: #b0006d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px 0;
+      }
+      .result {
+        margin: 20px 0;
+        padding: 10px;
+        background: #f0f0f0;
+        border-radius: 5px;
+      }
+      .qr-container {
+        margin: 20px 0;
+        text-align: center;
+      }
+      .qr-code {
+        max-width: 300px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧪 MoMo UAT QR Code Test - iPhone Compatible</h1>
+
+    <div
+      style="
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      "
+    >
+      <h4>📱 Giải pháp lỗi "Mất kết nối mạng" trên iPhone MoMo UAT:</h4>
+      <p><strong>✅ Deep Link Format:</strong> Không cần network callback</p>
+      <p>
+        <strong>✅ Offline Compatible:</strong> MoMo UAT có thể xử lý offline
+      </p>
+      <p><strong>✅ iPhone Optimized:</strong> Đặc biệt tối ưu cho iPhone</p>
+    </div>
+
+    <button class="btn" onclick="createPayment()">
+      Tạo Payment Test (iPhone Deep Link)
+    </button>
+    <button class="btn" onclick="testDifferentFormats()">
+      Test Các Format Khác
+    </button>
+
+    <div id="result" class="result" style="display: none">
+      <h3>Payment Created:</h3>
+      <div id="payment-info"></div>
+      <div class="qr-container">
+        <img id="qr-code" class="qr-code" style="display: none" />
+      </div>
+      <button class="btn" onclick="checkStatus()">Check Payment Status</button>
+      <button class="btn" onclick="simulateScan()">Simulate QR Scan</button>
+    </div>
+
+    <div id="status" style="margin-top: 20px"></div>
+
+    <script>
+      let currentOrderId = null;
+
+      async function createPayment() {
+        try {
+          const orderId = "UAT_TEST_" + Date.now();
+          currentOrderId = orderId;
+
+          const response = await fetch(
+            "http://localhost:3003/api/momo/create-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                orderId: orderId,
+                amount: 20000,
+                orderInfo: "Test MoMo UAT Payment",
+              }),
+            }
+          );
+
+          const data = await response.json();
+          console.log("Payment created:", data);
+
+          document.getElementById("payment-info").innerHTML = `
+                    <p><strong>Order ID:</strong> ${data.orderId}</p>
+                    <p><strong>Amount:</strong> ${data.amount} VND</p>
+                    <p><strong>Deep Link:</strong> <a href="${data.deepLink}" target="_blank">Open in MoMo</a></p>
+                    <p><strong>Message:</strong> ${data.message}</p>
+                `;
+
+          if (data.qrCodeUrl) {
+            document.getElementById("qr-code").src = data.qrCodeUrl;
+            document.getElementById("qr-code").style.display = "block";
+          }
+
+          document.getElementById("result").style.display = "block";
+        } catch (error) {
+          document.getElementById("status").innerHTML = `
+                    <div style="color: red;">Error: ${error.message}</div>
+                `;
+        }
+      }
+
+      async function checkStatus() {
+        if (!currentOrderId) return;
+
+        try {
+          const response = await fetch(
+            `http://localhost:3003/api/momo/payment-status/${currentOrderId}`
+          );
+          const data = await response.json();
+
+          document.getElementById("status").innerHTML = `
+                    <div>
+                        <h4>Payment Status:</h4>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Success:</strong> ${data.success}</p>
+                        <p><strong>Time Remaining:</strong> ${data.timeRemaining}s</p>
+                        <p><strong>Is Expired:</strong> ${data.isExpired}</p>
+                    </div>
+                `;
+        } catch (error) {
+          document.getElementById("status").innerHTML = `
+                    <div style="color: red;">Error checking status: ${error.message}</div>
+                `;
+        }
+      }
+
+      async function simulateScan() {
+        if (!currentOrderId) return;
+
+        try {
+          const response = await fetch(
+            `http://localhost:3003/test/scan-qr/${currentOrderId}`,
+            {
+              method: "POST",
+            }
+          );
+
+          const data = await response.json();
+
+          document.getElementById("status").innerHTML = `
+                    <div style="color: green;">
+                        <h4>QR Scan Simulated:</h4>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+
+          // Check status after scan
+          setTimeout(checkStatus, 1000);
+        } catch (error) {
+          document.getElementById("status").innerHTML = `
+                    <div style="color: red;">Error simulating scan: ${error.message}</div>
+                `;
+        }
+      }
+
+      // Auto-refresh status every 5 seconds if payment exists
+      setInterval(() => {
+        if (currentOrderId) {
+          checkStatus();
+        }
+      }, 5000);
+
+      // Test different QR formats for iPhone compatibility
+      async function testDifferentFormats() {
+        const formats = ["iphone_deeplink", "basic_deeplink", "payment_code"];
+        const formatNames = {
+          iphone_deeplink: "iPhone Deep Link (Recommended)",
+          basic_deeplink: "Basic Deep Link",
+          payment_code: "Payment Code Format",
+        };
+
+        for (let format of formats) {
+          console.log(`Testing format: ${formatNames[format]}`);
+
+          try {
+            // Set format via server API if needed
+            const orderId = `TEST_${format}_${Date.now()}`;
+
+            const response = await fetch(
+              "http://localhost:3003/api/momo/create-payment",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-QR-Format": format, // Custom header for format
+                },
+                body: JSON.stringify({
+                  orderId: orderId,
+                  amount: 15000,
+                  orderInfo: `Test ${formatNames[format]}`,
+                }),
+              }
+            );
+
+            const data = await response.json();
+            console.log(`${formatNames[format]} result:`, data);
+          } catch (error) {
+            console.error(`Error testing ${format}:`, error);
+          }
+        }
+
+        document.getElementById("status").innerHTML = `
+                <div style="color: blue;">
+                    <h4>✅ Đã test tất cả formats - Check console log</h4>
+                    <p>Khuyến nghị: Sử dụng iPhone Deep Link format</p>
+                </div>
+            `;
+      }
+    </script>
+  </body>
+</html>

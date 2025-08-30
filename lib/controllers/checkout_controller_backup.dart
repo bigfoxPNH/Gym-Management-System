@@ -10,15 +10,11 @@ import '../services/payment_service.dart';
 import '../services/membership_purchase_service.dart';
 import '../services/momo_payment_service.dart';
 import '../controllers/auth_controller.dart';
-import '../controllers/payment_callback_controller.dart';
 
 class CheckoutController extends GetxController {
   final PaymentService _paymentService = PaymentService();
   final MoMoPaymentService _momoService = MoMoPaymentService();
   final AuthController _authController = Get.find<AuthController>();
-  final PaymentCallbackController _callbackController = Get.put(
-    PaymentCallbackController(),
-  );
 
   // Observable states
   final RxBool isLoading = false.obs;
@@ -108,14 +104,14 @@ class CheckoutController extends GetxController {
       // Create payment transaction
       final transaction = PaymentTransaction(
         id: 'PAY_${DateTime.now().millisecondsSinceEpoch}',
-        userId: _authController.userAccount!.id,
+        userId: _authController.userAccount?.id ?? '',
         membershipCardId: membershipCard!.id,
         membershipPurchaseId: membershipPurchaseId!,
         paymentType: PaymentType.membership,
         paymentMethod: selectedPaymentMethod.value!.type,
         amount: membershipCard!.price,
         status: PaymentStatus.pending,
-        description: 'Mua thẻ tập ${membershipCard!.name}',
+        description: 'Mua thẻ tập ${membershipCard!.cardName}',
         createdAt: DateTime.now(),
       );
 
@@ -133,7 +129,6 @@ class CheckoutController extends GetxController {
         );
         return false;
       }
-
     } catch (e) {
       print('Error creating payment: $e');
       Get.snackbar(
@@ -145,74 +140,6 @@ class CheckoutController extends GetxController {
     } finally {
       isLoading.value = false;
       isProcessingPayment.value = false;
-    }
-  }
-
-      final transaction = await _paymentService.createPaymentTransaction(
-        userId: _authController.user!.uid,
-        membershipCardId: membershipCard!.id,
-        membershipPurchaseId: membershipPurchaseId!,
-        paymentMethod: selectedPaymentMethod.value!.type,
-        amount: membershipCard!.price,
-        description: 'Thanh toán thẻ tập ${membershipCard!.cardName}',
-      );
-
-      currentTransaction.value = transaction;
-
-      // Start monitoring payment for certain methods
-      if (selectedPaymentMethod.value!.type == PaymentMethodType.momo ||
-          selectedPaymentMethod.value!.type == PaymentMethodType.banking) {
-        _startPaymentMonitoring();
-      }
-
-      return true;
-    } catch (e) {
-      print('Error creating payment: $e');
-      Get.snackbar(
-        'Lỗi',
-        'Không thể tạo thanh toán: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return false;
-    } finally {
-      isProcessingPayment.value = false;
-    }
-  }
-
-  // Start monitoring payment status with real-time callback integration
-  void _startPaymentMonitoring() {
-    _paymentCheckTimer?.cancel();
-
-    if (currentTransaction.value != null) {
-      final orderId = currentTransaction.value!.id;
-
-      // Listen to real-time payment status changes via callback
-      _callbackController.watchPaymentStatus(orderId).listen((transaction) {
-        if (transaction != null) {
-          currentTransaction.value = transaction;
-
-          // Handle payment result when status changes
-          if (transaction.isCompleted || transaction.isFailed) {
-            _handlePaymentResult();
-          }
-        }
-      });
-
-      // Fallback: periodic check if callback doesn't work
-      _paymentCheckTimer = Timer.periodic(const Duration(seconds: 10), (
-        timer,
-      ) async {
-        if (currentTransaction.value != null) {
-          await checkPaymentStatus();
-
-          // Stop monitoring if payment is completed or failed
-          if (currentTransaction.value!.isCompleted ||
-              currentTransaction.value!.isFailed) {
-            timer.cancel();
-            await _handlePaymentResult();
-          }
-        }
-      });
     }
   }
 
@@ -364,11 +291,11 @@ class CheckoutController extends GetxController {
   Future<bool> _processMoMoPayment() async {
     try {
       print('🔄 Processing MoMo payment for membership card');
-      
+
       // Create payment transaction
       final transaction = PaymentTransaction(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: _authController.user.value?.id ?? '',
+        userId: _authController.userAccount?.id ?? '',
         membershipCardId: membershipCard?.id ?? '',
         membershipPurchaseId: '',
         paymentType: PaymentType.membership,
@@ -376,29 +303,31 @@ class CheckoutController extends GetxController {
         amount: getTotalAmount(),
         status: PaymentStatus.pending,
         createdAt: DateTime.now(),
-        description: 'Mua thẻ tập: ${membershipCard?.name}',
+        description:
+            'Mua thẻ tập: ${membershipCard?.cardName ?? 'Không xác định'}',
       );
-      
+
       // Create MoMo payment
       final momoResponse = await _momoService.createPayment(
         orderId: transaction.id,
         amount: transaction.amount.toInt(),
         orderInfo: transaction.description ?? 'Mua thẻ tập GymPro',
       );
-      
+
       if (momoResponse == null || !momoResponse.isSuccess) {
-        throw Exception(momoResponse?.message ?? 'Tạo thanh toán MoMo thất bại');
+        throw Exception(
+          momoResponse?.message ?? 'Tạo thanh toán MoMo thất bại',
+        );
       }
-      
+
       // Show QR code for payment (web-friendly)
       if (kIsWeb || !(await _momoService.launchMoMoPayment(momoResponse))) {
         _showMoMoQRDialog(momoResponse, transaction);
       }
-      
+
       // Navigate to payment status page
       Get.toNamed('/payment/status', arguments: transaction.id);
       return true;
-      
     } catch (e) {
       print('❌ Error processing MoMo payment: $e');
       Get.snackbar(
@@ -409,7 +338,7 @@ class CheckoutController extends GetxController {
       return false;
     }
   }
-  
+
   /// Show MoMo QR dialog for checkout
   void _showMoMoQRDialog(dynamic momoResponse, PaymentTransaction transaction) {
     Get.dialog(
@@ -419,7 +348,7 @@ class CheckoutController extends GetxController {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Quét mã QR để thanh toán:'),
-            Text('${membershipCard?.name}'),
+            Text('${membershipCard?.cardName}'),
             Text('Số tiền: ${getFormattedTotalAmount()}'),
             SizedBox(height: 16),
             // QR Code would be displayed here
@@ -427,17 +356,12 @@ class CheckoutController extends GetxController {
               width: 200,
               height: 200,
               color: Colors.grey[200],
-              child: Center(
-                child: Text('QR Code\n${transaction.id}'),
-              ),
+              child: Center(child: Text('QR Code\n${transaction.id}')),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text('Đóng'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('Đóng')),
           ElevatedButton(
             onPressed: () {
               Get.back();

@@ -11,13 +11,16 @@ import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
 import '../views/admin/membership_card_management_view.dart';
 import '../views/membership/membership_purchase_view.dart';
-import '../views/membership/checkout_view.dart';
+import '../views/membership/checkout_view.dart' as MembershipCheckout;
 import '../views/payment/payment_status_view.dart';
 import '../views/payment/payment_result_view.dart';
+import '../views/payment/momo_payment_view.dart';
 import '../views/exercise/exercise_list_view.dart';
 import '../controllers/payment_controller.dart';
 import '../views/payment/payment_test_page.dart';
 import '../views/test/cleanup_test_view.dart';
+import '../views/test/test_checkout_view.dart';
+import '../views/checkout/checkout_view.dart' as GeneralCheckout;
 import '../controllers/auth_controller.dart';
 import '../bindings/membership_purchase_binding.dart';
 import 'app_routes.dart';
@@ -52,7 +55,8 @@ class AppPages {
       page: () => const MembershipPurchaseView(),
       binding: MembershipPurchaseBinding(),
     ),
-    GetPage(name: AppRoutes.checkout, page: () => CheckoutView()),
+    GetPage(name: '/test-checkout', page: () => const TestCheckoutView()),
+    GetPage(name: '/checkout', page: () => GeneralCheckout.CheckoutView()),
     GetPage(
       name: AppRoutes.paymentStatus,
       page: () => PaymentStatusView(orderId: Get.arguments ?? ''),
@@ -61,9 +65,10 @@ class AppPages {
       name: AppRoutes.paymentResult,
       page: () => const PaymentResultView(),
     ),
+    GetPage(name: '/momo-payment', page: () => MoMoPaymentView()),
     GetPage(name: AppRoutes.exercises, page: () => const ExerciseListView()),
     GetPage(
-      name: AppRoutes.paymentTest, 
+      name: AppRoutes.paymentTest,
       page: () => const PaymentTestPage(),
       binding: BindingsBuilder(() {
         Get.lazyPut<PaymentController>(() => PaymentController());

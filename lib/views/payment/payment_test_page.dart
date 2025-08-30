@@ -9,10 +9,7 @@ class PaymentTestPage extends GetView<PaymentController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Test MoMo Payment'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Test MoMo Payment'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -27,13 +24,14 @@ class PaymentTestPage extends GetView<PaymentController> {
                   children: [
                     Text(
                       'Production MoMo Integration',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.purple[700],
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.purple[700],
+                          ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Amount Input
                     TextFormField(
                       controller: TextEditingController(text: '10000'),
@@ -49,10 +47,12 @@ class PaymentTestPage extends GetView<PaymentController> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Order Info Input
                     TextFormField(
-                      controller: TextEditingController(text: 'Test Payment GymPro'),
+                      controller: TextEditingController(
+                        text: 'Test Payment GymPro',
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Nội dung thanh toán',
                         hintText: 'Mô tả nội dung thanh toán',
@@ -63,35 +63,39 @@ class PaymentTestPage extends GetView<PaymentController> {
                       },
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Payment Button
-                    Obx(() => AppButton(
-                      text: controller.isProcessing.value 
-                        ? 'Đang xử lý...' 
-                        : 'Thanh toán MoMo',
-                      onPressed: controller.isProcessing.value 
-                        ? null 
-                        : () => controller.processPayment(),
-                      backgroundColor: Colors.purple[600],
-                      textColor: Colors.white,
-                      icon: controller.isProcessing.value 
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Icon(Icons.payment, color: Colors.white),
-                    )),
+                    Obx(
+                      () => AppButton(
+                        text: controller.isProcessing.value
+                            ? 'Đang xử lý...'
+                            : 'Thanh toán MoMo',
+                        onPressed: controller.isProcessing.value
+                            ? null
+                            : () => controller.processPayment(),
+                        backgroundColor: Colors.purple[600],
+                        textColor: Colors.white,
+                        icon: controller.isProcessing.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.payment, color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Payment Status Section
             Card(
               child: Padding(
@@ -106,44 +110,46 @@ class PaymentTestPage extends GetView<PaymentController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
-                    Obx(() => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildStatusItem(
-                          'Trạng thái:',
-                          controller.paymentStatus.value.isEmpty 
-                            ? 'Chưa thanh toán' 
-                            : controller.paymentStatus.value,
-                          _getStatusColor(controller.paymentStatus.value),
-                        ),
-                        if (controller.currentOrderId.value.isNotEmpty)
+
+                    Obx(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           _buildStatusItem(
-                            'Mã đơn hàng:',
-                            controller.currentOrderId.value,
-                            Colors.blue[700]!,
+                            'Trạng thái:',
+                            controller.paymentStatus.value.isEmpty
+                                ? 'Chưa thanh toán'
+                                : controller.paymentStatus.value,
+                            _getStatusColor(controller.paymentStatus.value),
                           ),
-                        if (controller.currentTransactionId.value.isNotEmpty)
-                          _buildStatusItem(
-                            'Mã giao dịch:',
-                            controller.currentTransactionId.value,
-                            Colors.green[700]!,
-                          ),
-                        if (controller.paymentMessage.value.isNotEmpty)
-                          _buildStatusItem(
-                            'Thông báo:',
-                            controller.paymentMessage.value,
-                            Colors.orange[700]!,
-                          ),
-                      ],
-                    )),
+                          if (controller.currentOrderId.value.isNotEmpty)
+                            _buildStatusItem(
+                              'Mã đơn hàng:',
+                              controller.currentOrderId.value,
+                              Colors.blue[700]!,
+                            ),
+                          if (controller.currentTransactionId.value.isNotEmpty)
+                            _buildStatusItem(
+                              'Mã giao dịch:',
+                              controller.currentTransactionId.value,
+                              Colors.green[700]!,
+                            ),
+                          if (controller.paymentMessage.value.isNotEmpty)
+                            _buildStatusItem(
+                              'Thông báo:',
+                              controller.paymentMessage.value,
+                              Colors.orange[700]!,
+                            ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Instructions Section
             Card(
               child: Padding(
@@ -159,7 +165,7 @@ class PaymentTestPage extends GetView<PaymentController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     _buildInstructionItem(
                       '1.',
                       'Nhập số tiền và nội dung thanh toán',
@@ -189,14 +195,14 @@ class PaymentTestPage extends GetView<PaymentController> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _buildStatusItem(String label, String value, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -216,18 +222,19 @@ class PaymentTestPage extends GetView<PaymentController> {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: color,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w500, color: color),
             ),
           ),
         ],
       ),
     );
   }
-  
-  Widget _buildInstructionItem(String number, String instruction, IconData icon) {
+
+  Widget _buildInstructionItem(
+    String number,
+    String instruction,
+    IconData icon,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -250,23 +257,16 @@ class PaymentTestPage extends GetView<PaymentController> {
             ),
           ),
           const SizedBox(width: 12),
-          Icon(
-            icon,
-            color: Colors.blue[600],
-            size: 20,
-          ),
+          Icon(icon, color: Colors.blue[600], size: 20),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              instruction,
-              style: const TextStyle(fontSize: 14),
-            ),
+            child: Text(instruction, style: const TextStyle(fontSize: 14)),
           ),
         ],
       ),
     );
   }
-  
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'success':

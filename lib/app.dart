@@ -11,8 +11,8 @@ class GymProApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize Controllers
-    Get.put(AuthController());
+    // Initialize Controllers in order
+    Get.put(AuthController(), permanent: true);
     final themeController = Get.put(ThemeController());
 
     return Obx(

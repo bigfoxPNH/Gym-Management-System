@@ -4,21 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/payment_transaction.dart';
-
-// MoMo API Configuration
-class MoMoConfig {
-  // Backend proxy server endpoint (thay vì gọi MoMo trực tiếp)
-  static const String endpoint =
-      'http://192.168.23.1:3000/api/momo/create-payment';
-  static const String queryEndpoint = 'http://192.168.23.1:3000/api/momo/query';
-
-  // Production: thay localhost bằng domain thật
-  // static const String endpoint = 'https://your-backend.com/api/momo/create-payment';
-  // static const String queryEndpoint = 'https://your-backend.com/api/momo/query';
-
-  static const String requestType = 'payWithATM';
-  static const String lang = 'vi';
-}
+import '../config/momo_config.dart';
 
 // MoMo API Models
 class MoMoPaymentRequest {
@@ -249,8 +235,8 @@ class MoMoService {
         data: request.toJson(),
         options: Options(
           headers: {'Content-Type': 'application/json'},
-          sendTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 60), // Increased timeout
+          receiveTimeout: const Duration(seconds: 60), // Increased timeout
         ),
       );
 

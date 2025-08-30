@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum Role { member, staff, manager, admin }
+enum Role { member, staff, manager, admin, membershipCard }
 
 enum Gender { male, female, other }
 
@@ -159,6 +159,8 @@ class UserAccount {
         return Role.manager;
       case 'admin':
         return Role.admin;
+      case 'membershipcard':
+        return Role.membershipCard;
       default:
         return Role.member;
     }
@@ -174,6 +176,8 @@ class UserAccount {
         return 'manager';
       case Role.admin:
         return 'admin';
+      case Role.membershipCard:
+        return 'membershipCard';
     }
   }
 
@@ -215,6 +219,8 @@ class UserAccount {
         return 'Manager';
       case Role.admin:
         return 'Admin';
+      case Role.membershipCard:
+        return 'Membership Card';
     }
   }
 

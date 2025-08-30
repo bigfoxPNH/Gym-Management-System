@@ -18,33 +18,35 @@ class SettingsView extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Theme Section
-          _buildSectionTitle('Giao Diện', Icons.palette),
-          _buildThemeSelector(),
-          const SizedBox(height: 24),
+      body: SingleChildScrollView(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Theme Section
+            _buildSectionTitle('Giao Diện', Icons.palette),
+            _buildThemeSelector(),
+            const SizedBox(height: 24),
 
-          // Notifications Section
-          _buildSectionTitle('Thông Báo', Icons.notifications),
-          _buildNotificationSettings(),
-          const SizedBox(height: 24),
+            // Notifications Section
+            _buildSectionTitle('Thông Báo', Icons.notifications),
+            _buildNotificationSettings(),
+            const SizedBox(height: 24),
 
-          // App Updates Section
-          _buildSectionTitle('Cập Nhật Ứng Dụng', Icons.system_update),
-          _buildUpdateSettings(),
-          const SizedBox(height: 24),
+            // App Updates Section
+            _buildSectionTitle('Cập Nhật Ứng Dụng', Icons.system_update),
+            _buildUpdateSettings(),
+            const SizedBox(height: 24),
 
-          // Contact Support Section
-          _buildSectionTitle('Liên Hệ Hỗ Trợ', Icons.contact_support),
-          _buildContactSupport(),
-          const SizedBox(height: 24),
+            // Contact Support Section
+            _buildSectionTitle('Liên Hệ Hỗ Trợ', Icons.contact_support),
+            _buildContactSupport(),
+            const SizedBox(height: 24),
 
-          // Account Actions
-          _buildSectionTitle('Cài Đặt Tài Khoản', Icons.account_circle),
-          _buildAccountActions(authController),
-        ],
+            // Account Actions
+            _buildSectionTitle('Cài Đặt Tài Khoản', Icons.account_circle),
+            _buildAccountActions(authController),
+          ],
+        ),
       ),
     );
   }

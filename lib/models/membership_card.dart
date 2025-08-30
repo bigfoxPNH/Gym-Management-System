@@ -271,6 +271,11 @@ class MembershipCard {
     return '${price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} VND';
   }
 
+  String get cardNumber => id;
+  DateTime get startDate => createdAt;
+  DateTime get endDate =>
+      customEndDate ?? createdAt.add(Duration(days: duration));
+
   @override
   String toString() {
     return 'MembershipCard(id: $id, cardName: $cardName, cardType: ${cardType.label}, price: ${getFormattedPrice()})';

@@ -13,147 +13,149 @@ class CleanupTestView extends StatelessWidget {
         backgroundColor: Colors.red.shade600,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Warning Card
-            Card(
-              color: Colors.orange.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.warning_amber,
-                      color: Colors.orange.shade700,
-                      size: 48,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '⚠️ CẢNH BÁO',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Warning Card
+              Card(
+                color: Colors.orange.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.warning_amber,
                         color: Colors.orange.shade700,
+                        size: 48,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Thao tác này sẽ XÓA VĨNH VIỄN tất cả dữ liệu test từ Firebase.\n'
-                      'Dữ liệu sẽ không thể khôi phục sau khi xóa.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Action Buttons
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      '🎯 Các thao tác có sẵn:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // List all cards button
-                    ElevatedButton.icon(
-                      onPressed: () => _listAllCards(),
-                      icon: const Icon(Icons.list),
-                      label: const Text('📋 Xem tất cả thẻ tập'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Delete test cards only
-                    ElevatedButton.icon(
-                      onPressed: () => _deleteTestCards(),
-                      icon: const Icon(Icons.delete_sweep),
-                      label: const Text('🗑️ Xóa thẻ "Thẻ Tập Test"'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Delete test purchases only
-                    ElevatedButton.icon(
-                      onPressed: () => _deleteTestPurchases(),
-                      icon: const Icon(Icons.shopping_cart_outlined),
-                      label: const Text('🛒 Xóa giao dịch test'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange.shade700,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Complete cleanup
-                    ElevatedButton.icon(
-                      onPressed: () => _completeCleanup(),
-                      icon: const Icon(Icons.cleaning_services),
-                      label: const Text('🧹 XÓA TẤT CẢ dữ liệu test'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Instructions
-            Card(
-              color: Colors.blue.shade50,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.blue.shade700),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Hướng dẫn:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
-                          ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '⚠️ CẢNH BÁO',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade700,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      '1. Nhấn "Xem tất cả thẻ tập" để kiểm tra dữ liệu hiện tại\n'
-                      '2. Nhấn "XÓA TẤT CẢ dữ liệu test" để xóa hoàn toàn\n'
-                      '3. Kiểm tra console để xem kết quả chi tiết',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Thao tác này sẽ XÓA VĨNH VIỄN tất cả dữ liệu test từ Firebase.\n'
+                        'Dữ liệu sẽ không thể khôi phục sau khi xóa.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Action Buttons
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        '🎯 Các thao tác có sẵn:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // List all cards button
+                      ElevatedButton.icon(
+                        onPressed: () => _listAllCards(),
+                        icon: const Icon(Icons.list),
+                        label: const Text('📋 Xem tất cả thẻ tập'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Delete test cards only
+                      ElevatedButton.icon(
+                        onPressed: () => _deleteTestCards(),
+                        icon: const Icon(Icons.delete_sweep),
+                        label: const Text('🗑️ Xóa thẻ "Thẻ Tập Test"'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Delete test purchases only
+                      ElevatedButton.icon(
+                        onPressed: () => _deleteTestPurchases(),
+                        icon: const Icon(Icons.shopping_cart_outlined),
+                        label: const Text('🛒 Xóa giao dịch test'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange.shade700,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Complete cleanup
+                      ElevatedButton.icon(
+                        onPressed: () => _completeCleanup(),
+                        icon: const Icon(Icons.cleaning_services),
+                        label: const Text('🧹 XÓA TẤT CẢ dữ liệu test'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Instructions
+              Card(
+                color: Colors.blue.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info, color: Colors.blue.shade700),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Hướng dẫn:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        '1. Nhấn "Xem tất cả thẻ tập" để kiểm tra dữ liệu hiện tại\n'
+                        '2. Nhấn "XÓA TẤT CẢ dữ liệu test" để xóa hoàn toàn\n'
+                        '3. Kiểm tra console để xem kết quả chi tiết',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

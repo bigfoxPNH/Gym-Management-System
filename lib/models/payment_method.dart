@@ -12,6 +12,7 @@ class PaymentMethod {
   final String iconUrl;
   final bool isEnabled;
   final String description;
+  final double fee;
 
   PaymentMethod({
     required this.id,
@@ -21,6 +22,7 @@ class PaymentMethod {
     required this.iconUrl,
     required this.isEnabled,
     required this.description,
+    this.fee = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,6 +34,7 @@ class PaymentMethod {
       'iconUrl': iconUrl,
       'isEnabled': isEnabled,
       'description': description,
+      'fee': fee,
     };
   }
 
@@ -47,6 +50,7 @@ class PaymentMethod {
       iconUrl: map['iconUrl'] ?? '',
       isEnabled: map['isEnabled'] ?? false,
       description: map['description'] ?? '',
+      fee: map['fee'] ?? 0,
     );
   }
 

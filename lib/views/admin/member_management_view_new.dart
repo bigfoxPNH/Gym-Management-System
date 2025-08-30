@@ -416,6 +416,8 @@ class MemberManagementView extends StatelessWidget {
         return Colors.green;
       case Role.member:
         return Colors.blue;
+      case Role.membershipCard:
+        return Colors.teal; 
     }
   }
 

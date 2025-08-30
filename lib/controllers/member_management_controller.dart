@@ -62,6 +62,14 @@ class MemberManagementController extends GetxController {
     }
   }
 
+  int get membershipCardCount {
+    try {
+      return users.where((u) => u.role == Role.membershipCard).length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   // Load all users from Firestore
   Future<void> loadAllUsers() async {
     try {
@@ -286,6 +294,28 @@ class MemberManagementController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Delete membership card
+  Future<void> deleteMembershipCard(String cardId) async {
+    try {
+      await _firestore.collection('membership_cards').doc(cardId).delete();
+      Get.snackbar(
+        'Thành công',
+        'Đã xóa thẻ hội viên',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFF4CAF50),
+        colorText: const Color(0xFFFFFFFF),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể xóa thẻ hội viên: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFF44336),
+        colorText: const Color(0xFFFFFFFF),
+      );
     }
   }
 

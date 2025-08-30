@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files từ thư mục public
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 // Lấy IP thực của máy
 function getLocalIP() {
@@ -21,12 +21,12 @@ function getLocalIP() {
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
       // Tìm IPv4 không phải loopback và không internal
-      if (iface.family === 'IPv4' && !iface.internal) {
+      if (iface.family === "IPv4" && !iface.internal) {
         return iface.address;
       }
     }
   }
-  return 'localhost'; // fallback
+  return "localhost"; // fallback
 }
 
 // MoMo configuration theo tài liệu chính thức
@@ -35,8 +35,8 @@ const MOMO_CONFIG = {
   accessKey: "F8BBA842ECF85",
   secretKey: "K951B6PE1waDMi640xX08PD3vg6EkVlz",
   endpoint: "https://test-payment.momo.vn/v2/gateway/api/create",
-  redirectUrl: "http://localhost:3000/payment-success", // Redirect về trang success của chúng ta
-  ipnUrl: "http://localhost:3000/api/momo/callback", // Callback endpoint
+  redirectUrl: "https://6b601b1cc795.ngrok-free.app/payment-success", // Redirect về trang success của chúng ta
+  ipnUrl: "https://6b601b1cc795.ngrok-free.app/api/momo/callback", // Callback endpoint
 };
 
 // Generate HMAC SHA256 signature
@@ -83,7 +83,7 @@ app.post("/api/momo/create-payment", async (req, res) => {
     });
 
     console.log("💰 MoMo API Response:", response.data);
-    
+
     // Tạo QR code từ payUrl (chính xác theo tài liệu MoMo)
     let qrCodeDataUrl = null;
     if (response.data.payUrl) {
@@ -92,16 +92,19 @@ app.post("/api/momo/create-payment", async (req, res) => {
           width: 300,
           margin: 2,
           color: {
-            dark: '#000000',
-            light: '#FFFFFF'
-          }
+            dark: "#000000",
+            light: "#FFFFFF",
+          },
         });
         console.log("✅ QR Code generated successfully from payUrl");
       } catch (qrError) {
         console.error("❌ QR Code generation error:", qrError);
+        throw new Error("Failed to generate QR Code from payUrl");
       }
+    } else {
+      throw new Error("MoMo API did not return a valid payUrl");
     }
-    
+
     // Trả về response với QR code và deep linking info
     const responseData = {
       ...response.data,
@@ -115,10 +118,10 @@ app.post("/api/momo/create-payment", async (req, res) => {
         orderId: orderId,
         requestId: requestId,
         amount: amount,
-        orderInfo: orderInfo
-      }
+        orderInfo: orderInfo,
+      },
     };
-    
+
     res.json(responseData);
   } catch (error) {
     console.error("❌ MoMo API Error:", error.response?.data || error.message);
@@ -143,34 +146,33 @@ app.post("/api/momo/callback", async (req, res) => {
     if (expectedSignature === callbackData.signature) {
       // Lưu kết quả vào payment status store
       if (callbackData.resultCode == 0) {
-        console.log('✅ Payment successful:', {
+        console.log("✅ Payment successful:", {
           orderId: callbackData.orderId,
           transId: callbackData.transId,
-          amount: callbackData.amount
+          amount: callbackData.amount,
         });
-        
+
         // Update payment status
         paymentStatusStore[callbackData.orderId] = {
           status: "success",
           message: "Payment completed successfully",
           transId: callbackData.transId,
           amount: callbackData.amount,
-          completedAt: new Date().toISOString()
+          completedAt: new Date().toISOString(),
         };
-        
       } else {
-        console.log('❌ Payment failed:', {
+        console.log("❌ Payment failed:", {
           orderId: callbackData.orderId,
           resultCode: callbackData.resultCode,
-          message: callbackData.message
+          message: callbackData.message,
         });
-        
+
         // Update payment status
         paymentStatusStore[callbackData.orderId] = {
           status: "failed",
           message: callbackData.message || "Payment failed",
           resultCode: callbackData.resultCode,
-          failedAt: new Date().toISOString()
+          failedAt: new Date().toISOString(),
         };
       }
 
@@ -191,24 +193,105 @@ app.get("/api/momo/payment-status/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
     console.log(`📋 Checking payment status for order: ${orderId}`);
-    
+
     // Trong real app sẽ query từ database
     // Tạm thời check nếu order tồn tại trong recent payments
     const paymentStatus = paymentStatusStore[orderId] || {
       status: "pending",
-      message: "Waiting for payment confirmation"
+      message: "Waiting for payment confirmation",
     };
-    
+
     res.json({
       orderId: orderId,
       ...paymentStatus,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error) {
     console.error("❌ Payment status check error:", error);
     res.status(500).json({
-      error: error.message
+      error: error.message,
+    });
+  }
+});
+
+// QR Code generation endpoint
+app.get("/api/momo/qr-code", async (req, res) => {
+  try {
+    const { payUrl, orderId } = req.query;
+
+    if (!payUrl || !orderId) {
+      return res.status(400).json({ error: "payUrl and orderId are required" });
+    }
+
+    console.log(`🔍 Generating QR code for payUrl: ${payUrl}`);
+
+    // Generate QR code from payUrl
+    const qrCodeDataUrl = await QRCode.toDataURL(payUrl, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#FFFFFF",
+      },
+    });
+
+    // Set QR code expiration timer
+    setTimeout(() => {
+      paymentStatusStore[orderId] = {
+        status: "expired",
+        message: "QR code expired",
+      };
+      console.log(`⏰ QR code expired for order: ${orderId}`);
+    }, 2 * 60 * 1000); // Expire after 2 minutes
+
+    res.json({
+      success: true,
+      qrCodeUrl: qrCodeDataUrl,
+      payUrl: payUrl,
+    });
+  } catch (error) {
+    console.error("❌ QR Code generation error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Endpoint to validate QR scan
+app.post("/api/momo/validate-scan", async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ error: "orderId is required" });
+    }
+
+    const paymentStatus = paymentStatusStore[orderId];
+
+    if (!paymentStatus || paymentStatus.status === "expired") {
+      return res.status(400).json({ error: "QR code is expired or invalid" });
+    }
+
+    // Ensure payment is marked as successful only after user scans QR
+    paymentStatusStore[orderId] = {
+      status: "success",
+      message: "Payment completed successfully",
+      transId: `VALID_${Date.now()}`,
+      completedAt: new Date().toISOString(),
+    };
+
+    console.log(`🎉 Payment validated for order: ${orderId}`);
+
+    res.json({
+      success: true,
+      message: "Payment validated successfully",
+    });
+  } catch (error) {
+    console.error("❌ Payment validation error:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
     });
   }
 });
@@ -221,38 +304,74 @@ app.post("/api/momo/mock-success/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
     console.log(`🎉 Mock success callback for order: ${orderId}`);
-    
-    // Update payment status to success
+
+    // Update payment status to success immediately
     paymentStatusStore[orderId] = {
       status: "success",
       message: "Payment completed successfully (mock)",
       transId: `MOCK_${Date.now()}`,
-      amount: 10000,
-      completedAt: new Date().toISOString()
+      amount: parseInt(req.body.amount) || 10000, // Use actual amount
+      completedAt: new Date().toISOString(),
     };
-    
+
     res.json({
       success: true,
       message: `Payment ${orderId} marked as successful`,
-      data: paymentStatusStore[orderId]
+      data: paymentStatusStore[orderId],
     });
-    
   } catch (error) {
     console.error("❌ Mock success error:", error);
     res.status(500).json({
-      error: error.message
+      error: error.message,
     });
   }
+});
+
+// Alias to be compatible with Flutter app calling /manual-success
+app.post("/api/momo/manual-success/:orderId", (req, res) => {
+  // Reuse the same logic as mock-success
+  const { orderId } = req.params;
+  paymentStatusStore[orderId] = {
+    status: "success",
+    message: "Payment completed successfully (manual)",
+    transId: `MANUAL_${Date.now()}`,
+    amount: parseInt(req.body?.amount) || 10000,
+    completedAt: new Date().toISOString(),
+  };
+  res.json({
+    success: true,
+    message: `Payment ${orderId} marked as successful (manual)`,
+    data: paymentStatusStore[orderId],
+  });
+});
+
+// Mark success endpoint called by payment-success page (idempotent)
+app.post("/api/momo/mark-success/:orderId", (req, res) => {
+  const { orderId } = req.params;
+  const amount = parseInt(req.body?.amount) || undefined;
+  if (
+    !paymentStatusStore[orderId] ||
+    paymentStatusStore[orderId].status !== "success"
+  ) {
+    paymentStatusStore[orderId] = {
+      status: "success",
+      message: "Payment completed successfully (mark)",
+      transId: paymentStatusStore[orderId]?.transId || `MARK_${Date.now()}`,
+      amount: amount || paymentStatusStore[orderId]?.amount,
+      completedAt: new Date().toISOString(),
+    };
+  }
+  res.json({ success: true, data: paymentStatusStore[orderId] });
 });
 
 // Mock success endpoint for testing
 app.post("/api/momo/mock-success/:orderId", (req, res) => {
   try {
     const { orderId } = req.params;
-    
+
     // Mark payment as successful in our store
     paymentStatusStore[orderId] = {
-      status: 'success',
+      status: "success",
       timestamp: Date.now(),
       data: {
         partnerCode: "MOMO",
@@ -262,15 +381,15 @@ app.post("/api/momo/mock-success/:orderId", (req, res) => {
         resultCode: 0,
         message: "Thành công.",
         responseTime: Date.now(),
-        transId: Math.floor(Math.random() * 9999999999).toString()
-      }
+        transId: Math.floor(Math.random() * 9999999999).toString(),
+      },
     };
-    
+
     console.log("Mock callback data:", paymentStatusStore[orderId]);
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: "Payment marked as successful",
-      data: paymentStatusStore[orderId] 
+      data: paymentStatusStore[orderId],
     });
   } catch (error) {
     console.error("Mock callback error:", error);
@@ -280,7 +399,7 @@ app.post("/api/momo/mock-success/:orderId", (req, res) => {
 
 // Payment success page
 app.get("/payment-success", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'payment-success.html'));
+  res.sendFile(path.join(__dirname, "public", "payment-success.html"));
 });
 
 // Health check

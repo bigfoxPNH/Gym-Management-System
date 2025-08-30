@@ -16,9 +16,10 @@ class MoMoPaymentService {
   final Dio _dio = Dio();
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
-  
+
   // Callback controllers
-  final StreamController<MoMoCallbackResult> _callbackController = StreamController<MoMoCallbackResult>.broadcast();
+  final StreamController<MoMoCallbackResult> _callbackController =
+      StreamController<MoMoCallbackResult>.broadcast();
   Stream<MoMoCallbackResult> get callbackStream => _callbackController.stream;
 
   /// Initialize deep link listening
@@ -74,9 +75,11 @@ class MoMoPaymentService {
       );
 
       // Call backend API to create MoMo payment
-      print('🔄 Calling MoMo backend: ${MoMoConfig.backendUrl}/api/momo/create-payment');
+      print(
+        '🔄 Calling MoMo backend: ${MoMoConfig.backendUrl}/api/momo/create-payment',
+      );
       print('📝 Request data: ${request.toJson()}');
-      
+
       final response = await _dio.post(
         '${MoMoConfig.backendUrl}/api/momo/create-payment',
         data: request.toJson(),
@@ -117,9 +120,11 @@ class MoMoPaymentService {
       String? launchUrl;
 
       // Priority order: deeplink > payUrl
-      if (paymentResponse.deeplink != null && paymentResponse.deeplink!.isNotEmpty) {
+      if (paymentResponse.deeplink != null &&
+          paymentResponse.deeplink!.isNotEmpty) {
         launchUrl = paymentResponse.deeplink!;
-      } else if (paymentResponse.payUrl != null && paymentResponse.payUrl!.isNotEmpty) {
+      } else if (paymentResponse.payUrl != null &&
+          paymentResponse.payUrl!.isNotEmpty) {
         launchUrl = paymentResponse.payUrl!;
       }
 
@@ -138,12 +143,12 @@ class MoMoPaymentService {
           uri,
           mode: launcher.LaunchMode.externalApplication,
         );
-        
+
         print('✅ Successfully launched MoMo app');
         return true;
       } else {
         print('❌ Cannot launch MoMo URL: $launchUrl');
-        
+
         // Fallback: Try to open MoMo app directly
         return await _openMoMoApp();
       }
@@ -177,15 +182,22 @@ class MoMoPaymentService {
     try {
       Uri storeUri;
       if (Platform.isAndroid) {
-        storeUri = Uri.parse('market://details?id=${MoMoConfig.momoPackageAndroid}');
+        storeUri = Uri.parse(
+          'market://details?id=${MoMoConfig.momoPackageAndroid}',
+        );
       } else if (Platform.isIOS) {
-        storeUri = Uri.parse('https://apps.apple.com/vn/app/momo-wallet/id918751124');
+        storeUri = Uri.parse(
+          'https://apps.apple.com/vn/app/momo-wallet/id918751124',
+        );
       } else {
         return;
       }
 
       if (await launcher.canLaunchUrl(storeUri)) {
-        await launcher.launchUrl(storeUri, mode: launcher.LaunchMode.externalApplication);
+        await launcher.launchUrl(
+          storeUri,
+          mode: launcher.LaunchMode.externalApplication,
+        );
       }
     } catch (e) {
       print('❌ Error opening MoMo store: $e');
@@ -206,28 +218,32 @@ class MoMoPaymentService {
     required String requestType,
     required String secretKey,
   }) {
-    final rawSignature = 'accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType';
-    
+    final rawSignature =
+        'accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType';
+
     final bytes = utf8.encode(rawSignature);
     final hmacSha256 = Hmac(sha256, utf8.encode(secretKey));
     final digest = hmacSha256.convert(bytes);
-    
+
     return digest.toString();
   }
 
   /// Verify callback signature
   bool verifyCallback(MoMoCallbackResult callback) {
     try {
-      final rawSignature = 'accessKey=${MoMoConfig.accessKey}&amount=${callback.amount}&extraData=${callback.extraData}&message=${callback.message}&orderId=${callback.orderId}&orderInfo=${callback.orderInfo}&orderType=${callback.orderType}&partnerCode=${callback.partnerCode}&payType=${callback.payType}&requestId=${callback.requestId}&responseTime=${callback.responseTime}&resultCode=${callback.resultCode}&transId=${callback.transId}';
-      
+      final rawSignature =
+          'accessKey=${MoMoConfig.accessKey}&amount=${callback.amount}&extraData=${callback.extraData}&message=${callback.message}&orderId=${callback.orderId}&orderInfo=${callback.orderInfo}&orderType=${callback.orderType}&partnerCode=${callback.partnerCode}&payType=${callback.payType}&requestId=${callback.requestId}&responseTime=${callback.responseTime}&resultCode=${callback.resultCode}&transId=${callback.transId}';
+
       final bytes = utf8.encode(rawSignature);
       final hmacSha256 = Hmac(sha256, utf8.encode(MoMoConfig.secretKey));
       final digest = hmacSha256.convert(bytes);
       final expectedSignature = digest.toString();
-      
+
       final isValid = expectedSignature == callback.signature;
-      print(isValid ? '✅ Callback signature valid' : '❌ Callback signature invalid');
-      
+      print(
+        isValid ? '✅ Callback signature valid' : '❌ Callback signature invalid',
+      );
+
       return isValid;
     } catch (e) {
       print('❌ Error verifying callback signature: $e');
@@ -237,28 +253,27 @@ class MoMoPaymentService {
 
   // Private methods
   bool _isPaymentCallback(Uri uri) {
-    return uri.scheme == MoMoConfig.appScheme && 
-           uri.host == MoMoConfig.paymentHost;
+    return uri.scheme == MoMoConfig.appScheme &&
+        uri.host == MoMoConfig.paymentHost;
   }
 
   void _handlePaymentCallback(Uri uri) {
     try {
       print('📱 Received payment callback: ${uri.toString()}');
-      
+
       final callback = MoMoCallbackResult.fromUri(uri);
-      
+
       // Verify signature if needed
       // final isValidSignature = verifyCallback(callback);
       // if (!isValidSignature) {
       //   print('❌ Invalid callback signature, ignoring');
       //   return;
       // }
-      
+
       print('✅ Payment callback processed: ${callback.statusMessage}');
-      
+
       // Notify listeners
       _callbackController.add(callback);
-      
     } catch (e) {
       print('❌ Error handling payment callback: $e');
     }
@@ -268,12 +283,37 @@ class MoMoPaymentService {
     try {
       final uri = Uri.parse('${MoMoConfig.momoAppScheme}://');
       if (await launcher.canLaunchUrl(uri)) {
-        return await launcher.launchUrl(uri, mode: launcher.LaunchMode.externalApplication);
+        return await launcher.launchUrl(
+          uri,
+          mode: launcher.LaunchMode.externalApplication,
+        );
       }
       return false;
     } catch (e) {
       print('❌ Error opening MoMo app: $e');
       return false;
+    }
+  }
+
+  /// Get QR code image as base64 string from backend
+  Future<String> getQRCodeImage(String payUrl) async {
+    try {
+      print('🔍 Getting QR code from backend for payUrl: $payUrl');
+
+      final response = await _dio.get(
+        'http://localhost:3000/api/momo/qr-code',
+        queryParameters: {'payUrl': payUrl},
+      );
+
+      if (response.statusCode == 200 && response.data['qrCodeBase64'] != null) {
+        return response.data['qrCodeBase64'] as String;
+      } else {
+        print('❌ Failed to get QR code: ${response.data}');
+        return '';
+      }
+    } catch (e) {
+      print('❌ Error getting QR code: $e');
+      return '';
     }
   }
 }

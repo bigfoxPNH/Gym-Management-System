@@ -1,0 +1,10 @@
+{
+  "name": "gympro",
+  "version": "1.0.0",
+  "description": "Gym Pro App",
+  "main": "index.js",
+  "scripts": {
+    "start": "flutter run"
+  },
+  "dependencies": {}
+}

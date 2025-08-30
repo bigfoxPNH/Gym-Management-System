@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/member_management_controller.dart';
 import '../../models/user_account.dart';
+import '../../models/membership_card.dart';
 
 class MemberManagementView extends StatelessWidget {
   const MemberManagementView({super.key});
@@ -27,23 +28,13 @@ class MemberManagementView extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.users.isEmpty) {
-          return _buildEmptyState();
-        }
-
-        return Column(
-          children: [
-            _buildSearchBar(controller),
-            _buildStatsBar(controller),
-            Expanded(child: _buildUsersList(controller)),
-          ],
-        );
-      }),
+      body: Column(
+        children: [
+          _buildSearchBar(controller),
+          _buildStatsBar(controller),
+          Expanded(child: _buildUsersList(controller)),
+        ],
+      ),
     );
   }
 
@@ -119,6 +110,14 @@ class MemberManagementView extends StatelessWidget {
               () => controller.updateRoleFilter(Role.member),
               controller.selectedRole.value == Role.member,
             ),
+            const SizedBox(width: 12),
+            _buildStatCard(
+              'Thẻ hội viên',
+              controller.membershipCardCount.toString(),
+              Colors.teal,
+              () => controller.updateRoleFilter(Role.membershipCard),
+              controller.selectedRole.value == Role.membershipCard,
+            ),
           ],
         );
       }),
@@ -137,6 +136,7 @@ class MemberManagementView extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
+          height: 100, // Ensure consistent height for all cards
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isSelected ? color : color.withOpacity(0.1),
@@ -147,6 +147,7 @@ class MemberManagementView extends StatelessWidget {
             ),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 count,
@@ -414,6 +415,8 @@ class MemberManagementView extends StatelessWidget {
         return Colors.green;
       case Role.member:
         return Colors.blue;
+      case Role.membershipCard:
+        return Colors.teal;
     }
   }
 
@@ -706,6 +709,91 @@ class MemberManagementView extends StatelessWidget {
             onPressed: () async {
               Get.back();
               await controller.deleteUser(user.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleMembershipCardAction(
+    BuildContext context,
+    String action,
+    MembershipCard card,
+    MemberManagementController controller,
+  ) {
+    switch (action) {
+      case 'view':
+        _showMembershipCardDetailDialog(context, card);
+        break;
+      case 'edit':
+        _showEditMembershipCardDialog(context, card, controller);
+        break;
+      case 'delete':
+        _showDeleteMembershipCardConfirmDialog(context, card, controller);
+        break;
+    }
+  }
+
+  void _showMembershipCardDetailDialog(
+    BuildContext context,
+    MembershipCard card,
+  ) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Chi tiết thẻ: ${card.cardNumber}'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildDetailRow('Số thẻ', card.cardNumber),
+              _buildDetailRow('Ngày bắt đầu', card.startDate.toString()),
+              _buildDetailRow('Ngày kết thúc', card.endDate.toString()),
+              _buildDetailRow(
+                'Trạng thái',
+                card.isActive ? 'Hoạt động' : 'Vô hiệu hóa',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Đóng')),
+        ],
+      ),
+    );
+  }
+
+  void _showEditMembershipCardDialog(
+    BuildContext context,
+    MembershipCard card,
+    MemberManagementController controller,
+  ) {
+    // Logic for editing membership card
+  }
+
+  void _showDeleteMembershipCardConfirmDialog(
+    BuildContext context,
+    MembershipCard card,
+    MemberManagementController controller,
+  ) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa thẻ hội viên "${card.cardNumber}"?\n\nHành động này không thể hoàn tác.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
+          ElevatedButton(
+            onPressed: () async {
+              Get.back();
+              await controller.deleteMembershipCard(card.id);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
