@@ -178,18 +178,12 @@ class HomeView extends StatelessWidget {
                 ),
                 _buildAdminActionCard(
                   context,
-                  icon: Icons.analytics,
-                  title: 'Báo Cáo & Thống Kê',
-                  subtitle: 'Dashboard & analytics',
-                  color: Colors.teal,
+                  icon: Icons.schedule,
+                  title: 'Quản Lý Lịch Trình',
+                  subtitle: 'Tạo & quản lý lịch tập',
+                  color: Colors.orange,
                   onTap: () {
-                    Get.snackbar(
-                      'Sắp Ra Mắt',
-                      'Báo cáo thống kê sẽ sớm có sẵn!',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.orange,
-                      colorText: Colors.white,
-                    );
+                    Get.toNamed(AppRoutes.scheduleManagement);
                   },
                 ),
               ],
@@ -226,16 +220,12 @@ class HomeView extends StatelessWidget {
               ),
               _buildActionCard(
                 context,
-                icon: Icons.timeline,
-                title: 'Tiến Trình',
+                icon: Icons.history,
+                title: 'Lịch Sử Lịch Trình',
                 subtitle: 'Theo dõi kết quả',
                 color: Colors.green,
                 onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Theo dõi tiến trình sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.toNamed(AppRoutes.userScheduleHistory);
                 },
               ),
               _buildActionCard(
@@ -275,11 +265,7 @@ class HomeView extends StatelessWidget {
                 subtitle: 'Lập kế hoạch tập',
                 color: Colors.teal,
                 onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Lập lịch tập luyện sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
+                  Get.toNamed(AppRoutes.userScheduleSelection);
                 },
               ),
               _buildActionCard(

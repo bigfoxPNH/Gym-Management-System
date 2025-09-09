@@ -16,6 +16,15 @@ import '../views/payment/payment_status_view.dart';
 import '../views/payment/payment_result_view.dart';
 import '../views/exercise/exercise_list_view.dart';
 
+// Workout Schedule imports
+import '../views/admin/schedule_management_view.dart';
+import '../views/admin/create_schedule_view.dart';
+import '../views/admin/edit_schedule_view.dart';
+import '../views/user/user_schedule_selection_view.dart';
+import '../views/user/user_schedule_detail_view.dart';
+import '../views/user/user_schedule_history_view.dart';
+import '../views/user/workout_schedule_detail_view.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -65,6 +74,36 @@ class AppPages {
     ),
     GetPage(name: AppRoutes.exercises, page: () => const ExerciseListView()),
     GetPage(name: '/cleanup-test', page: () => const CleanupTestView()),
+
+    // Workout Schedule Routes
+    GetPage(
+      name: AppRoutes.scheduleManagement,
+      page: () => const ScheduleManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.createSchedule,
+      page: () => const CreateScheduleView(),
+    ),
+    GetPage(
+      name: AppRoutes.editSchedule,
+      page: () => EditScheduleView(schedule: Get.arguments),
+    ),
+    GetPage(
+      name: AppRoutes.userScheduleSelection,
+      page: () => const UserScheduleSelectionView(),
+    ),
+    GetPage(
+      name: AppRoutes.userScheduleDetail,
+      page: () => const UserScheduleDetailView(),
+    ),
+    GetPage(
+      name: AppRoutes.userScheduleHistory,
+      page: () => const UserScheduleHistoryView(),
+    ),
+    GetPage(
+      name: AppRoutes.workoutScheduleDetail,
+      page: () => WorkoutScheduleDetailView(schedule: Get.arguments),
+    ),
   ];
 }
 

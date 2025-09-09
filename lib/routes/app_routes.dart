@@ -16,4 +16,13 @@ abstract class AppRoutes {
   static const paymentResult = '/payment-result';
   static const exercises = '/exercises';
   static const cleanupTest = '/cleanup-test';
+
+  // Workout Schedule Routes
+  static const scheduleManagement = '/admin/schedule-management';
+  static const createSchedule = '/admin/create-schedule';
+  static const editSchedule = '/admin/edit-schedule';
+  static const userScheduleSelection = '/user/schedule-selection';
+  static const userScheduleDetail = '/user/schedule-detail';
+  static const userScheduleHistory = '/user/schedule-history';
+  static const workoutScheduleDetail = '/user/workout-schedule-detail';
 }

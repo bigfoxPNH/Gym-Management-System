@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import '../../controllers/member_management_controller.dart';
 import '../../models/user_account.dart';
 import '../../models/membership_card.dart';
@@ -811,10 +812,14 @@ class MemberManagementView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildDetailRow('ID', card.id),
-              _buildDetailRow('Họ tên', card.memberName),
-              _buildDetailRow('Email', card.memberEmail),
-              _buildDetailRow('Ngày bắt đầu', card.startDate),
-              _buildDetailRow('Ngày kết thúc', card.endDate),
+              _buildDetailRow(
+                'Ngày bắt đầu',
+                DateFormat('dd/MM/yyyy').format(card.startDate),
+              ),
+              _buildDetailRow(
+                'Ngày kết thúc',
+                DateFormat('dd/MM/yyyy').format(card.endDate),
+              ),
               _buildDetailRow('Tên thẻ', card.cardName),
               _buildDetailRow('Mô tả', card.description),
               _buildDetailRow(
