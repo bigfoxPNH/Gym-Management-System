@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
 
 import '../models/membership_card.dart';
 import '../models/payment_method.dart';
@@ -9,8 +7,6 @@ import '../models/user_account.dart';
 import '../services/auth_service.dart';
 
 class CheckoutController extends GetxController {
-  final _uuid = const Uuid();
-
   // Observable state
   final isLoading = false.obs;
   final selectedPaymentMethod = Rxn<PaymentMethod>();
@@ -43,15 +39,15 @@ class CheckoutController extends GetxController {
       );
     }
 
-    // Set default payment method to MoMo
+    // Set default payment method to Banking
     selectedPaymentMethod.value = PaymentMethod(
-      id: 'momo',
-      name: 'momo',
-      displayName: 'MoMo',
-      type: PaymentMethodType.momo,
-      iconUrl: 'assets/images/momo_icon.png',
+      id: 'banking',
+      name: 'banking',
+      displayName: 'Chuyển khoản ngân hàng',
+      type: PaymentMethodType.banking,
+      iconUrl: 'assets/images/banking_icon.png',
       isEnabled: true,
-      description: 'Thanh toán qua ví điện tử MoMo',
+      description: 'Thanh toán qua chuyển khoản ngân hàng',
     );
   }
 
@@ -82,11 +78,14 @@ class CheckoutController extends GetxController {
 
     try {
       // Create transaction
+      final transactionId = DateTime.now().millisecondsSinceEpoch.toString();
+      final purchaseId = DateTime.now().microsecondsSinceEpoch.toString();
+
       final transaction = PaymentTransaction(
-        id: _uuid.v4(),
+        id: transactionId,
         userId: currentUser?.id ?? '',
         membershipCardId: membershipCard!.id,
-        membershipPurchaseId: _uuid.v4(), // Generate purchase ID
+        membershipPurchaseId: purchaseId,
         paymentType: PaymentType.membership,
         paymentMethod: selectedPaymentMethod.value!.type,
         amount: membershipCard!.price,
@@ -97,14 +96,14 @@ class CheckoutController extends GetxController {
 
       currentTransaction.value = transaction;
 
-      // Navigate to MoMo payment page based on payment method
-      if (selectedPaymentMethod.value!.type == PaymentMethodType.momo) {
-        print('🚀 Navigating to MoMo payment with:');
+      // Navigate to Banking payment page
+      if (selectedPaymentMethod.value!.type == PaymentMethodType.banking) {
+        print('🚀 Navigating to Banking payment with:');
         print('  - MembershipCard: ${membershipCard?.cardName}');
         print('  - Transaction: ${transaction.id}');
 
         Get.toNamed(
-          '/momo-payment',
+          '/banking-payment',
           arguments: {
             'membershipCard': membershipCard,
             'transaction': transaction,

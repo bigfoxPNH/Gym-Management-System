@@ -15,6 +15,5 @@ abstract class AppRoutes {
   static const paymentStatus = '/payment/status';
   static const paymentResult = '/payment-result';
   static const exercises = '/exercises';
-  static const paymentTest = '/payment-test';
   static const cleanupTest = '/cleanup-test';
 }

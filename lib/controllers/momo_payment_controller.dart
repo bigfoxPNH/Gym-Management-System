@@ -11,10 +11,11 @@ import '../controllers/auth_controller.dart';
 import '../services/membership_purchase_service.dart';
 import '../services/purchase_history_service.dart';
 import '../services/payment_monitor_service.dart';
+import '../services/production_momo_service.dart';
 import '../config/momo_config.dart';
 
 class MoMoPaymentController extends GetxController {
-  final Dio _dio = Dio();
+  final ProductionMoMoService _momoService = ProductionMoMoService();
   final AuthController _authController = Get.find<AuthController>();
 
   // Observable states

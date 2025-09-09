@@ -1,5 +1,4 @@
 enum PaymentMethodType {
-  momo,
   banking,
   cash, // For demo purposes
 }
@@ -57,15 +56,6 @@ class PaymentMethod {
   // Static methods to create default payment methods
   static List<PaymentMethod> getDefaultMethods() {
     return [
-      PaymentMethod(
-        id: 'momo',
-        name: 'momo',
-        displayName: 'Ví điện tử MoMo',
-        type: PaymentMethodType.momo,
-        iconUrl: 'assets/images/momo_logo.png',
-        isEnabled: true,
-        description: 'Thanh toán qua ví điện tử MoMo',
-      ),
       PaymentMethod(
         id: 'banking',
         name: 'banking',

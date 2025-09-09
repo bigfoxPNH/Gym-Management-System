@@ -15,8 +15,8 @@ class PaymentCallbackController extends GetxController {
   final RxBool isProcessingCallback = false.obs;
   final RxString statusMessage = ''.obs;
 
-  /// Process MoMo callback từ webhook
-  Future<Map<String, dynamic>> processMoMoCallback(
+  /// Process Banking callback từ webhook
+  Future<Map<String, dynamic>> processBankingCallback(
     Map<String, dynamic> callbackData,
   ) async {
     try {
@@ -26,12 +26,12 @@ class PaymentCallbackController extends GetxController {
       final orderId = callbackData['orderId'] ?? '';
       currentOrderId.value = orderId;
 
-      print('Processing MoMo callback for order: $orderId');
+      print('Processing Banking callback for order: $orderId');
       print('Callback data: $callbackData');
 
       // Log webhook activity
       await _webhookService.logWebhookActivity(
-        provider: 'momo',
+        provider: 'banking',
         type: 'callback',
         data: callbackData,
         success: true,
@@ -39,17 +39,17 @@ class PaymentCallbackController extends GetxController {
 
       // Check for duplicate webhook
       final isDuplicate = await _webhookService.isDuplicateWebhook(
-        provider: 'momo',
+        provider: 'banking',
         transactionId: orderId,
       );
 
       if (isDuplicate) {
-        print('Duplicate MoMo callback detected, ignoring');
-        return {'RspCode': '00', 'Message': 'Already processed'};
+        print('Duplicate Banking callback detected, ignoring');
+        return {'status': 'success', 'message': 'Already processed'};
       }
 
       // Handle callback
-      final result = await _webhookService.handleMoMoCallback(callbackData);
+      final result = await _webhookService.handleBankingCallback(callbackData);
 
       // Update local state
       final resultCode = callbackData['resultCode'] ?? -1;
@@ -69,11 +69,11 @@ class PaymentCallbackController extends GetxController {
 
       return result;
     } catch (e) {
-      print('Error processing MoMo callback: $e');
+      print('Error processing Banking callback: $e');
       paymentStatus.value = PaymentStatus.failed;
       statusMessage.value = 'Lỗi xử lý callback';
 
-      return {'RspCode': '99', 'Message': 'System Error: $e'};
+      return {'status': 'error', 'message': 'System Error: $e'};
     } finally {
       isProcessingCallback.value = false;
     }
@@ -257,6 +257,6 @@ class PaymentCallbackController extends GetxController {
       'signature': 'mock_signature_for_testing',
     };
 
-    await processMoMoCallback(mockCallback);
+    await processBankingCallback(mockCallback);
   }
 }

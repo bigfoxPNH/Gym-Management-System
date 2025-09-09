@@ -1,31 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'momo_service_v3.dart';
 
 /// Service để xử lý webhook callbacks từ các payment gateways
 class WebhookService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final MoMoServiceV3 _momoService = MoMoServiceV3();
-
-  /// Handle MoMo callback webhook
-  Future<Map<String, dynamic>> handleMoMoCallback(
-    Map<String, dynamic> callbackData,
-  ) async {
-    try {
-      print('Received MoMo callback: $callbackData');
-
-      final isValid = _momoService.verifyCallback(callbackData);
-      final callbackDataObj = _momoService.handleCallback(callbackData);
-
-      if (isValid && callbackDataObj != null && callbackDataObj.isSuccess) {
-        return {'RspCode': '00', 'Message': 'Confirm Success'};
-      } else {
-        return {'RspCode': '01', 'Message': 'Confirm Failed'};
-      }
-    } catch (e) {
-      print('Error handling MoMo callback: $e');
-      return {'RspCode': '99', 'Message': 'System Error'};
-    }
-  }
 
   /// Handle banking callback (for future banking integrations)
   Future<Map<String, dynamic>> handleBankingCallback(
@@ -35,7 +12,7 @@ class WebhookService {
       print('Received Banking callback: $callbackData');
 
       // TODO: Implement banking callback handling
-      // This would be similar to MoMo but for banking APIs
+      // This would be for banking APIs
 
       return {'status': 'success', 'message': 'Banking callback processed'};
     } catch (e) {
@@ -54,7 +31,7 @@ class WebhookService {
   }) async {
     try {
       await _firestore.collection('webhook_logs').add({
-        'provider': provider, // 'momo', 'banking', etc.
+        'provider': provider, // 'banking', etc.
         'type': type, // 'callback', 'return', etc.
         'data': data,
         'success': success,
@@ -74,9 +51,6 @@ class WebhookService {
     required String signature,
   }) {
     switch (provider.toLowerCase()) {
-      case 'momo':
-        // MoMo signature verification is handled in MoMoService
-        return true;
       case 'banking':
         // TODO: Implement banking signature verification
         return true;
@@ -127,19 +101,12 @@ class WebhookService {
 
       // Extract order information
       final orderId = returnData['orderId'] ?? '';
-      final resultCode = returnData['resultCode'];
 
       // Determine payment result
       bool isSuccess = false;
       String message = 'Payment failed';
 
       switch (provider.toLowerCase()) {
-        case 'momo':
-          isSuccess = resultCode == 0;
-          message = isSuccess
-              ? 'Payment successful'
-              : (returnData['message'] ?? 'Payment failed');
-          break;
         case 'banking':
           // TODO: Implement banking return logic
           break;

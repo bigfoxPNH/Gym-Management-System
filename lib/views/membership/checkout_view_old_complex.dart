@@ -317,12 +317,9 @@ class CheckoutView extends StatelessWidget {
             const SizedBox(height: 20),
             _buildPaymentStatusCard(transaction),
             const SizedBox(height: 20),
-            if (transaction.paymentMethod == PaymentMethodType.momo) ...[
-              _buildMomoPaymentInstructions(transaction),
-            ] else if (transaction.paymentMethod ==
-                PaymentMethodType.banking) ...[
+            if (transaction.paymentMethod == PaymentMethodType.banking) ...[
               _buildBankingPaymentInstructions(transaction),
-            ] else ...[
+            ] else if (transaction.paymentMethod == PaymentMethodType.cash) ...[
               _buildCashPaymentInstructions(transaction, controller),
             ],
             const SizedBox(height: 30),
@@ -363,245 +360,6 @@ class CheckoutView extends StatelessWidget {
               'Mã giao dịch: ${transaction.id}',
               style: TextStyle(color: Colors.grey[600], fontSize: 14),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMomoPaymentInstructions(PaymentTransaction transaction) {
-    final isDemo = transaction.metadata?['isDemo'] == true;
-
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFB0006D),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Thanh toán bằng MoMo',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    if (isDemo)
-                      const Text(
-                        'Phiên bản Demo',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.orange,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // QR Code Section
-            if (transaction.qrCodeUrl != null &&
-                transaction.qrCodeUrl!.isNotEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Quét mã QR để thanh toán',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          transaction.qrCodeUrl!,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            print('QR Code loading error: $error');
-                            return const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.qr_code,
-                                  size: 80,
-                                  color: Colors.grey,
-                                ),
-                                Text(
-                                  'Không thể tải QR Code',
-                                  style: TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // Payment Details
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Mã giao dịch:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Flexible(
-                        child: Text(
-                          transaction.id,
-                          style: const TextStyle(fontFamily: 'monospace'),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Số tiền:',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                      Flexible(
-                        child: Text(
-                          '${NumberFormat('#,###', 'vi_VN').format(transaction.amount)} VNĐ',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Instructions
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFB0006D).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: const Color(0xFFB0006D).withOpacity(0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.info, color: Color(0xFFB0006D), size: 20),
-                      SizedBox(width: 8),
-                      Text(
-                        'Hướng dẫn thanh toán:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFB0006D),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text('1. Mở ứng dụng MoMo trên điện thoại'),
-                  const Text('2. Chọn "Quét mã QR"'),
-                  const Text('3. Quét mã QR phía trên'),
-                  const Text('4. Xác nhận thanh toán trong ứng dụng'),
-                  if (isDemo) ...[
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Lưu ý: Đây là phiên bản demo, vui lòng sử dụng nút mô phỏng bên dưới.',
-                      style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        color: Colors.orange,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Demo button (only show for demo)
-            if (isDemo)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Giả lập thanh toán thành công (Demo)'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -1062,8 +820,6 @@ class CheckoutView extends StatelessWidget {
 
   Color _getPaymentMethodColor(PaymentMethodType type) {
     switch (type) {
-      case PaymentMethodType.momo:
-        return const Color(0xFFB0006D);
       case PaymentMethodType.banking:
         return Colors.blue;
       case PaymentMethodType.cash:
@@ -1073,8 +829,6 @@ class CheckoutView extends StatelessWidget {
 
   IconData _getPaymentMethodIcon(PaymentMethodType type) {
     switch (type) {
-      case PaymentMethodType.momo:
-        return Icons.account_balance_wallet;
       case PaymentMethodType.banking:
         return Icons.account_balance;
       case PaymentMethodType.cash:

@@ -7,27 +7,6 @@ class PaymentApiController extends GetxController {
   final PaymentCallbackController _callbackController =
       Get.find<PaymentCallbackController>();
 
-  /// Endpoint nhận MoMo callback (POST /api/payment/momo/callback)
-  Future<Map<String, dynamic>> handleMoMoCallback(
-    Map<String, dynamic> body,
-  ) async {
-    try {
-      print('=== MoMo Callback Received ===');
-      print('Body: $body');
-
-      // Process the callback
-      final result = await _callbackController.processMoMoCallback(body);
-
-      print('=== MoMo Callback Result ===');
-      print('Result: $result');
-
-      return result;
-    } catch (e) {
-      print('Error in MoMo callback endpoint: $e');
-      return {'RspCode': '99', 'Message': 'System Error'};
-    }
-  }
-
   /// Endpoint nhận Banking callback (POST /api/payment/banking/callback)
   Future<Map<String, dynamic>> handleBankingCallback(
     Map<String, dynamic> body,
@@ -36,22 +15,25 @@ class PaymentApiController extends GetxController {
       print('=== Banking Callback Received ===');
       print('Body: $body');
 
-      // TODO: Process banking callback
-      // Similar to MoMo but for banking
+      // Process the callback
+      final result = await _callbackController.processBankingCallback(body);
 
-      return {'status': 'success', 'message': 'Banking callback processed'};
+      print('=== Banking Callback Result ===');
+      print('Result: $result');
+
+      return result;
     } catch (e) {
       print('Error in Banking callback endpoint: $e');
       return {'status': 'error', 'message': 'System Error'};
     }
   }
 
-  /// Return URL endpoint (GET /api/payment/momo/return)
-  Future<Map<String, dynamic>> handleMoMoReturn(
+  /// Return URL endpoint (GET /api/payment/banking/return)
+  Future<Map<String, dynamic>> handleBankingReturn(
     Map<String, String> queryParams,
   ) async {
     try {
-      print('=== MoMo Return URL ===');
+      print('=== Banking Return URL ===');
       print('Query params: $queryParams');
 
       await _callbackController.processReturnUrl(
@@ -150,7 +132,7 @@ class MockPaymentServer {
     };
 
     // Call the webhook endpoint
-    final result = await _controller.handleMoMoCallback(mockCallbackData);
+    final result = await _controller.handleBankingCallback(mockCallbackData);
 
     print('📨 Webhook response: $result');
     print('✅ === WEBHOOK SIMULATION COMPLETE ===\n');
@@ -180,7 +162,7 @@ class MockPaymentServer {
       'signature': 'mock_signature_${DateTime.now().millisecondsSinceEpoch}',
     };
 
-    final result = await _controller.handleMoMoReturn(returnParams);
+    final result = await _controller.handleBankingReturn(returnParams);
 
     print('🏠 Return URL response: $result');
     print('✅ === RETURN URL SIMULATION COMPLETE ===\n');

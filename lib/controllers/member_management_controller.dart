@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_account.dart';
+import '../models/membership_card.dart';
 
 class MemberManagementController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -14,11 +15,13 @@ class MemberManagementController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString searchQuery = ''.obs;
   final Rx<Role?> selectedRole = Rx<Role?>(null);
+  final RxList<MembershipCard> membershipCards = <MembershipCard>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadAllUsers();
+    loadAllMembershipCards();
 
     // Listen to search query changes
     searchQuery.listen((_) => _applyFilters());
@@ -144,6 +147,21 @@ class MemberManagementController extends GetxController {
         backgroundColor: const Color(0xFFF44336),
         colorText: const Color(0xFFFFFFFF),
       );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Load all membership cards from Firestore
+  Future<void> loadAllMembershipCards() async {
+    try {
+      isLoading.value = true;
+      final snapshot = await _firestore.collection('membershipCards').get();
+      membershipCards.value = snapshot.docs
+          .map((doc) => MembershipCard.fromFirestore(doc))
+          .toList();
+    } catch (e) {
+      print('Error loading membership cards: $e');
     } finally {
       isLoading.value = false;
     }
@@ -297,25 +315,60 @@ class MemberManagementController extends GetxController {
     }
   }
 
-  // Delete membership card
-  Future<void> deleteMembershipCard(String cardId) async {
+  // Add new membership card
+  Future<void> addMembershipCard(MembershipCard card) async {
     try {
-      await _firestore.collection('membership_cards').doc(cardId).delete();
-      Get.snackbar(
-        'Thành công',
-        'Đã xóa thẻ hội viên',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF4CAF50),
-        colorText: const Color(0xFFFFFFFF),
-      );
+      await _firestore.collection('membershipCards').doc(card.id).set({
+        'cardName': card.cardName,
+        'description': card.description,
+        'cardType': card.cardType.label,
+        'durationType': card.durationType.label,
+        'duration': card.duration,
+        'customEndDate': card.customEndDate?.toIso8601String(),
+        'price': card.price,
+        'createdAt': card.createdAt.toIso8601String(),
+        'updatedAt': card.updatedAt.toIso8601String(),
+        'createdBy': card.createdBy,
+        'isActive': card.isActive,
+      });
+      membershipCards.add(card);
     } catch (e) {
-      Get.snackbar(
-        'Lỗi',
-        'Không thể xóa thẻ hội viên: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFFF44336),
-        colorText: const Color(0xFFFFFFFF),
-      );
+      print('Error adding membership card: $e');
+    }
+  }
+
+  // Update membership card
+  Future<void> updateMembershipCard(
+    String id,
+    Map<String, dynamic> updatedData,
+  ) async {
+    try {
+      await _firestore
+          .collection('membershipCards')
+          .doc(id)
+          .update(updatedData);
+      final index = membershipCards.indexWhere((card) => card.id == id);
+      if (index != -1) {
+        membershipCards[index] = membershipCards[index].copyWith(
+          cardName: updatedData['cardName'] ?? membershipCards[index].cardName,
+          description:
+              updatedData['description'] ?? membershipCards[index].description,
+          price: updatedData['price'] ?? membershipCards[index].price,
+          isActive: updatedData['isActive'] ?? membershipCards[index].isActive,
+        );
+      }
+    } catch (e) {
+      print('Error updating membership card: $e');
+    }
+  }
+
+  // Delete membership card
+  Future<void> deleteMembershipCard(String id) async {
+    try {
+      await _firestore.collection('membershipCards').doc(id).delete();
+      membershipCards.removeWhere((card) => card.id == id);
+    } catch (e) {
+      print('Error deleting membership card: $e');
     }
   }
 

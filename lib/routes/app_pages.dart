@@ -14,10 +14,8 @@ import '../views/membership/membership_purchase_view.dart';
 import '../views/membership/checkout_view.dart' as MembershipCheckout;
 import '../views/payment/payment_status_view.dart';
 import '../views/payment/payment_result_view.dart';
-import '../views/payment/momo_payment_view.dart';
 import '../views/exercise/exercise_list_view.dart';
-import '../controllers/payment_controller.dart';
-import '../views/payment/payment_test_page.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -65,15 +63,7 @@ class AppPages {
       name: AppRoutes.paymentResult,
       page: () => const PaymentResultView(),
     ),
-    GetPage(name: '/momo-payment', page: () => MoMoPaymentView()),
     GetPage(name: AppRoutes.exercises, page: () => const ExerciseListView()),
-    GetPage(
-      name: AppRoutes.paymentTest,
-      page: () => const PaymentTestPage(),
-      binding: BindingsBuilder(() {
-        Get.lazyPut<PaymentController>(() => PaymentController());
-      }),
-    ),
     GetPage(name: '/cleanup-test', page: () => const CleanupTestView()),
   ];
 }

@@ -168,8 +168,6 @@ class PaymentTransaction {
 
   String getPaymentMethodText() {
     switch (paymentMethod) {
-      case PaymentMethodType.momo:
-        return 'Ví điện tử MoMo';
       case PaymentMethodType.banking:
         return 'Chuyển khoản ngân hàng';
       case PaymentMethodType.cash:

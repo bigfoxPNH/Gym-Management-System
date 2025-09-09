@@ -192,16 +192,6 @@ class HomeView extends StatelessWidget {
                     );
                   },
                 ),
-                _buildAdminActionCard(
-                  context,
-                  icon: Icons.payment,
-                  title: 'Test MoMo Payment',
-                  subtitle: 'Production deep linking test',
-                  color: Colors.purple,
-                  onTap: () {
-                    Get.toNamed(AppRoutes.paymentTest);
-                  },
-                ),
               ],
             ),
             const SizedBox(height: 24),

@@ -1,4 +1,4 @@
-// MoMo Payment Models
+// Payment Models
 
 class PaymentResponse {
   final String partnerCode;
@@ -274,13 +274,11 @@ extension PaymentStatusExtension on PaymentStatus {
 }
 
 // Payment Method Enum
-enum PaymentMethod { momo, banking, cash }
+enum PaymentMethod { banking, cash }
 
 extension PaymentMethodExtension on PaymentMethod {
   String get displayName {
     switch (this) {
-      case PaymentMethod.momo:
-        return 'MoMo';
       case PaymentMethod.banking:
         return 'Chuyển khoản ngân hàng';
       case PaymentMethod.cash:
@@ -290,8 +288,6 @@ extension PaymentMethodExtension on PaymentMethod {
 
   String get icon {
     switch (this) {
-      case PaymentMethod.momo:
-        return '💳';
       case PaymentMethod.banking:
         return '🏦';
       case PaymentMethod.cash:
