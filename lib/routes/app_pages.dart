@@ -24,6 +24,10 @@ import '../views/user/user_schedule_selection_view.dart';
 import '../views/user/user_schedule_detail_view.dart';
 import '../views/user/user_schedule_history_view.dart';
 import '../views/user/workout_schedule_detail_view.dart';
+import '../views/checkout/direct_payment_confirmation_view.dart';
+import '../views/admin/checkin_checkout_view.dart';
+import '../views/user/my_membership_cards_view.dart';
+import '../views/test/test_membership_view.dart';
 
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
@@ -65,6 +69,10 @@ class AppPages {
     GetPage(name: '/test-checkout', page: () => const TestCheckoutView()),
     GetPage(name: '/checkout', page: () => GeneralCheckout.CheckoutView()),
     GetPage(
+      name: AppRoutes.directPaymentConfirmation,
+      page: () => const DirectPaymentConfirmationView(),
+    ),
+    GetPage(
       name: AppRoutes.paymentStatus,
       page: () => PaymentStatusView(orderId: Get.arguments ?? ''),
     ),
@@ -103,6 +111,18 @@ class AppPages {
     GetPage(
       name: AppRoutes.workoutScheduleDetail,
       page: () => WorkoutScheduleDetailView(schedule: Get.arguments),
+    ),
+    GetPage(
+      name: AppRoutes.checkinCheckout,
+      page: () => const CheckinCheckoutView(),
+    ),
+    GetPage(
+      name: AppRoutes.myMembershipCards,
+      page: () => const MyMembershipCardsView(),
+    ),
+    GetPage(
+      name: AppRoutes.testMembership,
+      page: () => const TestMembershipView(),
     ),
   ];
 }

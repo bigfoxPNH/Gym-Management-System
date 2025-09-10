@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/member_management_controller.dart';
 import '../../models/user_account.dart';
-import '../../models/membership_card.dart';
 
 class MemberManagementView extends StatelessWidget {
   const MemberManagementView({super.key});
@@ -176,6 +175,12 @@ class MemberManagementView extends StatelessWidget {
 
   Widget _buildUsersList(MemberManagementController controller) {
     return Obx(() {
+      // If membership card role is selected, show membership cards
+      if (controller.selectedRole.value == Role.membershipCard) {
+        return _buildMembershipCardsList(controller);
+      }
+
+      // Otherwise show users list
       final usersToShow =
           controller.filteredUsers.isNotEmpty ||
               controller.searchQuery.value.isNotEmpty ||
@@ -198,6 +203,220 @@ class MemberManagementView extends StatelessWidget {
         },
       );
     });
+  }
+
+  Widget _buildMembershipCardsList(MemberManagementController controller) {
+    return Obx(() {
+      if (controller.userMemberships.isEmpty) {
+        return _buildNoMembershipsState();
+      }
+
+      return ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: controller.userMemberships.length,
+        itemBuilder: (context, index) {
+          final membership = controller.userMemberships[index];
+          return _buildMembershipCard(context, membership, controller);
+        },
+      );
+    });
+  }
+
+  Widget _buildNoMembershipsState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.card_membership, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'Chưa có thẻ hội viên nào',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Thẻ hội viên sẽ hiển thị ở đây khi có',
+            style: TextStyle(color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMembershipCard(
+    BuildContext context,
+    Map<String, dynamic> membership,
+    MemberManagementController controller,
+  ) {
+    final status = controller.getMembershipStatus(membership);
+    final statusColor = controller.getStatusColor(status);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                PopupMenuButton<String>(
+                  onSelected: (value) => _handleMembershipAction(
+                    context,
+                    value,
+                    membership,
+                    controller,
+                  ),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'view',
+                      child: Row(
+                        children: [
+                          Icon(Icons.visibility, size: 16),
+                          SizedBox(width: 8),
+                          Text('Xem chi tiết'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 16),
+                          SizedBox(width: 8),
+                          Text('Chỉnh sửa'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'extend',
+                      child: Row(
+                        children: [
+                          Icon(Icons.schedule, size: 16),
+                          SizedBox(width: 8),
+                          Text('Gia hạn'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 16, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Xóa', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  child: const Icon(Icons.person, color: Colors.blue),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        membership['userName'] ?? 'Người dùng không xác định',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        membership['userEmail'] ?? 'Email không xác định',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Divider(color: Colors.grey[300]),
+            const SizedBox(height: 8),
+            _buildMembershipInfoRow(
+              'Loại thẻ:',
+              membership['membershipType'] ?? 'Không xác định',
+            ),
+            _buildMembershipInfoRow(
+              'Ngày bắt đầu:',
+              controller.formatDate(membership['startDate']),
+            ),
+            _buildMembershipInfoRow(
+              'Ngày kết thúc:',
+              controller.formatDate(membership['endDate']),
+            ),
+            _buildMembershipInfoRow(
+              'Số tiền:',
+              '${membership['amount'] ?? 0} VNĐ',
+            ),
+            _buildMembershipInfoRow(
+              'Phương thức thanh toán:',
+              controller.formatPaymentMethod(membership['paymentMethod']),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMembershipInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label,
+              style: TextStyle(color: Colors.grey[600], fontSize: 13),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildNoResultsState() {
@@ -376,31 +595,6 @@ class MemberManagementView extends StatelessWidget {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'Không có thành viên nào',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Nhấn + để thêm thành viên mới',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
       ),
     );
   }
@@ -721,91 +915,6 @@ class MemberManagementView extends StatelessWidget {
     );
   }
 
-  void _handleMembershipCardAction(
-    BuildContext context,
-    String action,
-    MembershipCard card,
-    MemberManagementController controller,
-  ) {
-    switch (action) {
-      case 'view':
-        _showMembershipCardDetailDialog(context, card);
-        break;
-      case 'edit':
-        _showEditMembershipCardDialog(context, card, controller);
-        break;
-      case 'delete':
-        _showDeleteMembershipCardConfirmDialog(context, card, controller);
-        break;
-    }
-  }
-
-  void _showMembershipCardDetailDialog(
-    BuildContext context,
-    MembershipCard card,
-  ) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('Chi tiết thẻ: ${card.cardNumber}'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Số thẻ', card.cardNumber),
-              _buildDetailRow('Ngày bắt đầu', card.startDate.toString()),
-              _buildDetailRow('Ngày kết thúc', card.endDate.toString()),
-              _buildDetailRow(
-                'Trạng thái',
-                card.isActive ? 'Hoạt động' : 'Vô hiệu hóa',
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Đóng')),
-        ],
-      ),
-    );
-  }
-
-  void _showEditMembershipCardDialog(
-    BuildContext context,
-    MembershipCard card,
-    MemberManagementController controller,
-  ) {
-    // Logic for editing membership card
-  }
-
-  void _showDeleteMembershipCardConfirmDialog(
-    BuildContext context,
-    MembershipCard card,
-    MemberManagementController controller,
-  ) {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text(
-          'Bạn có chắc chắn muốn xóa thẻ hội viên "${card.cardNumber}"?\n\nHành động này không thể hoàn tác.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () async {
-              Get.back();
-              await controller.deleteMembershipCard(card.id);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-  }
-
   // Safe wrapper methods to prevent RangeError
   String _safeFormatDate(DateTime? date) {
     if (date == null) return '';
@@ -818,28 +927,292 @@ class MemberManagementView extends StatelessWidget {
     }
   }
 
-  Widget _safeUserCard(
+  void _handleMembershipAction(
     BuildContext context,
-    UserAccount user,
+    String action,
+    Map<String, dynamic> membership,
     MemberManagementController controller,
   ) {
-    try {
-      return _buildUserCard(context, user, controller);
-    } catch (e) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.grey[300],
-            child: const Icon(Icons.person, color: Colors.grey),
-          ),
-          title: Text(
-            user.fullName.isNotEmpty ? user.fullName : 'Unknown User',
-          ),
-          subtitle: const Text('Lỗi hiển thị dữ liệu'),
-          trailing: Icon(Icons.error, color: Colors.red[300]),
-        ),
-      );
+    switch (action) {
+      case 'view':
+        _showMembershipDetailsDialog(context, membership, controller);
+        break;
+      case 'edit':
+        _showEditMembershipDialog(context, membership, controller);
+        break;
+      case 'extend':
+        _showExtendMembershipDialog(context, membership, controller);
+        break;
+      case 'delete':
+        _showDeleteMembershipDialog(context, membership, controller);
+        break;
     }
+  }
+
+  void _showMembershipDetailsDialog(
+    BuildContext context,
+    Map<String, dynamic> membership,
+    MemberManagementController controller,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Chi tiết thẻ hội viên'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDialogDetailRow(
+                'Người dùng:',
+                membership['userName'] ?? 'N/A',
+              ),
+              _buildDialogDetailRow('Email:', membership['userEmail'] ?? 'N/A'),
+              _buildDialogDetailRow(
+                'Loại thẻ:',
+                membership['membershipType'] ?? 'N/A',
+              ),
+              _buildDialogDetailRow(
+                'Ngày bắt đầu:',
+                controller.formatDate(membership['startDate']),
+              ),
+              _buildDialogDetailRow(
+                'Ngày kết thúc:',
+                controller.formatDate(membership['endDate']),
+              ),
+              _buildDialogDetailRow(
+                'Số tiền:',
+                '${membership['amount'] ?? 0} VNĐ',
+              ),
+              _buildDialogDetailRow(
+                'Phương thức thanh toán:',
+                controller.formatPaymentMethod(membership['paymentMethod']),
+              ),
+              _buildDialogDetailRow(
+                'Trạng thái thanh toán:',
+                controller.formatPaymentStatus(membership['paymentStatus']),
+              ),
+              _buildDialogDetailRow(
+                'Trạng thái:',
+                controller.getMembershipStatus(membership),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDialogDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  void _showEditMembershipDialog(
+    BuildContext context,
+    Map<String, dynamic> membership,
+    MemberManagementController controller,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Chỉnh sửa trạng thái thẻ'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Thẻ của: ${membership['userName'] ?? 'N/A'}'),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserMembershipStatus(
+                        membership['id'],
+                        true,
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text(
+                      'Kích hoạt',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserMembershipStatus(
+                        membership['id'],
+                        false,
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                    ),
+                    child: const Text(
+                      'Tạm dừng',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserMembershipPaymentStatus(
+                        membership['id'],
+                        'completed',
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                    child: const Text(
+                      'Đã thanh toán',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserMembershipPaymentStatus(
+                        membership['id'],
+                        'pending',
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Chờ thanh toán',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExtendMembershipDialog(
+    BuildContext context,
+    Map<String, dynamic> membership,
+    MemberManagementController controller,
+  ) {
+    final extendController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Gia hạn thẻ'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Gia hạn thẻ của: ${membership['userName'] ?? 'N/A'}'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: extendController,
+              decoration: const InputDecoration(
+                labelText: 'Số ngày gia hạn',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final days = int.tryParse(extendController.text.trim());
+              if (days != null && days > 0) {
+                controller.extendMembership(membership['id'], days);
+                Navigator.of(context).pop();
+              } else {
+                Get.snackbar('Lỗi', 'Vui lòng nhập số ngày hợp lệ');
+              }
+            },
+            child: const Text('Gia hạn'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteMembershipDialog(
+    BuildContext context,
+    Map<String, dynamic> membership,
+    MemberManagementController controller,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text(
+          'Bạn có chắc chắn muốn xóa thẻ của ${membership['userName'] ?? 'N/A'}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.deleteUserMembership(membership['id']);
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 }

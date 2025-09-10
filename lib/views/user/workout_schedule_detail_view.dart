@@ -8,7 +8,8 @@ import 'package:gympro/views/user/exercise_detail_view.dart';
 class WorkoutScheduleDetailView extends StatelessWidget {
   final WorkoutSchedule schedule;
 
-  const WorkoutScheduleDetailView({Key? key, required this.schedule}) : super(key: key);
+  const WorkoutScheduleDetailView({Key? key, required this.schedule})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -211,7 +212,12 @@ class WorkoutScheduleDetailView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -234,10 +240,7 @@ class WorkoutScheduleDetailView extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             textAlign: TextAlign.center,
           ),
         ],
@@ -253,20 +256,14 @@ class WorkoutScheduleDetailView extends StatelessWidget {
         children: [
           const Text(
             'Mô tả',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Text(
-            schedule.description.isNotEmpty 
-                ? schedule.description 
+            schedule.description.isNotEmpty
+                ? schedule.description
                 : 'Chưa có mô tả cho lịch trình này.',
-            style: const TextStyle(
-              fontSize: 16,
-              height: 1.5,
-            ),
+            style: const TextStyle(fontSize: 16, height: 1.5),
           ),
         ],
       ),
@@ -283,35 +280,34 @@ class WorkoutScheduleDetailView extends StatelessWidget {
         children: [
           const Text(
             'Tags',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: schedule.tags.map(
-              (tag) => Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.blue[100],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  tag,
-                  style: TextStyle(
-                    color: Colors.blue[700],
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+            children: schedule.tags
+                .map(
+                  (tag) => Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[100],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      tag,
+                      style: TextStyle(
+                        color: Colors.blue[700],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ).toList(),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -329,26 +325,18 @@ class WorkoutScheduleDetailView extends StatelessWidget {
             children: [
               const Text(
                 'Danh sách bài tập',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
                 '${schedule.exerciseIds.length} bài tập',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Obx(() {
             if (controller.isLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
             final exercises = controller.exercises
@@ -428,7 +416,10 @@ class WorkoutScheduleDetailView extends StatelessWidget {
                             exercise.anhMinhHoa.first,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.fitness_center, color: Colors.grey),
+                                const Icon(
+                                  Icons.fitness_center,
+                                  color: Colors.grey,
+                                ),
                           )
                         : const Icon(Icons.fitness_center, color: Colors.grey),
                   ),
@@ -465,7 +456,9 @@ class WorkoutScheduleDetailView extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: _getDifficultyColor(exercise.doKho).withOpacity(0.2),
+                              color: _getDifficultyColor(
+                                exercise.doKho,
+                              ).withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -539,10 +532,7 @@ class WorkoutScheduleDetailView extends StatelessWidget {
           'Bạn có muốn bắt đầu lịch trình "${schedule.title}" không?\n\nNếu bạn đang có lịch trình khác, nó sẽ được thay thế.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Hủy'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () {
               Get.back();
@@ -567,12 +557,11 @@ class WorkoutScheduleDetailView extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         title: const Text('Chia sẻ lịch trình'),
-        content: const Text('Tính năng chia sẻ sẽ được phát triển trong tương lai.'),
+        content: const Text(
+          'Tính năng chia sẻ sẽ được phát triển trong tương lai.',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Đóng'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Đóng')),
         ],
       ),
     );
@@ -582,12 +571,11 @@ class WorkoutScheduleDetailView extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         title: const Text('Báo cáo lịch trình'),
-        content: const Text('Tính năng báo cáo sẽ được phát triển trong tương lai.'),
+        content: const Text(
+          'Tính năng báo cáo sẽ được phát triển trong tương lai.',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Đóng'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('Đóng')),
         ],
       ),
     );

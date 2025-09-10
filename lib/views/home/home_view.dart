@@ -186,6 +186,16 @@ class HomeView extends StatelessWidget {
                     Get.toNamed(AppRoutes.scheduleManagement);
                   },
                 ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.check_circle,
+                  title: 'Checkin/Checkout',
+                  subtitle: 'Quản lý ra vào',
+                  color: Colors.green,
+                  onTap: () {
+                    Get.toNamed(AppRoutes.checkinCheckout);
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -220,12 +230,12 @@ class HomeView extends StatelessWidget {
               ),
               _buildActionCard(
                 context,
-                icon: Icons.history,
-                title: 'Lịch Sử Lịch Trình',
-                subtitle: 'Theo dõi kết quả',
+                icon: Icons.card_membership,
+                title: 'Thẻ Tập Của Tôi',
+                subtitle: 'Xem chi tiết thẻ tập',
                 color: Colors.green,
                 onTap: () {
-                  Get.toNamed(AppRoutes.userScheduleHistory);
+                  Get.toNamed(AppRoutes.myMembershipCards);
                 },
               ),
               _buildActionCard(
@@ -276,6 +286,16 @@ class HomeView extends StatelessWidget {
                 color: Colors.indigo,
                 onTap: () {
                   Get.toNamed(AppRoutes.membershipPurchase);
+                },
+              ),
+              _buildActionCard(
+                context,
+                icon: Icons.science,
+                title: 'Test Membership',
+                subtitle: 'Tạo thẻ test',
+                color: Colors.purple,
+                onTap: () {
+                  Get.toNamed(AppRoutes.testMembership);
                 },
               ),
             ],

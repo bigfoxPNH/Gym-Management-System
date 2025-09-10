@@ -180,14 +180,87 @@ Nội dung: $transferContent''',
     PaymentStatus status,
   ) async {
     try {
+      // Update payment transaction status
       await _paymentsCollection.doc(transactionId).update({
         'status': status.toString(),
         'completedAt': status == PaymentStatus.completed
             ? DateTime.now().toIso8601String()
             : null,
       });
+
+      // If payment completed, create user membership
+      if (status == PaymentStatus.completed) {
+        await _createUserMembership(transactionId);
+      }
     } catch (e) {
       print('Error updating payment status: $e');
+    }
+  }
+
+  // Create user membership after successful payment
+  Future<void> _createUserMembership(String transactionId) async {
+    try {
+      // Get transaction details
+      final transactionDoc = await _paymentsCollection.doc(transactionId).get();
+      if (!transactionDoc.exists) {
+        print('Transaction not found: $transactionId');
+        return;
+      }
+
+      final transactionData = transactionDoc.data() as Map<String, dynamic>;
+      final userId = transactionData['userId'];
+      final membershipCardId = transactionData['membershipCardId'];
+      final amount = transactionData['amount'];
+
+      if (userId == null || membershipCardId == null) {
+        print('Missing required data for user membership creation');
+        return;
+      }
+
+      // Get membership card details
+      final membershipCardDoc = await FirebaseFirestore.instance
+          .collection('membership_cards')
+          .doc(membershipCardId)
+          .get();
+
+      if (!membershipCardDoc.exists) {
+        print('Membership card not found: $membershipCardId');
+        return;
+      }
+
+      final cardData = membershipCardDoc.data() as Map<String, dynamic>;
+      final cardName = cardData['cardName'] ?? 'Thẻ tập';
+      final duration = cardData['duration'] ?? 30;
+
+      // Create user membership record
+      final membershipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final now = DateTime.now();
+
+      final userMembershipData = {
+        'id': membershipId,
+        'userId': userId,
+        'membershipCardId': membershipCardId,
+        'membershipCardName': cardName,
+        'startDate': Timestamp.fromDate(now),
+        'endDate': Timestamp.fromDate(now.add(Duration(days: duration))),
+        'price': amount,
+        'paymentMethod': transactionData['paymentMethod'] ?? 'banking',
+        'paymentStatus': 'completed',
+        'transactionId': transactionId,
+        'isActive': true, // Activate immediately for successful payments
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      // Save to user_memberships collection
+      await FirebaseFirestore.instance
+          .collection('user_memberships')
+          .doc(membershipId)
+          .set(userMembershipData);
+
+      print('User membership created successfully: $membershipId');
+    } catch (e) {
+      print('Error creating user membership: $e');
     }
   }
 

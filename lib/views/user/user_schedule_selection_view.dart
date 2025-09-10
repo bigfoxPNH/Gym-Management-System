@@ -323,7 +323,11 @@ class UserScheduleSelectionView extends StatelessWidget {
                           value: true,
                           child: Row(
                             children: [
-                              Icon(Icons.play_arrow, color: Colors.green, size: 16),
+                              Icon(
+                                Icons.play_arrow,
+                                color: Colors.green,
+                                size: 16,
+                              ),
                               const SizedBox(width: 8),
                               const Text('Đang tập'),
                             ],
@@ -404,255 +408,256 @@ class UserScheduleSelectionView extends StatelessWidget {
   ) {
     return Obx(() {
       final isActive = controller.isScheduleActive(schedule.id);
-      
+
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Card(
           elevation: isActive ? 8 : 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: isActive 
+            side: isActive
                 ? const BorderSide(color: Colors.green, width: 2)
                 : BorderSide.none,
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: () => Get.to(() => WorkoutScheduleDetailView(schedule: schedule)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Image với overlay gradient
-              Stack(
-                children: [
-                  if (schedule.imageUrl != null)
-                    Image.network(
-                      schedule.imageUrl!,
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildDefaultImage(),
-                    )
-                  else
-                    _buildDefaultImage(),
+            onTap: () =>
+                Get.to(() => WorkoutScheduleDetailView(schedule: schedule)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Image với overlay gradient
+                Stack(
+                  children: [
+                    if (schedule.imageUrl != null)
+                      Image.network(
+                        schedule.imageUrl!,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildDefaultImage(),
+                      )
+                    else
+                      _buildDefaultImage(),
 
-                  // Gradient overlay
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7),
+                    // Gradient overlay
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Active schedule indicator (top left)
+                    Obx(() {
+                      if (controller.isScheduleActive(schedule.id)) {
+                        return Positioned(
+                          top: 12,
+                          left: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.play_arrow,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Đang tập',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    }),
+
+                    // Difficulty badge (top right)
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getDifficultyColor(schedule.difficulty),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _getDifficultyText(schedule.difficulty),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        schedule.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Description
+                      Text(
+                        schedule.description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Stats trong container đẹp hơn
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatItem(
+                              Icons.schedule,
+                              '${schedule.durationWeeks}',
+                              'Tuần',
+                              Colors.blue,
+                            ),
+                            _buildStatItem(
+                              Icons.repeat,
+                              '${schedule.sessionsPerWeek}x',
+                              'Tuần',
+                              Colors.green,
+                            ),
+                            _buildStatItem(
+                              Icons.fitness_center,
+                              '${schedule.exerciseIds.length}',
+                              'Bài tập',
+                              Colors.orange,
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                  ),
+                      const SizedBox(height: 12),
 
-                  // Active schedule indicator (top left)
-                  Obx(() {
-                    if (controller.isScheduleActive(schedule.id)) {
-                      return Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.play_arrow,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Đang tập',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                      // Category chip
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.purple[100],
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          _getCategoryText(schedule.category),
+                          style: TextStyle(
+                            color: Colors.purple[700],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
+                      ),
 
-                  // Difficulty badge (top right)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getDifficultyColor(schedule.difficulty),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _getDifficultyText(schedule.difficulty),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      schedule.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Description
-                    Text(
-                      schedule.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Stats trong container đẹp hơn
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatItem(
-                            Icons.schedule,
-                            '${schedule.durationWeeks}',
-                            'Tuần',
-                            Colors.blue,
-                          ),
-                          _buildStatItem(
-                            Icons.repeat,
-                            '${schedule.sessionsPerWeek}x',
-                            'Tuần',
-                            Colors.green,
-                          ),
-                          _buildStatItem(
-                            Icons.fitness_center,
-                            '${schedule.exerciseIds.length}',
-                            'Bài tập',
-                            Colors.orange,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Category chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.purple[100],
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        _getCategoryText(schedule.category),
-                        style: TextStyle(
-                          color: Colors.purple[700],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-
-                    // Tags
-                    if (schedule.tags.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: schedule.tags
-                            .take(3)
-                            .map(
-                              (tag) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '#$tag',
-                                  style: TextStyle(
-                                    color: Colors.grey[700],
-                                    fontSize: 10,
+                      // Tags
+                      if (schedule.tags.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: schedule.tags
+                              .take(3)
+                              .map(
+                                (tag) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '#$tag',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 10,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList(),
-                      ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  });
+      );
+    });
   }
 
   Widget _buildStatItem(

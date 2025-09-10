@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gympro/models/exercise.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ExerciseDetailView extends StatelessWidget {
   final Exercise exercise;
@@ -26,6 +27,7 @@ class ExerciseDetailView extends StatelessWidget {
             _buildPositions(),
             _buildEquipment(),
             _buildNotes(),
+            _buildYouTubeButton(),
           ],
         ),
       ),
@@ -345,5 +347,61 @@ class ExerciseDetailView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildYouTubeButton() {
+    if (exercise.videoMinhHoa == null || exercise.videoMinhHoa!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Video hướng dẫn',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: () => _launchYouTube(exercise.videoMinhHoa!),
+              icon: const Icon(Icons.play_circle_fill, color: Colors.white),
+              label: const Text(
+                'Xem video trên YouTube',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _launchYouTube(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch $url');
+      }
+    } catch (e) {
+      // Handle error - you might want to show a snackbar here
+      debugPrint('Error launching YouTube: $e');
+    }
   }
 }

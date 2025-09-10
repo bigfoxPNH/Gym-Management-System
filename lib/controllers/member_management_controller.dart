@@ -16,12 +16,17 @@ class MemberManagementController extends GetxController {
   final RxString searchQuery = ''.obs;
   final Rx<Role?> selectedRole = Rx<Role?>(null);
   final RxList<MembershipCard> membershipCards = <MembershipCard>[].obs;
+  final RxList<Map<String, dynamic>> userMemberships =
+      <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> filteredUserMemberships =
+      <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
     loadAllUsers();
     loadAllMembershipCards();
+    loadAllUserMemberships();
 
     // Listen to search query changes
     searchQuery.listen((_) => _applyFilters());
@@ -67,7 +72,7 @@ class MemberManagementController extends GetxController {
 
   int get membershipCardCount {
     try {
-      return users.where((u) => u.role == Role.membershipCard).length;
+      return userMemberships.length;
     } catch (e) {
       return 0;
     }
@@ -162,6 +167,44 @@ class MemberManagementController extends GetxController {
           .toList();
     } catch (e) {
       print('Error loading membership cards: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Load all user memberships from Firestore
+  Future<void> loadAllUserMemberships() async {
+    try {
+      isLoading.value = true;
+      final snapshot = await _firestore.collection('user_memberships').get();
+
+      List<Map<String, dynamic>> memberships = [];
+      for (var doc in snapshot.docs) {
+        Map<String, dynamic> membership = {'id': doc.id, ...doc.data()};
+
+        // Get user info
+        try {
+          final userDoc = await _firestore
+              .collection('users')
+              .doc(membership['userId'])
+              .get();
+          if (userDoc.exists) {
+            membership['userName'] =
+                userDoc.data()?['fullName'] ?? 'Unknown User';
+            membership['userEmail'] = userDoc.data()?['email'] ?? '';
+          }
+        } catch (e) {
+          membership['userName'] = 'Unknown User';
+          membership['userEmail'] = '';
+        }
+
+        memberships.add(membership);
+      }
+
+      userMemberships.value = memberships;
+      filteredUserMemberships.value = memberships;
+    } catch (e) {
+      print('Error loading user memberships: $e');
     } finally {
       isLoading.value = false;
     }
@@ -453,6 +496,11 @@ class MemberManagementController extends GetxController {
   // Update role filter
   void updateRoleFilter(Role? role) {
     selectedRole.value = role;
+
+    // If membershipCard is selected, load user memberships
+    if (role == Role.membershipCard) {
+      loadAllUserMemberships();
+    }
   }
 
   // Clear all filters
@@ -481,6 +529,221 @@ class MemberManagementController extends GetxController {
     } catch (e) {
       print('Error parsing date from string: $dateString - $e');
       return null;
+    }
+  }
+
+  // User Membership Management Methods
+  Future<void> updateUserMembershipStatus(
+    String membershipId,
+    bool isActive,
+  ) async {
+    try {
+      await _firestore.collection('user_memberships').doc(membershipId).update({
+        'isActive': isActive,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update local data
+      final index = userMemberships.indexWhere((m) => m['id'] == membershipId);
+      if (index != -1) {
+        userMemberships[index]['isActive'] = isActive;
+        userMemberships.refresh();
+      }
+
+      Get.snackbar(
+        'Thành công',
+        'Đã cập nhật trạng thái thẻ',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Error updating membership status: $e');
+      Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái');
+    }
+  }
+
+  Future<void> updateUserMembershipPaymentStatus(
+    String membershipId,
+    String paymentStatus,
+  ) async {
+    try {
+      await _firestore.collection('user_memberships').doc(membershipId).update({
+        'paymentStatus': paymentStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update local data
+      final index = userMemberships.indexWhere((m) => m['id'] == membershipId);
+      if (index != -1) {
+        userMemberships[index]['paymentStatus'] = paymentStatus;
+        userMemberships.refresh();
+      }
+
+      Get.snackbar(
+        'Thành công',
+        'Đã cập nhật trạng thái thanh toán',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Error updating payment status: $e');
+      Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái thanh toán');
+    }
+  }
+
+  Future<void> deleteUserMembership(String membershipId) async {
+    try {
+      await _firestore
+          .collection('user_memberships')
+          .doc(membershipId)
+          .delete();
+
+      // Remove from local data
+      userMemberships.removeWhere((m) => m['id'] == membershipId);
+      filteredUserMemberships.removeWhere((m) => m['id'] == membershipId);
+
+      Get.snackbar(
+        'Thành công',
+        'Đã xóa thẻ thành công',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Error deleting membership: $e');
+      Get.snackbar('Lỗi', 'Không thể xóa thẻ');
+    }
+  }
+
+  Future<void> extendMembership(String membershipId, int additionalDays) async {
+    try {
+      final membershipDoc = await _firestore
+          .collection('user_memberships')
+          .doc(membershipId)
+          .get();
+      if (!membershipDoc.exists) return;
+
+      final data = membershipDoc.data()!;
+      final currentEndDate = (data['endDate'] as Timestamp).toDate();
+      final newEndDate = currentEndDate.add(Duration(days: additionalDays));
+
+      await _firestore.collection('user_memberships').doc(membershipId).update({
+        'endDate': Timestamp.fromDate(newEndDate),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update local data
+      final index = userMemberships.indexWhere((m) => m['id'] == membershipId);
+      if (index != -1) {
+        userMemberships[index]['endDate'] = Timestamp.fromDate(newEndDate);
+        userMemberships.refresh();
+      }
+
+      Get.snackbar(
+        'Thành công',
+        'Đã gia hạn thẻ $additionalDays ngày',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      print('Error extending membership: $e');
+      Get.snackbar('Lỗi', 'Không thể gia hạn thẻ');
+    }
+  }
+
+  String formatDate(dynamic date) {
+    if (date == null) return 'Không xác định';
+
+    DateTime dateTime;
+    if (date is Timestamp) {
+      dateTime = date.toDate();
+    } else if (date is DateTime) {
+      dateTime = date;
+    } else {
+      return 'Không xác định';
+    }
+
+    return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}';
+  }
+
+  String getMembershipStatus(Map<String, dynamic> membership) {
+    final isActive = membership['isActive'] ?? false;
+    final paymentStatus = membership['paymentStatus'] ?? '';
+    final endDate = membership['endDate'];
+
+    if (paymentStatus == 'pending') {
+      return 'Chờ thanh toán';
+    }
+
+    if (!isActive) {
+      return 'Chưa kích hoạt';
+    }
+
+    if (endDate != null) {
+      DateTime endDateTime;
+      if (endDate is Timestamp) {
+        endDateTime = endDate.toDate();
+      } else if (endDate is DateTime) {
+        endDateTime = endDate;
+      } else {
+        return 'Đang hoạt động';
+      }
+
+      if (endDateTime.isBefore(DateTime.now())) {
+        return 'Đã hết hạn';
+      }
+    }
+
+    return 'Đang hoạt động';
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'Đang hoạt động':
+        return Colors.green;
+      case 'Chờ thanh toán':
+        return Colors.orange;
+      case 'Chưa kích hoạt':
+        return Colors.blue;
+      case 'Đã hết hạn':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String formatPaymentMethod(String? paymentMethod) {
+    if (paymentMethod == null) return 'Không xác định';
+
+    switch (paymentMethod.toLowerCase()) {
+      case 'direct':
+        return 'Thanh toán trực tiếp';
+      case 'momo':
+        return 'Ví MoMo';
+      case 'bank':
+        return 'Chuyển khoản ngân hàng';
+      case 'cash':
+        return 'Tiền mặt';
+      default:
+        return paymentMethod;
+    }
+  }
+
+  String formatPaymentStatus(String? paymentStatus) {
+    if (paymentStatus == null) return 'Không xác định';
+
+    switch (paymentStatus.toLowerCase()) {
+      case 'completed':
+        return 'Đã thanh toán';
+      case 'pending':
+        return 'Chờ thanh toán';
+      case 'failed':
+        return 'Thanh toán thất bại';
+      case 'cancelled':
+        return 'Đã hủy';
+      case 'processing':
+        return 'Đang xử lý';
+      default:
+        return paymentStatus;
     }
   }
 }

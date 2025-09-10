@@ -136,9 +136,11 @@ class _PaymentResultViewState extends State<PaymentResultView> {
             TextButton(
               onPressed: () {
                 Get.back(); // Đóng dialog
-                Get.offAllNamed('/membership-purchase'); // Về trang membership
+                Get.offAllNamed(
+                  '/my-membership-cards',
+                ); // Về trang thẻ tập của tôi
               },
-              child: const Text('Xem thành viên'),
+              child: const Text('Xem thẻ tập'),
             ),
             TextButton(
               onPressed: () {

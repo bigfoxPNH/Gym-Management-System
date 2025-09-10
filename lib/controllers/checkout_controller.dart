@@ -10,6 +10,7 @@ class CheckoutController extends GetxController {
   // Observable state
   final isLoading = false.obs;
   final selectedPaymentMethod = Rxn<PaymentMethod>();
+  final selectedPaymentType = 'momo'.obs; // Payment type selection
   final currentTransaction = Rxn<PaymentTransaction>();
   final availablePaymentMethods = <PaymentMethod>[].obs;
   final isProcessingPayment = false.obs;
@@ -62,15 +63,10 @@ class CheckoutController extends GetxController {
     selectedPaymentMethod.value = method;
   }
 
-  // Create payment - simplified version
+  // Create payment - supports both MoMo and direct payment
   Future<void> createPayment() async {
     if (membershipCard == null) {
       Get.snackbar('Lỗi', 'Vui lòng chọn thẻ tập');
-      return;
-    }
-
-    if (selectedPaymentMethod.value == null) {
-      Get.snackbar('Lỗi', 'Vui lòng chọn phương thức thanh toán');
       return;
     }
 
@@ -81,27 +77,47 @@ class CheckoutController extends GetxController {
       final transactionId = DateTime.now().millisecondsSinceEpoch.toString();
       final purchaseId = DateTime.now().microsecondsSinceEpoch.toString();
 
-      final transaction = PaymentTransaction(
-        id: transactionId,
-        userId: currentUser?.id ?? '',
-        membershipCardId: membershipCard!.id,
-        membershipPurchaseId: purchaseId,
-        paymentType: PaymentType.membership,
-        paymentMethod: selectedPaymentMethod.value!.type,
-        amount: membershipCard!.price,
-        status: PaymentStatus.pending,
-        createdAt: DateTime.now(),
-        description: 'Mua ${membershipCard!.cardName}',
-      );
+      PaymentTransaction transaction;
 
-      currentTransaction.value = transaction;
+      if (selectedPaymentType.value == 'direct') {
+        // Direct payment - set to pending status
+        transaction = PaymentTransaction(
+          id: transactionId,
+          userId: currentUser?.id ?? '',
+          membershipCardId: membershipCard!.id,
+          membershipPurchaseId: purchaseId,
+          paymentType: PaymentType.membership,
+          paymentMethod: PaymentMethodType.cash,
+          amount: membershipCard!.price,
+          status: PaymentStatus.pending,
+          createdAt: DateTime.now(),
+          description: 'Mua ${membershipCard!.cardName} - Thanh toán trực tiếp',
+        );
 
-      // Navigate to Banking payment page
-      if (selectedPaymentMethod.value!.type == PaymentMethodType.banking) {
-        print('🚀 Navigating to Banking payment with:');
-        print('  - MembershipCard: ${membershipCard?.cardName}');
-        print('  - Transaction: ${transaction.id}');
+        // Navigate to direct payment confirmation
+        Get.toNamed(
+          '/direct-payment-confirmation',
+          arguments: {
+            'membershipCard': membershipCard,
+            'transaction': transaction,
+          },
+        );
+      } else {
+        // MoMo payment (existing logic)
+        transaction = PaymentTransaction(
+          id: transactionId,
+          userId: currentUser?.id ?? '',
+          membershipCardId: membershipCard!.id,
+          membershipPurchaseId: purchaseId,
+          paymentType: PaymentType.membership,
+          paymentMethod: PaymentMethodType.banking,
+          amount: membershipCard!.price,
+          status: PaymentStatus.pending,
+          createdAt: DateTime.now(),
+          description: 'Mua ${membershipCard!.cardName} - MoMo',
+        );
 
+        // Navigate to Banking payment page
         Get.toNamed(
           '/banking-payment',
           arguments: {
@@ -109,9 +125,9 @@ class CheckoutController extends GetxController {
             'transaction': transaction,
           },
         );
-      } else {
-        Get.snackbar('Thông báo', 'Phương thức thanh toán chưa được hỗ trợ');
       }
+
+      currentTransaction.value = transaction;
     } catch (e) {
       print('❌ Error creating payment: $e');
       Get.snackbar('Lỗi', 'Không thể tạo thanh toán: $e');
