@@ -288,16 +288,6 @@ class HomeView extends StatelessWidget {
                   Get.toNamed(AppRoutes.membershipPurchase);
                 },
               ),
-              _buildActionCard(
-                context,
-                icon: Icons.science,
-                title: 'Test Membership',
-                subtitle: 'Tạo thẻ test',
-                color: Colors.purple,
-                onTap: () {
-                  Get.toNamed(AppRoutes.testMembership);
-                },
-              ),
             ],
           ),
           const SizedBox(height: 24),

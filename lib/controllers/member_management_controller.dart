@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../models/user_account.dart';
 import '../models/membership_card.dart';
 
@@ -196,6 +197,26 @@ class MemberManagementController extends GetxController {
         } catch (e) {
           membership['userName'] = 'Unknown User';
           membership['userEmail'] = '';
+        }
+
+        // Get membership card info for membershipType
+        try {
+          final cardDoc = await _firestore
+              .collection('membership_cards')
+              .doc(membership['membershipCardId'])
+              .get();
+          if (cardDoc.exists) {
+            membership['membershipType'] =
+                cardDoc.data()?['cardName'] ??
+                membership['membershipCardName'] ??
+                'Không xác định';
+          } else {
+            membership['membershipType'] =
+                membership['membershipCardName'] ?? 'Không xác định';
+          }
+        } catch (e) {
+          membership['membershipType'] =
+              membership['membershipCardName'] ?? 'Không xác định';
         }
 
         memberships.add(membership);
@@ -745,5 +766,22 @@ class MemberManagementController extends GetxController {
       default:
         return paymentStatus;
     }
+  }
+
+  String formatAmount(dynamic amount) {
+    if (amount == null) return '0';
+
+    double amountValue;
+    if (amount is String) {
+      amountValue = double.tryParse(amount) ?? 0;
+    } else if (amount is num) {
+      amountValue = amount.toDouble();
+    } else {
+      return '0';
+    }
+
+    // Format with thousands separator
+    final formatter = NumberFormat('#,###', 'vi_VN');
+    return formatter.format(amountValue);
   }
 }

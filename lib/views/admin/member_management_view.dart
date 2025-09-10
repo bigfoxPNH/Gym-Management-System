@@ -383,7 +383,7 @@ class MemberManagementView extends StatelessWidget {
             ),
             _buildMembershipInfoRow(
               'Số tiền:',
-              '${membership['amount'] ?? 0} VNĐ',
+              '${controller.formatAmount(membership['price'] ?? membership['amount'] ?? 0)} VNĐ',
             ),
             _buildMembershipInfoRow(
               'Phương thức thanh toán:',
@@ -983,7 +983,7 @@ class MemberManagementView extends StatelessWidget {
               ),
               _buildDialogDetailRow(
                 'Số tiền:',
-                '${membership['amount'] ?? 0} VNĐ',
+                '${controller.formatAmount(membership['price'] ?? membership['amount'] ?? 0)} VNĐ',
               ),
               _buildDialogDetailRow(
                 'Phương thức thanh toán:',

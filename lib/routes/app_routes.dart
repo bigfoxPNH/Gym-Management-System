@@ -27,6 +27,5 @@ abstract class AppRoutes {
   static const userScheduleDetail = '/user/schedule-detail';
   static const userScheduleHistory = '/user/schedule-history';
   static const myMembershipCards = '/my-membership-cards';
-  static const testMembership = '/test-membership';
   static const workoutScheduleDetail = '/user/workout-schedule-detail';
 }
