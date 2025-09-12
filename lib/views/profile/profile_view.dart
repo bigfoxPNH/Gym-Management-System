@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/user_account.dart';
 import '../../routes/app_routes.dart';
+import '../../services/qr_checkin_service.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -608,135 +609,237 @@ class ProfileView extends StatelessWidget {
   }
 
   void _showQRDialog(BuildContext context, UserAccount user) {
-    final qrData = _generateQRData(user);
-
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 350),
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'QR Code Thông Tin Cá Nhân',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2196F3),
-                      ),
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2196F3),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(Icons.close),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // User info preview
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2196F3).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage:
-                          user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                          ? _getImageProvider(user.avatarUrl!)
-                          : null,
-                      backgroundColor: const Color(0xFF2196F3),
-                      child: user.avatarUrl == null || user.avatarUrl!.isEmpty
-                          ? const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 20,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.fullName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'QR Code',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                          Text(
-                            user.email,
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(16),
-                child: QrImageView(
-                  data: qrData,
-                  version: QrVersions.auto,
-                  size: 200.0,
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF2196F3),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Quét mã QR này để lưu thông tin liên hệ vào danh bạ',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2196F3),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                      IconButton(
+                        onPressed: () => Get.back(),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
-                  child: const Text('Đóng'),
                 ),
-              ),
-            ],
+                // Tab bar
+                Container(
+                  color: Colors.grey.shade100,
+                  child: const TabBar(
+                    labelColor: Color(0xFF2196F3),
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: Color(0xFF2196F3),
+                    tabs: [
+                      Tab(text: 'Thông tin', icon: Icon(Icons.person)),
+                      Tab(text: 'Check-in', icon: Icon(Icons.qr_code_scanner)),
+                    ],
+                  ),
+                ),
+                // Tab content
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _buildContactQRTab(user),
+                      _buildCheckinQRTab(user),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildContactQRTab(UserAccount user) {
+    final qrData = _generateQRData(user);
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // User info preview
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2196F3).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage:
+                      user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                      ? _getImageProvider(user.avatarUrl!)
+                      : null,
+                  backgroundColor: const Color(0xFF2196F3),
+                  child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+                      ? const Icon(Icons.person, color: Colors.white, size: 20)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.fullName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        user.email,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: QrImageView(
+              data: qrData,
+              version: QrVersions.auto,
+              size: 200.0,
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF2196F3),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Quét mã QR này để lưu thông tin liên hệ vào danh bạ',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckinQRTab(UserAccount user) {
+    final checkinQRData = QRCheckinService.generateUserQRData(
+      user.id,
+      user.email,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Instructions
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.green),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'QR Check-in/Checkout',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                      Text(
+                        'Đưa QR này cho nhân viên quét để check-in/out',
+                        style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: QrImageView(
+              data: checkinQRData,
+              version: QrVersions.auto,
+              size: 200.0,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.green,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'QR code này dùng để check-in/checkout tại phòng gym',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+        ],
       ),
     );
   }

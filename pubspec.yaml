@@ -45,6 +45,7 @@ dependencies:
   intl: ^0.20.2
   google_fonts: ^6.2.1
   qr_flutter: ^4.1.0
+  mobile_scanner: ^5.2.3
   dio: ^5.3.2
 
   # Image handling

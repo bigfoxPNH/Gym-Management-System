@@ -169,10 +169,11 @@ class PaymentStatusView extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () {
                     Get.back();
-                    Get.toNamed('/membership/purchase-history');
+                    // Navigate back to main screen or membership view
+                    Get.offAllNamed('/home');
                   },
-                  icon: const Icon(Icons.history),
-                  label: const Text('Xem lịch sử mua hàng'),
+                  icon: const Icon(Icons.home),
+                  label: const Text('Về trang chính'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,
                     foregroundColor: Colors.white,

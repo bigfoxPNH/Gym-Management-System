@@ -11,7 +11,6 @@ class MembershipPurchaseController extends GetxController {
   final purchases = <MembershipPurchase>[].obs;
   final availableTemplates = <MembershipCard>[].obs;
   final filteredTemplates = <MembershipCard>[].obs;
-  final userPurchases = <MembershipPurchase>[].obs;
 
   // Loading states
   final isLoading = false.obs;
@@ -74,28 +73,6 @@ class MembershipPurchaseController extends GetxController {
     }
   }
 
-  /// Load user purchases
-  Future<void> loadUserPurchases(String userId) async {
-    try {
-      isLoading.value = true;
-      print('Loading purchases for userId: $userId');
-      final purchases = await MembershipPurchaseService.getUserPurchases(
-        userId,
-      );
-      print('Loaded ${purchases.length} purchases');
-      userPurchases.assignAll(purchases);
-    } catch (e) {
-      print('Error loading user purchases: $e');
-      Get.snackbar(
-        'Lỗi',
-        'Không thể tải lịch sử mua hàng: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   /// Purchase a membership template
   Future<bool> purchaseTemplate(
     String userId,
@@ -122,10 +99,6 @@ class MembershipPurchaseController extends GetxController {
           'Đã mua thẻ tập "${template.cardName}" thành công!',
           snackPosition: SnackPosition.BOTTOM,
         );
-
-        // Refresh user purchases if loaded
-        print('Refreshing user purchases list...');
-        await loadUserPurchases(userId);
 
         return true;
       } else {
@@ -202,13 +175,6 @@ class MembershipPurchaseController extends GetxController {
           'Đã cập nhật trạng thái thẻ tập',
           snackPosition: SnackPosition.BOTTOM,
         );
-
-        // Update local list
-        final index = userPurchases.indexWhere((p) => p.id == purchaseId);
-        if (index != -1) {
-          final updated = userPurchases[index].copyWith(status: status);
-          userPurchases[index] = updated;
-        }
 
         return true;
       } else {
@@ -418,10 +384,5 @@ class MembershipPurchaseController extends GetxController {
       case DurationType.custom:
         return 'tùy chỉnh';
     }
-  }
-
-  /// Get status display text
-  String getStatusText(PurchaseStatus status) {
-    return status.label;
   }
 }

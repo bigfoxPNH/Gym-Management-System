@@ -8,13 +8,16 @@ class WorkoutScheduleService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Simplified methods without complex queries for testing
+  // CRUD cho Workout Schedules (Admin)
   Future<String> createSchedule(WorkoutSchedule schedule) async {
     try {
       final docRef = await _firestore
           .collection(_collectionName)
           .add(schedule.toMap());
+
+      // Update với ID thực tế
       await docRef.update({'id': docRef.id});
+
       return docRef.id;
     } catch (e) {
       throw Exception('Lỗi tạo lịch trình: $e');
@@ -23,83 +26,108 @@ class WorkoutScheduleService {
 
   Future<List<WorkoutSchedule>> getAllSchedules() async {
     try {
-      final querySnapshot = await _firestore
-          .collection(_collectionName)
-          .get();
+      final querySnapshot = await _firestore.collection(_collectionName).get();
 
       final schedules = querySnapshot.docs
           .map((doc) => WorkoutSchedule.fromMap(doc.data()))
           .toList();
-      
+
+      // Sort in code to avoid index requirements
       schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return schedules;
     } catch (e) {
-      return []; // Return empty list on error for testing
+      throw Exception('Lỗi lấy danh sách lịch trình: $e');
     }
   }
 
-  // Simple active schedules query
   Future<List<WorkoutSchedule>> getActiveSchedules() async {
     try {
       final querySnapshot = await _firestore
           .collection(_collectionName)
+          .where('isActive', isEqualTo: true)
           .get();
 
       final schedules = querySnapshot.docs
           .map((doc) => WorkoutSchedule.fromMap(doc.data()))
-          .where((schedule) => schedule.isActive)
           .toList();
-      
+
       schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy danh sách lịch trình: $e');
     }
   }
 
-  // Client-side filtering to avoid composite index requirements
-  Future<List<WorkoutSchedule>> getSchedulesByCategory(ScheduleCategory category) async {
+  Future<List<WorkoutSchedule>> getSchedulesByCategory(
+    ScheduleCategory category,
+  ) async {
     try {
-      final allSchedules = await getAllSchedules();
-      return allSchedules
-          .where((schedule) => schedule.category == category && schedule.isActive)
+      final querySnapshot = await _firestore.collection(_collectionName).get();
+
+      final schedules = querySnapshot.docs
+          .map((doc) => WorkoutSchedule.fromMap(doc.data()))
+          .where(
+            (schedule) => schedule.category == category && schedule.isActive,
+          )
           .toList();
+
+      schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy lịch trình theo danh mục: $e');
     }
   }
 
-  Future<List<WorkoutSchedule>> getSchedulesByDifficulty(DifficultyLevel difficulty) async {
+  Future<List<WorkoutSchedule>> getSchedulesByDifficulty(
+    DifficultyLevel difficulty,
+  ) async {
     try {
-      final allSchedules = await getAllSchedules();
-      return allSchedules
-          .where((schedule) => schedule.difficulty == difficulty && schedule.isActive)
+      final querySnapshot = await _firestore.collection(_collectionName).get();
+
+      final schedules = querySnapshot.docs
+          .map((doc) => WorkoutSchedule.fromMap(doc.data()))
+          .where(
+            (schedule) =>
+                schedule.difficulty == difficulty && schedule.isActive,
+          )
           .toList();
+
+      schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy lịch trình theo độ khó: $e');
     }
   }
 
   Future<List<WorkoutSchedule>> getPresetSchedules() async {
     try {
-      final allSchedules = await getAllSchedules();
-      return allSchedules
-          .where((schedule) => schedule.type == ScheduleType.preset && schedule.isActive)
+      final querySnapshot = await _firestore.collection(_collectionName).get();
+
+      final schedules = querySnapshot.docs
+          .map((doc) => WorkoutSchedule.fromMap(doc.data()))
+          .where(
+            (schedule) =>
+                schedule.type == ScheduleType.preset && schedule.isActive,
+          )
           .toList();
+
+      schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy lịch trình preset: $e');
     }
   }
 
   Future<WorkoutSchedule?> getScheduleById(String id) async {
     try {
       final doc = await _firestore.collection(_collectionName).doc(id).get();
+
       if (doc.exists) {
         return WorkoutSchedule.fromMap(doc.data()!);
       }
       return null;
     } catch (e) {
-      return null;
+      throw Exception('Lỗi lấy lịch trình: $e');
     }
   }
 
@@ -129,15 +157,38 @@ class WorkoutScheduleService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      throw Exception('Lỗi cập nhật trạng thái: $e');
+      throw Exception('Lỗi cập nhật trạng thái lịch trình: $e');
     }
   }
 
-  // User schedule methods
+  // CRUD cho User Schedules
   Future<String> assignScheduleToUser(String userId, String scheduleId) async {
     try {
+      // Kiểm tra xem user đã có schedule này chưa
+      final existingQuery = await _firestore
+          .collection(_userSchedulesCollection)
+          .where('userId', isEqualTo: userId)
+          .where('scheduleId', isEqualTo: scheduleId)
+          .where(
+            'status',
+            whereIn: [
+              UserScheduleStatus.active.name,
+              UserScheduleStatus.paused.name,
+            ],
+          )
+          .get();
+
+      if (existingQuery.docs.isNotEmpty) {
+        throw Exception('Bạn đã có lịch trình này trong danh sách!');
+      }
+
+      final schedule = await getScheduleById(scheduleId);
+      if (schedule == null) {
+        throw Exception('Không tìm thấy lịch trình!');
+      }
+
       final userSchedule = UserSchedule(
-        id: '',
+        id: '', // Will be set by Firestore
         userId: userId,
         scheduleId: scheduleId,
         startDate: DateTime.now(),
@@ -153,7 +204,9 @@ class WorkoutScheduleService {
           .collection(_userSchedulesCollection)
           .add(userSchedule.toMap());
 
+      // Update với ID thực tế
       await docRef.update({'id': docRef.id});
+
       return docRef.id;
     } catch (e) {
       throw Exception('Lỗi assign lịch trình: $e');
@@ -170,22 +223,30 @@ class WorkoutScheduleService {
       final schedules = querySnapshot.docs
           .map((doc) => UserSchedule.fromMap(doc.data()))
           .toList();
-      
+
       schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy lịch trình user: $e');
     }
   }
 
   Future<List<UserSchedule>> getActiveUserSchedules(String userId) async {
     try {
-      final allUserSchedules = await getUserSchedules(userId);
-      return allUserSchedules
+      final querySnapshot = await _firestore
+          .collection(_userSchedulesCollection)
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      final schedules = querySnapshot.docs
+          .map((doc) => UserSchedule.fromMap(doc.data()))
           .where((schedule) => schedule.status == UserScheduleStatus.active)
           .toList();
+
+      schedules.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return schedules;
     } catch (e) {
-      return [];
+      throw Exception('Lỗi lấy lịch trình active: $e');
     }
   }
 
@@ -211,17 +272,20 @@ class WorkoutScheduleService {
           .collection(_userSchedulesCollection)
           .doc(userScheduleId)
           .update({
-        'currentWeek': currentWeek,
-        'currentSession': currentSession,
-        'completedExerciseIds': completedExerciseIds,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+            'currentWeek': currentWeek,
+            'currentSession': currentSession,
+            'completedExerciseIds': completedExerciseIds,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
     } catch (e) {
       throw Exception('Lỗi cập nhật progress: $e');
     }
   }
 
-  Future<void> changeUserScheduleStatus(String userScheduleId, UserScheduleStatus status) async {
+  Future<void> changeUserScheduleStatus(
+    String userScheduleId,
+    UserScheduleStatus status,
+  ) async {
     try {
       final updateData = {
         'status': status.name,
@@ -241,54 +305,62 @@ class WorkoutScheduleService {
     }
   }
 
-  // Statistics methods (simplified)
+  // Statistics methods
   Future<int> getTotalSchedulesCount() async {
     try {
       final querySnapshot = await _firestore.collection(_collectionName).get();
       return querySnapshot.docs.length;
     } catch (e) {
-      return 0;
+      throw Exception('Lỗi đếm tổng lịch trình: $e');
     }
   }
 
   Future<int> getActiveUserSchedulesCount() async {
     try {
-      final querySnapshot = await _firestore.collection(_userSchedulesCollection).get();
+      final querySnapshot = await _firestore
+          .collection(_userSchedulesCollection)
+          .get();
+
       final activeCount = querySnapshot.docs
           .map((doc) => UserSchedule.fromMap(doc.data()))
           .where((schedule) => schedule.status == UserScheduleStatus.active)
           .length;
+
       return activeCount;
     } catch (e) {
-      return 0;
+      throw Exception('Lỗi đếm user schedule active: $e');
     }
   }
 
   Future<Map<String, int>> getScheduleStatsByCategory() async {
     try {
-      final allSchedules = await getAllSchedules();
+      final querySnapshot = await _firestore.collection(_collectionName).get();
       final Map<String, int> stats = {};
 
-      for (var schedule in allSchedules) {
+      for (var doc in querySnapshot.docs) {
+        final schedule = WorkoutSchedule.fromMap(doc.data());
         final categoryName = schedule.category.name;
         stats[categoryName] = (stats[categoryName] ?? 0) + 1;
       }
 
       return stats;
     } catch (e) {
-      return {};
+      throw Exception('Lỗi thống kê theo danh mục: $e');
     }
   }
 
-  // Real-time streams (simplified)
+  // Real-time streams
   Stream<List<WorkoutSchedule>> watchSchedules() {
     return _firestore
         .collection(_collectionName)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => WorkoutSchedule.fromMap(doc.data()))
-            .toList()
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => WorkoutSchedule.fromMap(doc.data()))
+                  .toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+        );
   }
 
   Stream<List<UserSchedule>> watchUserSchedules(String userId) {
@@ -296,9 +368,12 @@ class WorkoutScheduleService {
         .collection(_userSchedulesCollection)
         .where('userId', isEqualTo: userId)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => UserSchedule.fromMap(doc.data()))
-            .toList()
-          ..sort((a, b) => b.createdAt.compareTo(a.createdAt)));
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => UserSchedule.fromMap(doc.data()))
+                  .toList()
+                ..sort((a, b) => b.createdAt.compareTo(a.createdAt)),
+        );
   }
 }

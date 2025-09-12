@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/qr_checkin_service.dart';
+import '../../widgets/qr_scanner_widget.dart';
 
 class CheckinCheckoutController extends GetxController {
   final isLoading = false.obs;
@@ -68,6 +70,61 @@ class CheckinCheckoutController extends GetxController {
     } catch (e) {
       print('Error checkout: $e');
       Get.snackbar('Lỗi', 'Checkout thất bại');
+    }
+  }
+
+  /// Process QR code for checkin/checkout
+  Future<void> processQRCheckin(String qrData, String type) async {
+    try {
+      // Validate QR and get user info
+      final result = await QRCheckinService.validateQRForCheckin(qrData);
+
+      if (!result['isValid']) {
+        Get.snackbar(
+          'Lỗi',
+          result['message'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      final userId = result['userId'];
+      final userName = result['userName'];
+      final membership = result['membership'];
+
+      // Record the checkin/checkout
+      final success = await QRCheckinService.recordCheckinCheckout(
+        userId: userId,
+        userName: userName,
+        type: type,
+        membership: membership,
+      );
+
+      if (success) {
+        Get.snackbar(
+          'Thành công',
+          '$userName đã ${type == 'checkin' ? 'check-in' : 'check-out'} thành công',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+        loadCheckinRecords();
+      } else {
+        Get.snackbar(
+          'Lỗi',
+          'Không thể ghi nhận ${type == 'checkin' ? 'check-in' : 'check-out'}',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error processing QR checkin: $e');
+      Get.snackbar(
+        'Lỗi',
+        'Lỗi khi xử lý QR code: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -141,6 +198,41 @@ class CheckinCheckoutView extends StatelessWidget {
                     label: const Text('Checkout'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // QR Scanner buttons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () =>
+                        _openQRScanner(context, controller, 'checkin'),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('QR Check-in'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () =>
+                        _openQRScanner(context, controller, 'checkout'),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    label: const Text('QR Check-out'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.all(16),
                     ),
@@ -368,6 +460,25 @@ class CheckinCheckoutView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openQRScanner(
+    BuildContext context,
+    CheckinCheckoutController controller,
+    String type,
+  ) {
+    Get.to(
+      () => QRScannerWidget(
+        title: type == 'checkin' ? 'QR Check-in' : 'QR Check-out',
+        onQRScanned: (qrData) {
+          // Close scanner
+          Get.back();
+
+          // Process the QR code
+          controller.processQRCheckin(qrData, type);
+        },
       ),
     );
   }
