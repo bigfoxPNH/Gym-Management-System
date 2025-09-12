@@ -240,18 +240,12 @@ class HomeView extends StatelessWidget {
               ),
               _buildActionCard(
                 context,
-                icon: Icons.list_alt,
-                title: 'Xem Bài Tập',
-                subtitle: 'Danh sách bài tập',
+                icon: Icons.card_membership,
+                title: 'Xuất Thẻ Tập',
+                subtitle: 'Hiển thị thông tin thẻ',
                 color: Colors.blue,
                 onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Xem bài tập sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.blue,
-                    colorText: Colors.white,
-                  );
+                  Get.toNamed(AppRoutes.membershipCardExport);
                 },
               ),
               _buildActionCard(
