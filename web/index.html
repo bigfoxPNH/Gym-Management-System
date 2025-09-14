@@ -42,6 +42,78 @@
 
     <!-- Mobile optimizations -->
     <script src="mobile-config.js"></script>
+
+    <!-- Camera utilities for web -->
+    <script>
+      // Web camera utilities to bypass Flutter camera plugin issues
+      window.webCameraUtils = {
+        // Check if camera is available
+        isCameraAvailable: async function () {
+          try {
+            if (
+              !navigator.mediaDevices ||
+              !navigator.mediaDevices.getUserMedia
+            ) {
+              return false;
+            }
+
+            // Try to get camera access
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+            });
+            // Stop the stream immediately after checking
+            stream.getTracks().forEach((track) => track.stop());
+            return true;
+          } catch (error) {
+            console.log("Camera not available:", error);
+            return false;
+          }
+        },
+
+        // Get camera stream with specific constraints
+        getCameraStream: async function (constraints = {}) {
+          try {
+            const defaultConstraints = {
+              video: {
+                width: { ideal: 640, max: 1280 },
+                height: { ideal: 480, max: 720 },
+                frameRate: { ideal: 15, max: 30 },
+              },
+              audio: false,
+            };
+
+            const finalConstraints = Object.assign(
+              defaultConstraints,
+              constraints
+            );
+            return await navigator.mediaDevices.getUserMedia(finalConstraints);
+          } catch (error) {
+            console.error("Failed to get camera stream:", error);
+            throw error;
+          }
+        },
+
+        // Create video element for camera preview
+        createVideoElement: function (streamId) {
+          const video = document.createElement("video");
+          video.id = streamId || "camera-preview";
+          video.autoplay = true;
+          video.playsInline = true;
+          video.muted = true;
+          video.style.width = "100%";
+          video.style.height = "100%";
+          video.style.objectFit = "cover";
+          return video;
+        },
+
+        // Stop camera stream
+        stopCameraStream: function (stream) {
+          if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+          }
+        },
+      };
+    </script>
   </head>
   <body>
     <script src="flutter_bootstrap.js" async></script>

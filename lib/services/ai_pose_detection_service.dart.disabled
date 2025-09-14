@@ -1,0 +1,734 @@
+import 'dart:math' as math;
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
+import '../models/exercise_model.dart';
+
+class AIPoseDetectionService {
+  static final AIPoseDetectionService _instance =
+      AIPoseDetectionService._internal();
+  factory AIPoseDetectionService() => _instance;
+  AIPoseDetectionService._internal();
+
+  late PoseDetector _poseDetector;
+  bool _isInitialized = false;
+
+  // Initialize the pose detector
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+
+    try {
+      final options = PoseDetectorOptions(
+        mode: PoseDetectionMode.stream,
+        model: PoseDetectionModel.accurate,
+      );
+      _poseDetector = PoseDetector(options: options);
+      _isInitialized = true;
+      debugPrint('✅ AI Pose Detection Service initialized');
+    } catch (e) {
+      debugPrint('❌ Failed to initialize pose detector: $e');
+      rethrow;
+    }
+  }
+
+  // Dispose the pose detector
+  void dispose() {
+    if (_isInitialized) {
+      _poseDetector.close();
+      _isInitialized = false;
+    }
+  }
+
+  // Process camera image and detect poses
+  Future<PoseAnalysisResult> analyzePose(
+    CameraImage cameraImage,
+    Exercise exercise,
+  ) async {
+    if (!_isInitialized) {
+      await initialize();
+    }
+
+    try {
+      // Convert CameraImage to InputImage
+      final inputImage = _cameraImageToInputImage(cameraImage);
+
+      // Detect poses
+      final poses = await _poseDetector.processImage(inputImage);
+
+      if (poses.isEmpty) {
+        return PoseAnalysisResult(
+          feedback: WorkoutFeedback(
+            message: 'Không phát hiện được người trong khung hình',
+            type: FeedbackType.warning,
+            timestamp: DateTime.now(),
+          ),
+          message: 'Không phát hiện được người trong khung hình',
+          confidence: 0.0,
+          repCount: 0,
+        );
+      }
+
+      // Analyze the first detected pose
+      final pose = poses.first;
+      return _analyzePoseForExercise(pose, exercise);
+    } catch (e) {
+      debugPrint('❌ Pose analysis error: $e');
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Lỗi phân tích tư thế: ${e.toString()}',
+          type: FeedbackType.danger,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Lỗi phân tích tư thế: ${e.toString()}',
+        confidence: 0.0,
+        repCount: 0,
+      );
+    }
+  }
+
+  // Convert CameraImage to InputImage for ML Kit
+  InputImage _cameraImageToInputImage(CameraImage cameraImage) {
+    // Get image format
+    final format = InputImageFormatValue.fromRawValue(cameraImage.format.raw);
+
+    // Get image rotation
+    final rotation = InputImageRotationValue.fromRawValue(
+      0,
+    ); // Adjust based on camera orientation
+
+    // Create InputImageData
+    final inputImageData = InputImageMetadata(
+      size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
+      rotation: rotation ?? InputImageRotation.rotation0deg,
+      format: format ?? InputImageFormat.nv21,
+      bytesPerRow: cameraImage.planes[0].bytesPerRow,
+    );
+
+    // Convert to InputImage
+    return InputImage.fromBytes(
+      bytes: cameraImage.planes[0].bytes,
+      metadata: inputImageData,
+    );
+  }
+
+  // Analyze pose for specific exercise
+  PoseAnalysisResult _analyzePoseForExercise(Pose pose, Exercise exercise) {
+    switch (exercise.id) {
+      case 'squat':
+        return _analyzeSquat(pose);
+      case 'pushup':
+        return _analyzePushup(pose);
+      case 'plank':
+        return _analyzePlank(pose);
+      case 'lunge':
+        return _analyzeLunge(pose);
+      case 'burpee':
+        return _analyzeBurpee(pose);
+      case 'mountain_climbers':
+        return _analyzeMountainClimbers(pose);
+      case 'jumping_jacks':
+        return _analyzeJumpingJacks(pose);
+      case 'situp':
+        return _analyzeSitup(pose);
+      case 'deadlift':
+        return _analyzeDeadlift(pose);
+      case 'shoulder_press':
+        return _analyzeShoulderPress(pose);
+      default:
+        return _analyzeGeneral(pose, exercise);
+    }
+  }
+
+  // Analyze squat pose
+  PoseAnalysisResult _analyzeSquat(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    // Get key points for squat analysis
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+    final leftKnee = landmarks[PoseLandmarkType.leftKnee];
+    final rightKnee = landmarks[PoseLandmarkType.rightKnee];
+    final leftAnkle = landmarks[PoseLandmarkType.leftAnkle];
+    final rightAnkle = landmarks[PoseLandmarkType.rightAnkle];
+
+    if (leftHip == null ||
+        rightHip == null ||
+        leftKnee == null ||
+        rightKnee == null ||
+        leftAnkle == null ||
+        rightAnkle == null) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Không thể phát hiện đầy đủ các điểm quan trọng',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Không thể phát hiện đầy đủ các điểm quan trọng',
+        confidence: 0.3,
+        repCount: 0,
+      );
+    }
+
+    // Calculate angles and positions
+    final hipHeight = (leftHip.y + rightHip.y) / 2;
+    final kneeHeight = (leftKnee.y + rightKnee.y) / 2;
+
+    // Squat depth analysis
+    final squatDepth = hipHeight - kneeHeight;
+    final isDeepSquat = squatDepth > 50; // Adjust threshold as needed
+
+    // Knee alignment check
+    final kneeAlignment =
+        (leftKnee.x - leftAnkle.x).abs() + (rightKnee.x - rightAnkle.x).abs();
+    final goodKneeAlignment = kneeAlignment < 30;
+
+    // Generate feedback
+    if (isDeepSquat && goodKneeAlignment) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Tuyệt vời! Tư thế squat hoàn hảo',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Tuyệt vời! Tư thế squat hoàn hảo',
+        confidence: 0.9,
+        repCount: 1,
+      );
+    } else if (isDeepSquat) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Tốt! Nhưng cần chú ý vị trí đầu gối',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Tốt! Nhưng cần chú ý vị trí đầu gối',
+        confidence: 0.7,
+        repCount: 1,
+      );
+    } else if (goodKneeAlignment) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Cần ngồi sâu hơn để hiệu quả',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Cần ngồi sâu hơn để hiệu quả',
+        confidence: 0.6,
+        repCount: 0,
+      );
+    } else {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Nguy hiểm: Đầu gối không đúng vị trí',
+          type: FeedbackType.danger,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Nguy hiểm: Đầu gối không đúng vị trí',
+        confidence: 0.4,
+        repCount: 0,
+      );
+    }
+  }
+
+  // Analyze push-up pose
+  PoseAnalysisResult _analyzePushup(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftElbow = landmarks[PoseLandmarkType.leftElbow];
+    final rightElbow = landmarks[PoseLandmarkType.rightElbow];
+    final leftWrist = landmarks[PoseLandmarkType.leftWrist];
+    final rightWrist = landmarks[PoseLandmarkType.rightWrist];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftElbow == null ||
+        rightElbow == null ||
+        leftWrist == null ||
+        rightWrist == null) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Không thể phát hiện đầy đủ phần thân trên',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Không thể phát hiện đầy đủ phần thân trên',
+        confidence: 0.3,
+        repCount: 0,
+      );
+    }
+
+    // Calculate arm angles and body alignment
+    final shoulderHeight = (leftShoulder.y + rightShoulder.y) / 2;
+    final elbowHeight = (leftElbow.y + rightElbow.y) / 2;
+    final wristHeight = (leftWrist.y + rightWrist.y) / 2;
+
+    // Check if arms are in push-up position
+    final armsExtended =
+        elbowHeight > shoulderHeight && wristHeight > elbowHeight;
+    final armsBent = elbowHeight < shoulderHeight;
+
+    if (armsExtended) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Tốt! Đẩy mạnh lên trên',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Tốt! Đẩy mạnh lên trên',
+        confidence: 0.8,
+        repCount: 1,
+      );
+    } else if (armsBent) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Hạ người xuống đến khi ngực gần sàn',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Hạ người xuống đến khi ngực gần sàn',
+        confidence: 0.6,
+        repCount: 0,
+      );
+    } else {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Giữ tư thế, tiếp tục',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Giữ tư thế, tiếp tục',
+        confidence: 0.5,
+        repCount: 0,
+      );
+    }
+  }
+
+  // Analyze plank pose
+  PoseAnalysisResult _analyzePlank(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftHip == null ||
+        rightHip == null) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Không thể đánh giá tư thế plank',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Không thể đánh giá tư thế plank',
+        confidence: 0.3,
+        repCount: 0,
+      );
+    }
+
+    // Check body alignment for plank
+    final shoulderHeight = (leftShoulder.y + rightShoulder.y) / 2;
+    final hipHeight = (leftHip.y + rightHip.y) / 2;
+
+    final bodyAlignment = (shoulderHeight - hipHeight).abs();
+    final goodAlignment = bodyAlignment < 20;
+
+    if (goodAlignment) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Hoàn hảo! Giữ tư thế thẳng',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Hoàn hảo! Giữ tư thế thẳng',
+        confidence: 0.9,
+        repCount: 0, // Plank is time-based
+      );
+    } else {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Giữ thẳng người, không để hông quá cao hay thấp',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Giữ thẳng người, không để hông quá cao hay thấp',
+        confidence: 0.6,
+        repCount: 0,
+      );
+    }
+  }
+
+  // Analyze lunge pose
+  PoseAnalysisResult _analyzeLunge(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+    final leftKnee = landmarks[PoseLandmarkType.leftKnee];
+    final rightKnee = landmarks[PoseLandmarkType.rightKnee];
+
+    if (leftHip == null ||
+        rightHip == null ||
+        leftKnee == null ||
+        rightKnee == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Lunge',
+      );
+    }
+
+    // Calculate knee angles
+    final leftKneeAngle = _calculateAngle(
+      leftHip.x,
+      leftHip.y,
+      leftKnee.x,
+      leftKnee.y,
+      landmarks[PoseLandmarkType.leftAnkle]?.x ?? 0,
+      landmarks[PoseLandmarkType.leftAnkle]?.y ?? 0,
+    );
+
+    if (leftKneeAngle < 70) {
+      return _createDangerResult(
+        'Nguy hiểm: Đầu gối quá sâu, có thể gây chấn thương!',
+      );
+    } else if (leftKneeAngle < 90) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Lunge rất tốt.');
+    } else {
+      return _createWarningResult('Cần đi sâu hơn để hiệu quả hơn');
+    }
+  }
+
+  // Analyze burpee pose
+  PoseAnalysisResult _analyzeBurpee(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftHip == null ||
+        rightHip == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Burpee',
+      );
+    }
+
+    // Check if in plank position (shoulders aligned with hips)
+    final shoulderHipAlignment =
+        ((leftShoulder.y + rightShoulder.y) / 2) -
+        ((leftHip.y + rightHip.y) / 2);
+
+    if (shoulderHipAlignment.abs() < 50) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Tư thế plank hoàn hảo.');
+    } else if (shoulderHipAlignment > 0) {
+      return _createWarningResult('Nâng hông lên, giữ thẳng lưng');
+    } else {
+      return _createWarningResult('Hạ hông xuống, tạo đường thẳng');
+    }
+  }
+
+  // Analyze mountain climbers pose
+  PoseAnalysisResult _analyzeMountainClimbers(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftWrist = landmarks[PoseLandmarkType.leftWrist];
+    final rightWrist = landmarks[PoseLandmarkType.rightWrist];
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+
+    if (leftWrist == null ||
+        rightWrist == null ||
+        leftShoulder == null ||
+        rightShoulder == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Mountain Climbers',
+      );
+    }
+
+    // Check arm positioning
+    final armAlignment =
+        ((leftWrist.y + rightWrist.y) / 2) -
+        ((leftShoulder.y + rightShoulder.y) / 2);
+
+    if (armAlignment > 30) {
+      return _createDangerResult(
+        'Nguy hiểm: Tay quá sâu, có thể gây chấn thương vai!',
+      );
+    } else if (armAlignment.abs() < 15) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Tư thế tay hoàn hảo.');
+    } else {
+      return _createWarningResult('Điều chỉnh vị trí tay, thẳng hàng với vai');
+    }
+  }
+
+  // Analyze jumping jacks pose
+  PoseAnalysisResult _analyzeJumpingJacks(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftWrist = landmarks[PoseLandmarkType.leftWrist];
+    final rightWrist = landmarks[PoseLandmarkType.rightWrist];
+    final leftAnkle = landmarks[PoseLandmarkType.leftAnkle];
+    final rightAnkle = landmarks[PoseLandmarkType.rightAnkle];
+
+    if (leftWrist == null ||
+        rightWrist == null ||
+        leftAnkle == null ||
+        rightAnkle == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Jumping Jacks',
+      );
+    }
+
+    // Check if arms are up and legs are apart
+    final armsUp = (leftWrist.y + rightWrist.y) / 2;
+    final legsApart = (leftAnkle.x - rightAnkle.x).abs();
+
+    if (armsUp < 200 && legsApart > 100) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Động tác hoàn hảo.');
+    } else if (armsUp > 300) {
+      return _createWarningResult('Nâng tay lên cao hơn');
+    } else if (legsApart < 50) {
+      return _createWarningResult('Mở chân rộng hơn');
+    } else {
+      return _createCorrectResult('Tốt lắm, tiếp tục!');
+    }
+  }
+
+  // Analyze sit-up pose
+  PoseAnalysisResult _analyzeSitup(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftHip == null ||
+        rightHip == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Sit-up',
+      );
+    }
+
+    // Check torso angle
+    final torsoAngle = _calculateAngle(
+      (leftShoulder.x + rightShoulder.x) / 2,
+      (leftShoulder.y + rightShoulder.y) / 2,
+      (leftHip.x + rightHip.x) / 2,
+      (leftHip.y + rightHip.y) / 2,
+      (leftHip.x + rightHip.x) / 2,
+      (leftHip.y + rightHip.y) / 2 + 100,
+    );
+
+    if (torsoAngle > 45) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Sit-up tuyệt vời.');
+    } else if (torsoAngle > 20) {
+      return _createWarningResult('Nâng người lên cao hơn');
+    } else {
+      return _createWarningResult('Bắt đầu nâng người lên từ từ');
+    }
+  }
+
+  // Analyze deadlift pose
+  PoseAnalysisResult _analyzeDeadlift(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftHip = landmarks[PoseLandmarkType.leftHip];
+    final rightHip = landmarks[PoseLandmarkType.rightHip];
+    final leftKnee = landmarks[PoseLandmarkType.leftKnee];
+    final rightKnee = landmarks[PoseLandmarkType.rightKnee];
+
+    if (leftShoulder == null ||
+        rightShoulder == null ||
+        leftHip == null ||
+        rightHip == null ||
+        leftKnee == null ||
+        rightKnee == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Deadlift',
+      );
+    }
+
+    // Check back alignment
+    final shoulderHipAlignment =
+        ((leftShoulder.y + rightShoulder.y) / 2) -
+        ((leftHip.y + rightHip.y) / 2);
+
+    if (shoulderHipAlignment < -50) {
+      return _createDangerResult(
+        'Nguy hiểm: Sai tư thế lưng, có thể gây chấn thương!',
+      );
+    } else if (shoulderHipAlignment.abs() < 30) {
+      return _createCorrectResult('Đúng rồi, tiếp tục! Tư thế lưng hoàn hảo.');
+    } else {
+      return _createWarningResult('Giữ lưng thẳng, không cong lưng');
+    }
+  }
+
+  // Analyze shoulder press pose
+  PoseAnalysisResult _analyzeShoulderPress(Pose pose) {
+    final landmarks = pose.landmarks;
+
+    final leftWrist = landmarks[PoseLandmarkType.leftWrist];
+    final rightWrist = landmarks[PoseLandmarkType.rightWrist];
+    final leftShoulder = landmarks[PoseLandmarkType.leftShoulder];
+    final rightShoulder = landmarks[PoseLandmarkType.rightShoulder];
+    final leftElbow = landmarks[PoseLandmarkType.leftElbow];
+    final rightElbow = landmarks[PoseLandmarkType.rightElbow];
+
+    if (leftWrist == null ||
+        rightWrist == null ||
+        leftShoulder == null ||
+        rightShoulder == null ||
+        leftElbow == null ||
+        rightElbow == null) {
+      return _createWarningResult(
+        'Không thể phát hiện đầy đủ các điểm quan trọng cho Shoulder Press',
+      );
+    }
+
+    // Check arm position
+    final armsAboveShoulder =
+        (leftWrist.y + rightWrist.y) / 2 <
+        (leftShoulder.y + rightShoulder.y) / 2;
+    final elbowAlignment =
+        (leftElbow.y + rightElbow.y) / 2 -
+        (leftShoulder.y + rightShoulder.y) / 2;
+
+    if (armsAboveShoulder && elbowAlignment.abs() < 20) {
+      return _createCorrectResult(
+        'Đúng rồi, tiếp tục! Shoulder Press hoàn hảo.',
+      );
+    } else if (!armsAboveShoulder) {
+      return _createWarningResult('Nâng tay lên cao hơn vai');
+    } else {
+      return _createWarningResult('Điều chỉnh vị trí khuỷu tay');
+    }
+  }
+
+  // Helper methods for creating results
+  PoseAnalysisResult _createCorrectResult(String message) {
+    return PoseAnalysisResult(
+      feedback: WorkoutFeedback(
+        message: message,
+        type: FeedbackType.correct,
+        timestamp: DateTime.now(),
+      ),
+      message: message,
+      confidence: 0.9,
+      repCount: 1,
+    );
+  }
+
+  PoseAnalysisResult _createWarningResult(String message) {
+    return PoseAnalysisResult(
+      feedback: WorkoutFeedback(
+        message: message,
+        type: FeedbackType.warning,
+        timestamp: DateTime.now(),
+      ),
+      message: message,
+      confidence: 0.6,
+      repCount: 0,
+    );
+  }
+
+  PoseAnalysisResult _createDangerResult(String message) {
+    return PoseAnalysisResult(
+      feedback: WorkoutFeedback(
+        message: message,
+        type: FeedbackType.danger,
+        timestamp: DateTime.now(),
+      ),
+      message: message,
+      confidence: 0.8,
+      repCount: 0,
+    );
+  }
+
+  // Calculate angle between three points
+  double _calculateAngle(
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double x3,
+    double y3,
+  ) {
+    final angle1 = math.atan2(y1 - y2, x1 - x2);
+    final angle2 = math.atan2(y3 - y2, x3 - x2);
+    final angle = (angle1 - angle2).abs();
+    return angle * (180 / math.pi);
+  }
+
+  // General pose analysis for other exercises
+  PoseAnalysisResult _analyzeGeneral(Pose pose, Exercise exercise) {
+    // Basic pose detection for exercises not specifically implemented
+    final confidence =
+        pose.landmarks.values
+            .map((landmark) => landmark.likelihood)
+            .reduce((a, b) => a + b) /
+        pose.landmarks.length;
+
+    if (confidence > 0.7) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Tư thế tốt, tiếp tục!',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Tư thế tốt, tiếp tục!',
+        confidence: confidence,
+        repCount: 1,
+      );
+    } else if (confidence > 0.4) {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Điều chỉnh tư thế để chính xác hơn',
+          type: FeedbackType.warning,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Điều chỉnh tư thế để chính xác hơn',
+        confidence: confidence,
+        repCount: 0,
+      );
+    } else {
+      return PoseAnalysisResult(
+        feedback: WorkoutFeedback(
+          message: 'Tiếp tục, bạn đang làm tốt',
+          type: FeedbackType.correct,
+          timestamp: DateTime.now(),
+        ),
+        message: 'Tiếp tục, bạn đang làm tốt',
+        confidence: confidence,
+        repCount: 0,
+      );
+    }
+  }
+}
+
+// Result class for pose analysis
+class PoseAnalysisResult {
+  final WorkoutFeedback feedback;
+  final String message;
+  final double confidence;
+  final int repCount;
+
+  PoseAnalysisResult({
+    required this.feedback,
+    required this.message,
+    required this.confidence,
+    required this.repCount,
+  });
+}

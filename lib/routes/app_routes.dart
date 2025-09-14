@@ -23,10 +23,12 @@ abstract class AppRoutes {
   static const createSchedule = '/admin/create-schedule';
   static const editSchedule = '/admin/edit-schedule';
   static const checkinCheckout = '/admin/checkin-checkout';
+  static const adminStatistics = '/admin/statistics';
   static const userScheduleSelection = '/user/schedule-selection';
   static const userScheduleDetail = '/user/schedule-detail';
   static const userScheduleHistory = '/user/schedule-history';
   static const myMembershipCards = '/my-membership-cards';
   static const workoutScheduleDetail = '/user/workout-schedule-detail';
   static const membershipCardExport = '/membership-card-export';
+  static const workoutAssistant = '/workout-assistant';
 }

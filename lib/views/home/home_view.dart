@@ -142,9 +142,10 @@ class HomeView extends StatelessWidget {
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
+              crossAxisCount: 3,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
+              childAspectRatio: 0.85,
               children: [
                 _buildAdminActionCard(
                   context,
@@ -194,6 +195,16 @@ class HomeView extends StatelessWidget {
                   color: Colors.green,
                   onTap: () {
                     Get.toNamed(AppRoutes.checkinCheckout);
+                  },
+                ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.analytics,
+                  title: 'Báo cáo & Thống kê',
+                  subtitle: 'Thống kê chi tiết',
+                  color: Colors.teal,
+                  onTap: () {
+                    Get.toNamed(AppRoutes.adminStatistics);
                   },
                 ),
               ],
@@ -280,6 +291,16 @@ class HomeView extends StatelessWidget {
                 color: Colors.indigo,
                 onTap: () {
                   Get.toNamed(AppRoutes.membershipPurchase);
+                },
+              ),
+              _buildActionCard(
+                context,
+                icon: Icons.smart_toy,
+                title: 'Trợ Lý Tập',
+                subtitle: 'AI phân tích cử động',
+                color: Colors.deepPurple,
+                onTap: () {
+                  Get.toNamed(AppRoutes.workoutAssistant);
                 },
               ),
             ],

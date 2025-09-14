@@ -252,8 +252,11 @@ class MemberManagementView extends StatelessWidget {
     Map<String, dynamic> membership,
     MemberManagementController controller,
   ) {
-    final status = controller.getMembershipStatus(membership);
-    final statusColor = controller.getStatusColor(status);
+    final detailedStatus = controller.getMembershipDetailedStatus(membership);
+    final primaryStatus = detailedStatus['primary'] ?? '';
+    final secondaryStatus = detailedStatus['secondary'] ?? '';
+    final primaryColor = controller.getStatusColor(primaryStatus);
+    final secondaryColor = _getSecondaryStatusColor(secondaryStatus);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -264,23 +267,67 @@ class MemberManagementView extends StatelessWidget {
           children: [
             Row(
               children: [
+                // Primary Status Badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(color: primaryColor.withOpacity(0.3)),
                   ),
-                  child: Text(
-                    status,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _getPrimaryStatusIcon(primaryStatus),
+                        size: 12,
+                        color: primaryColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        primaryStatus,
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Secondary Status Badge (Payment Status)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: secondaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: secondaryColor.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _getSecondaryStatusIcon(secondaryStatus),
+                        size: 11,
+                        color: secondaryColor,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        secondaryStatus,
+                        style: TextStyle(
+                          color: secondaryColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const Spacer(),
@@ -393,6 +440,51 @@ class MemberManagementView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getSecondaryStatusColor(String status) {
+    switch (status) {
+      case 'Đã thanh toán':
+        return Colors.green;
+      case 'Chờ thanh toán':
+        return Colors.orange;
+      case 'Thanh toán thất bại':
+        return Colors.red;
+      case 'Chưa thanh toán':
+        return Colors.grey;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getPrimaryStatusIcon(String status) {
+    switch (status) {
+      case 'Đang hoạt động':
+        return Icons.check_circle;
+      case 'Chờ thanh toán':
+        return Icons.schedule;
+      case 'Chưa kích hoạt':
+        return Icons.radio_button_unchecked;
+      case 'Đã hết hạn':
+        return Icons.cancel;
+      default:
+        return Icons.help;
+    }
+  }
+
+  IconData _getSecondaryStatusIcon(String status) {
+    switch (status) {
+      case 'Đã thanh toán':
+        return Icons.payment;
+      case 'Chờ thanh toán':
+        return Icons.schedule;
+      case 'Thanh toán thất bại':
+        return Icons.error;
+      case 'Chưa thanh toán':
+        return Icons.pending_actions;
+      default:
+        return Icons.help;
+    }
   }
 
   Widget _buildMembershipInfoRow(String label, String value) {

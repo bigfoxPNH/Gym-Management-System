@@ -26,8 +26,10 @@ import '../views/user/user_schedule_history_view.dart';
 import '../views/user/workout_schedule_detail_view.dart';
 import '../views/checkout/direct_payment_confirmation_view.dart';
 import '../views/admin/checkin_checkout_view.dart';
+import '../views/admin/admin_statistics_view.dart';
 import '../views/user/my_membership_cards_view.dart';
 import '../views/membership/membership_card_export_view.dart';
+import '../views/workout/workout_assistant_view.dart';
 
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
@@ -117,12 +119,20 @@ class AppPages {
       page: () => const CheckinCheckoutView(),
     ),
     GetPage(
+      name: AppRoutes.adminStatistics,
+      page: () => const AdminStatisticsView(),
+    ),
+    GetPage(
       name: AppRoutes.myMembershipCards,
       page: () => const MyMembershipCardsView(),
     ),
     GetPage(
       name: AppRoutes.membershipCardExport,
       page: () => const MembershipCardExportView(),
+    ),
+    GetPage(
+      name: AppRoutes.workoutAssistant,
+      page: () => const WorkoutAssistantView(),
     ),
   ];
 }

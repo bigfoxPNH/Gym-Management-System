@@ -717,6 +717,56 @@ class MemberManagementController extends GetxController {
     return 'Đang hoạt động';
   }
 
+  // New method to get detailed membership status
+  Map<String, String> getMembershipDetailedStatus(
+    Map<String, dynamic> membership,
+  ) {
+    final isActive = membership['isActive'] ?? false;
+    final paymentStatus = membership['paymentStatus'] ?? '';
+    final endDate = membership['endDate'];
+
+    String primaryStatus = '';
+    String secondaryStatus = '';
+
+    // Determine payment status
+    if (paymentStatus == 'completed') {
+      secondaryStatus = 'Đã thanh toán';
+    } else if (paymentStatus == 'pending') {
+      secondaryStatus = 'Chờ thanh toán';
+    } else if (paymentStatus == 'failed') {
+      secondaryStatus = 'Thanh toán thất bại';
+    } else {
+      secondaryStatus = 'Chưa thanh toán';
+    }
+
+    // Determine activation status
+    if (!isActive) {
+      primaryStatus = 'Chưa kích hoạt';
+    } else {
+      if (endDate != null) {
+        DateTime endDateTime;
+        if (endDate is Timestamp) {
+          endDateTime = endDate.toDate();
+        } else if (endDate is DateTime) {
+          endDateTime = endDate;
+        } else {
+          primaryStatus = 'Đang hoạt động';
+          return {'primary': primaryStatus, 'secondary': secondaryStatus};
+        }
+
+        if (endDateTime.isBefore(DateTime.now())) {
+          primaryStatus = 'Đã hết hạn';
+        } else {
+          primaryStatus = 'Đang hoạt động';
+        }
+      } else {
+        primaryStatus = 'Đang hoạt động';
+      }
+    }
+
+    return {'primary': primaryStatus, 'secondary': secondaryStatus};
+  }
+
   Color getStatusColor(String status) {
     switch (status) {
       case 'Đang hoạt động':
