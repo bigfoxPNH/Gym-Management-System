@@ -31,4 +31,15 @@ abstract class AppRoutes {
   static const workoutScheduleDetail = '/user/workout-schedule-detail';
   static const membershipCardExport = '/membership-card-export';
   static const workoutAssistant = '/workout-assistant';
+
+  // News Management Routes
+  static const newsManagement = '/admin/news-management';
+  static const createNews = '/admin/news-management/create';
+  static const editNews = '/admin/news-management/edit';
+  static const newsDetail = '/admin/news-management/detail';
+  static const newsPreview = '/admin/news-management/preview';
+
+  // News User Routes
+  static const newsFeed = '/news-feed';
+  static const newsDetailUser = '/news-detail';
 }

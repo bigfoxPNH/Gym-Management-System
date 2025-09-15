@@ -207,6 +207,16 @@ class HomeView extends StatelessWidget {
                     Get.toNamed(AppRoutes.adminStatistics);
                   },
                 ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.article,
+                  title: 'Quản Lý Bản Tin',
+                  subtitle: 'Tạo & quản lý tin tức',
+                  color: Colors.blue,
+                  onTap: () {
+                    Get.toNamed('/admin/news-management');
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -301,6 +311,16 @@ class HomeView extends StatelessWidget {
                 color: Colors.deepPurple,
                 onTap: () {
                   Get.toNamed(AppRoutes.workoutAssistant);
+                },
+              ),
+              _buildActionCard(
+                context,
+                icon: Icons.article,
+                title: 'Bảng Tin',
+                subtitle: 'Tin tức & thông báo',
+                color: Colors.cyan,
+                onTap: () {
+                  Get.toNamed(AppRoutes.newsFeed);
                 },
               ),
             ],

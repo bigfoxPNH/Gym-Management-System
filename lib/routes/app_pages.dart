@@ -31,6 +31,16 @@ import '../views/user/my_membership_cards_view.dart';
 import '../views/membership/membership_card_export_view.dart';
 import '../views/workout/workout_assistant_view.dart';
 
+// News Management imports
+import '../screens/admin/news_management_screen.dart';
+import '../screens/admin/news_form_screen.dart';
+import '../screens/admin/news_detail_screen.dart';
+
+// News User imports
+import '../screens/user/news_feed_screen.dart';
+import '../screens/user/news_detail_user_screen.dart';
+import '../controllers/news_user_controller.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -133,6 +143,42 @@ class AppPages {
     GetPage(
       name: AppRoutes.workoutAssistant,
       page: () => const WorkoutAssistantView(),
+    ),
+
+    // News Management Routes
+    GetPage(
+      name: AppRoutes.newsManagement,
+      page: () => const NewsManagementScreen(),
+    ),
+    GetPage(name: AppRoutes.createNews, page: () => const NewsFormScreen()),
+    GetPage(
+      name: '${AppRoutes.editNews}/:newsId',
+      page: () => NewsFormScreen(newsId: Get.parameters['newsId']),
+    ),
+    GetPage(
+      name: '${AppRoutes.newsDetail}/:newsId',
+      page: () => NewsDetailScreen(newsId: Get.parameters['newsId']!),
+    ),
+    GetPage(
+      name: AppRoutes.newsPreview,
+      page: () =>
+          NewsDetailScreen(newsId: 'preview', previewNews: Get.arguments),
+    ),
+
+    // News User Routes
+    GetPage(
+      name: AppRoutes.newsFeed,
+      page: () => const NewsFeedScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<NewsUserController>(() => NewsUserController());
+      }),
+    ),
+    GetPage(
+      name: '${AppRoutes.newsDetailUser}/:newsId',
+      page: () => NewsDetailUserScreen(newsId: Get.parameters['newsId']!),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<NewsUserController>(() => NewsUserController());
+      }),
     ),
   ];
 }
