@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 import '../models/news.dart';
 import 'auth_controller.dart';
 
@@ -27,10 +28,15 @@ class NewsController extends GetxController {
   DocumentSnapshot? _lastDocument;
   final RxBool hasMore = true.obs;
 
+  // Realtime listener
+  StreamSubscription<QuerySnapshot>? _newsListener;
+  bool _isManualLoading = false;
+
   @override
   void onInit() {
     super.onInit();
     loadNews();
+    _setupRealtimeListener();
 
     // Setup search and filter listeners
     ever(searchQuery, (_) => _applyFilters());
@@ -38,9 +44,59 @@ class NewsController extends GetxController {
     ever(showPublishedOnly, (_) => _applyFilters());
   }
 
+  @override
+  void onClose() {
+    _newsListener?.cancel();
+    super.onClose();
+  }
+
+  // Setup realtime listener for news updates
+  void _setupRealtimeListener() {
+    try {
+      _newsListener = _firestore
+          .collection(_collection)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .listen(
+            (snapshot) {
+              print('NewsController: Realtime update received');
+              _updateNewsFromSnapshot(snapshot);
+            },
+            onError: (error) {
+              print('NewsController: Realtime listener error: $error');
+            },
+          );
+    } catch (e) {
+      print('NewsController: Failed to setup realtime listener: $e');
+    }
+  }
+
+  // Update news list from realtime snapshot
+  void _updateNewsFromSnapshot(QuerySnapshot snapshot) {
+    try {
+      // Skip if we're manually loading to avoid duplicates
+      if (_isManualLoading) {
+        print('NewsController: Skipping realtime update during manual loading');
+        return;
+      }
+
+      print('NewsController: Processing realtime update');
+      final List<News> updatedNews = snapshot.docs
+          .map((doc) => News.fromFirestore(doc))
+          .toList();
+
+      newsList.assignAll(updatedNews);
+      _applyFilters();
+    } catch (e) {
+      print('NewsController: Error updating from snapshot: $e');
+    }
+  }
+
   // Load news with pagination
   Future<void> loadNews({bool refresh = false}) async {
     try {
+      _isManualLoading = true;
+
       if (refresh) {
         _lastDocument = null;
         hasMore.value = true;
@@ -86,6 +142,7 @@ class NewsController extends GetxController {
       Get.snackbar('Lỗi', 'Không thể tải danh sách bản tin');
     } finally {
       isLoading.value = false;
+      _isManualLoading = false;
     }
   }
 
@@ -107,8 +164,14 @@ class NewsController extends GetxController {
 
       await _firestore.collection(_collection).add(newsWithAuthor.toJson());
 
-      Get.snackbar('Thành công', 'Tạo bản tin thành công');
-      await loadNews(refresh: true);
+      Get.snackbar(
+        'Thành công',
+        'Tạo bản tin thành công',
+        duration: Duration(seconds: 2),
+        animationDuration: Duration(milliseconds: 300),
+      );
+
+      // No need to manually reload - realtime listener will handle it
       return true;
     } catch (e) {
       print('Error creating news: $e');
@@ -135,8 +198,14 @@ class NewsController extends GetxController {
           .doc(news.id)
           .update(updatedNews.toJson());
 
-      Get.snackbar('Thành công', 'Cập nhật bản tin thành công');
-      await loadNews(refresh: true);
+      Get.snackbar(
+        'Thành công',
+        'Cập nhật bản tin thành công',
+        duration: Duration(seconds: 2),
+        animationDuration: Duration(milliseconds: 300),
+      );
+
+      // No need to manually reload - realtime listener will handle it
       return true;
     } catch (e) {
       print('Error updating news: $e');

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/news_controller.dart';
 import '../../models/news.dart';
 import '../../widgets/image_base64_widget.dart';
+import '../../routes/app_routes.dart';
 
 class NewsFormScreen extends StatefulWidget {
   final String? newsId;
@@ -433,7 +434,13 @@ class _NewsFormScreenState extends State<NewsFormScreen> {
     }
 
     if (success) {
-      Get.back();
+      // Close any existing snackbar before navigation
+      Get.closeCurrentSnackbar();
+      // Clear navigation stack back to home, then navigate to news management
+      Get.offAllNamed(
+        AppRoutes.newsManagement,
+        predicate: (route) => route.settings.name == AppRoutes.home,
+      );
     }
   }
 

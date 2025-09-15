@@ -604,6 +604,7 @@ class NewsUserController extends GetxController {
             if (index != -1) {
               newsList[index] = updatedNews;
               _applyFilters();
+              update(); // Refresh UI to show updated news
             }
           }
         }
