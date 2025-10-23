@@ -271,20 +271,6 @@ class HomeView extends StatelessWidget {
               ),
               _buildActionCard(
                 context,
-                icon: Icons.restaurant_menu,
-                title: 'Dinh Dưỡng',
-                subtitle: 'Lập kế hoạch bữa ăn',
-                color: Colors.purple,
-                onTap: () {
-                  Get.snackbar(
-                    'Sắp Ra Mắt',
-                    'Theo dõi dinh dưỡng sẽ sớm có sẵn!',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
-              ),
-              _buildActionCard(
-                context,
                 icon: Icons.calendar_today,
                 title: 'Lịch Trình',
                 subtitle: 'Lập kế hoạch tập',
@@ -301,16 +287,6 @@ class HomeView extends StatelessWidget {
                 color: Colors.indigo,
                 onTap: () {
                   Get.toNamed(AppRoutes.membershipPurchase);
-                },
-              ),
-              _buildActionCard(
-                context,
-                icon: Icons.smart_toy,
-                title: 'Trợ Lý Tập',
-                subtitle: 'AI phân tích cử động',
-                color: Colors.deepPurple,
-                onTap: () {
-                  Get.toNamed(AppRoutes.workoutAssistant);
                 },
               ),
               _buildActionCard(

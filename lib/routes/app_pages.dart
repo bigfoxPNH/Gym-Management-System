@@ -29,7 +29,6 @@ import '../views/admin/checkin_checkout_view.dart';
 import '../views/admin/admin_statistics_view.dart';
 import '../views/user/my_membership_cards_view.dart';
 import '../views/membership/membership_card_export_view.dart';
-import '../views/workout/workout_assistant_view.dart';
 
 // News Management imports
 import '../screens/admin/news_management_screen.dart';
@@ -139,10 +138,6 @@ class AppPages {
     GetPage(
       name: AppRoutes.membershipCardExport,
       page: () => const MembershipCardExportView(),
-    ),
-    GetPage(
-      name: AppRoutes.workoutAssistant,
-      page: () => const WorkoutAssistantView(),
     ),
 
     // News Management Routes
