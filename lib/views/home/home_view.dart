@@ -217,6 +217,16 @@ class HomeView extends StatelessWidget {
                     Get.toNamed('/admin/news-management');
                   },
                 ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.badge,
+                  title: 'Quản Lý Thẻ Hội Viên',
+                  subtitle: 'Quản lý thẻ thành viên',
+                  color: Colors.amber,
+                  onTap: () {
+                    Get.toNamed(AppRoutes.userMembershipManagement);
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 24),

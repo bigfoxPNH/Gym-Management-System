@@ -561,25 +561,55 @@ class MemberManagementController extends GetxController {
     try {
       await _firestore.collection('user_memberships').doc(membershipId).update({
         'isActive': isActive,
+        'status': isActive ? 'active' : 'inactive',
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Update local data
-      final index = userMemberships.indexWhere((m) => m['id'] == membershipId);
-      if (index != -1) {
-        userMemberships[index]['isActive'] = isActive;
-        userMemberships.refresh();
-      }
+      // Reload data to ensure consistency
+      await loadAllUserMemberships();
 
       Get.snackbar(
         'Thành công',
         'Đã cập nhật trạng thái thẻ',
         backgroundColor: Colors.green,
         colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       print('Error updating membership status: $e');
-      Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái');
+      Get.snackbar(
+        'Lỗi',
+        'Không thể cập nhật trạng thái',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  Future<void> setMembershipExpired(String membershipId) async {
+    try {
+      await _firestore.collection('user_memberships').doc(membershipId).update({
+        'status': 'expired',
+        'isActive': false,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Reload data to ensure consistency
+      await loadAllUserMemberships();
+
+      Get.snackbar(
+        'Thành công',
+        'Đã đặt thẻ sang trạng thái hết hạn',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      print('Error setting membership expired: $e');
+      Get.snackbar(
+        'Lỗi',
+        'Không thể cập nhật trạng thái hết hạn',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -593,22 +623,23 @@ class MemberManagementController extends GetxController {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      // Update local data
-      final index = userMemberships.indexWhere((m) => m['id'] == membershipId);
-      if (index != -1) {
-        userMemberships[index]['paymentStatus'] = paymentStatus;
-        userMemberships.refresh();
-      }
+      // Reload data to ensure consistency
+      await loadAllUserMemberships();
 
       Get.snackbar(
         'Thành công',
         'Đã cập nhật trạng thái thanh toán',
         backgroundColor: Colors.green,
         colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       print('Error updating payment status: $e');
-      Get.snackbar('Lỗi', 'Không thể cập nhật trạng thái thanh toán');
+      Get.snackbar(
+        'Lỗi',
+        'Không thể cập nhật trạng thái thanh toán',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 
@@ -690,6 +721,12 @@ class MemberManagementController extends GetxController {
     final isActive = membership['isActive'] ?? false;
     final paymentStatus = membership['paymentStatus'] ?? '';
     final endDate = membership['endDate'];
+    final status = membership['status'] ?? '';
+
+    // Check explicit status first (for manually set expired status)
+    if (status == 'expired') {
+      return 'Đã hết hạn';
+    }
 
     if (paymentStatus == 'pending') {
       return 'Chờ thanh toán';
@@ -724,6 +761,7 @@ class MemberManagementController extends GetxController {
     final isActive = membership['isActive'] ?? false;
     final paymentStatus = membership['paymentStatus'] ?? '';
     final endDate = membership['endDate'];
+    final status = membership['status'] ?? ''; // Add explicit status field
 
     String primaryStatus = '';
     String secondaryStatus = '';
@@ -737,6 +775,12 @@ class MemberManagementController extends GetxController {
       secondaryStatus = 'Thanh toán thất bại';
     } else {
       secondaryStatus = 'Chưa thanh toán';
+    }
+
+    // Check explicit status first (for manually set expired status)
+    if (status == 'expired') {
+      primaryStatus = 'Đã hết hạn';
+      return {'primary': primaryStatus, 'secondary': secondaryStatus};
     }
 
     // Determine activation status

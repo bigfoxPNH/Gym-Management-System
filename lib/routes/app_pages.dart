@@ -10,6 +10,7 @@ import '../views/settings/settings_view.dart';
 import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
 import '../views/admin/membership_card_management_view.dart';
+import '../views/admin/user_membership_management_view.dart';
 import '../views/membership/membership_purchase_view.dart';
 import '../views/membership/checkout_view.dart' as MembershipCheckout;
 import '../views/payment/payment_status_view.dart';
@@ -71,6 +72,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.membershipCardManagement,
       page: () => const MembershipCardManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.userMembershipManagement,
+      page: () => const UserMembershipManagementView(),
     ),
     GetPage(
       name: AppRoutes.membershipPurchase,

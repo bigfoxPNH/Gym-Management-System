@@ -10,6 +10,7 @@ abstract class AppRoutes {
   static const memberManagement = '/member-management';
   static const exerciseManagement = '/admin/exercise-management';
   static const membershipCardManagement = '/admin/membership-card-management';
+  static const userMembershipManagement = '/admin/user-membership-management';
   static const membershipPurchase = '/membership-purchase';
   static const checkout = '/checkout';
   static const directPaymentConfirmation = '/direct-payment-confirmation';
