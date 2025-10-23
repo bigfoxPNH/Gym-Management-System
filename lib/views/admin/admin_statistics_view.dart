@@ -36,15 +36,17 @@ class AdminStatisticsView extends StatelessWidget {
             children: [
               _buildDateFilterSection(controller),
               const SizedBox(height: 24),
-              _buildRevenueStatistics(controller),
+              _buildSummaryCards(controller),
+              const SizedBox(height: 24),
+              _buildRevenueSection(controller),
+              const SizedBox(height: 24),
+              _buildMembershipPlanSection(controller),
+              const SizedBox(height: 24),
+              _buildActiveMembershipSection(controller),
               const SizedBox(height: 24),
               _buildUserStatistics(controller),
               const SizedBox(height: 24),
               _buildWorkoutStatistics(controller),
-              const SizedBox(height: 24),
-              _buildMembershipPlanStatistics(controller),
-              const SizedBox(height: 24),
-              _buildActiveMembershipStatistics(controller),
             ],
           ),
         );
@@ -52,6 +54,7 @@ class AdminStatisticsView extends StatelessWidget {
     );
   }
 
+  // ============ DATE FILTER SECTION ============
   Widget _buildDateFilterSection(AdminStatisticsController controller) {
     return Card(
       child: Padding(
@@ -59,9 +62,15 @@ class AdminStatisticsView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Bộ lọc thời gian',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                const Icon(Icons.date_range, color: Colors.blue),
+                const SizedBox(width: 8),
+                const Text(
+                  'Bộ lọc thời gian',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Row(
@@ -73,15 +82,16 @@ class AdminStatisticsView extends StatelessWidget {
                       decoration: const InputDecoration(
                         labelText: 'Khoảng thời gian',
                         border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       items: const [
-                        DropdownMenuItem(value: 'day', child: Text('Ngày')),
-                        DropdownMenuItem(value: 'month', child: Text('Tháng')),
-                        DropdownMenuItem(value: 'year', child: Text('Năm')),
-                        DropdownMenuItem(
-                          value: 'custom',
-                          child: Text('Tùy chọn'),
-                        ),
+                        DropdownMenuItem(value: 'day', child: Text('Hôm nay')),
+                        DropdownMenuItem(value: 'month', child: Text('30 ngày qua')),
+                        DropdownMenuItem(value: 'year', child: Text('1 năm qua')),
+                        DropdownMenuItem(value: 'custom', child: Text('Tùy chọn')),
                       ],
                       onChanged: (value) => controller.updateTimeFilter(value!),
                     ),
@@ -100,6 +110,11 @@ class AdminStatisticsView extends StatelessWidget {
                         decoration: const InputDecoration(
                           labelText: 'Từ ngày',
                           border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         readOnly: true,
                         onTap: () => _selectDate(controller, true),
@@ -112,6 +127,11 @@ class AdminStatisticsView extends StatelessWidget {
                         decoration: const InputDecoration(
                           labelText: 'Đến ngày',
                           border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         readOnly: true,
                         onTap: () => _selectDate(controller, false),
@@ -128,7 +148,104 @@ class AdminStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildRevenueStatistics(AdminStatisticsController controller) {
+  // ============ SUMMARY CARDS ============
+  Widget _buildSummaryCards(AdminStatisticsController controller) {
+    return Obx(() => Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard(
+                'Tổng doanh thu',
+                NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
+                    .format(controller.totalRevenue.value),
+                Icons.attach_money,
+                Colors.green,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSummaryCard(
+                'Giao dịch',
+                controller.totalTransactions.value.toString(),
+                Icons.receipt_long,
+                Colors.blue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSummaryCard(
+                'TB/Giao dịch',
+                NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
+                    .format(controller.averageTransactionValue.value),
+                Icons.trending_up,
+                Colors.orange,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSummaryCard(
+                'Thẻ đang hoạt động',
+                controller.totalActiveMemberships.value.toString(),
+                Icons.card_membership,
+                Colors.purple,
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildSummaryCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============ REVENUE SECTION ============
+  Widget _buildRevenueSection(AdminStatisticsController controller) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -138,34 +255,69 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Thống kê doanh thu (Thẻ tập)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    const Icon(Icons.monetization_on, color: Colors.green),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Doanh thu từ Thẻ Tập',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 Obx(
                   () => ToggleButtons(
                     isSelected: [
+                      controller.revenueChartType.value == 'line',
                       controller.revenueChartType.value == 'pie',
                       controller.revenueChartType.value == 'bar',
                     ],
                     onPressed: (index) {
-                      controller.updateRevenueChartType(
-                        index == 0 ? 'pie' : 'bar',
-                      );
+                      final types = ['line', 'pie', 'bar'];
+                      controller.updateRevenueChartType(types[index]);
                     },
+                    borderRadius: BorderRadius.circular(8),
                     children: const [
-                      Icon(Icons.pie_chart),
-                      Icon(Icons.bar_chart),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.show_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
+            // Search bar for revenue
+            TextField(
+              onChanged: (value) => controller.updateRevenueSearch(value),
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm loại thẻ...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Container(
               height: 300,
               child: Obx(() {
-                if (controller.revenueChartType.value == 'pie') {
+                if (controller.revenueChartType.value == 'line') {
+                  return _buildRevenueLineChart(controller);
+                } else if (controller.revenueChartType.value == 'pie') {
                   return _buildRevenuePieChart(controller);
                 } else {
                   return _buildRevenueBarChart(controller);
@@ -173,27 +325,154 @@ class AdminStatisticsView extends StatelessWidget {
               }),
             ),
             const SizedBox(height: 16),
-            _buildRevenueStats(controller),
+            _buildRevenueLegend(controller),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildRevenueLineChart(AdminStatisticsController controller) {
+    return Obx(() {
+      if (controller.revenueTimeSeriesData.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            horizontalInterval: controller.totalRevenue.value / 5,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              );
+            },
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    NumberFormat.compact().format(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: controller.revenueTimeSeriesData.length > 10
+                    ? (controller.revenueTimeSeriesData.length / 5).ceilToDouble()
+                    : 1,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < controller.revenueTimeSeriesData.length) {
+                    final data = controller.revenueTimeSeriesData[value.toInt()];
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        data.title.length > 8
+                            ? '${data.title.substring(0, 5)}...'
+                            : data.title,
+                        style: const TextStyle(fontSize: 9),
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: controller.revenueTimeSeriesData
+                  .asMap()
+                  .entries
+                  .map((entry) => FlSpot(
+                        entry.key.toDouble(),
+                        entry.value.value,
+                      ))
+                  .toList(),
+              isCurved: true,
+              color: Colors.green,
+              barWidth: 3,
+              isStrokeCapRound: true,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: Colors.green,
+                  );
+                },
+              ),
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.green.withOpacity(0.1),
+              ),
+            ),
+          ],
+          lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                return touchedBarSpots.map((barSpot) {
+                  final data = controller.revenueTimeSeriesData[barSpot.x.toInt()];
+                  return LineTooltipItem(
+                    '${data.title}\n${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(barSpot.y)}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   Widget _buildRevenuePieChart(AdminStatisticsController controller) {
     return Obx(() {
-      if (controller.revenueData.isEmpty) {
+      final data = controller.filteredRevenueData;
+      if (data.isEmpty) {
         return const Center(child: Text('Không có dữ liệu'));
       }
 
       return PieChart(
         PieChartData(
-          sections: controller.revenueData.map((data) {
+          sections: data.map((chartData) {
+            final percentage = (chartData.value / controller.totalRevenue.value * 100);
             return PieChartSectionData(
-              value: data.value,
-              title:
-                  '${(data.value / controller.totalRevenue.value * 100).toStringAsFixed(1)}%',
-              color: data.color,
+              value: chartData.value,
+              title: '${percentage.toStringAsFixed(1)}%',
+              color: chartData.color,
               radius: 100,
               titleStyle: const TextStyle(
                 fontSize: 12,
@@ -212,20 +491,21 @@ class AdminStatisticsView extends StatelessWidget {
 
   Widget _buildRevenueBarChart(AdminStatisticsController controller) {
     return Obx(() {
-      if (controller.revenueData.isEmpty) {
+      final data = controller.filteredRevenueData;
+      if (data.isEmpty) {
         return const Center(child: Text('Không có dữ liệu'));
       }
 
       return BarChart(
         BarChartData(
-          barGroups: controller.revenueData.asMap().entries.map((entry) {
+          barGroups: data.asMap().entries.map((entry) {
             return BarChartGroupData(
               x: entry.key,
               barRods: [
                 BarChartRodData(
                   toY: entry.value.value,
                   color: entry.value.color,
-                  width: 20,
+                  width: 30,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
@@ -247,14 +527,17 @@ class AdminStatisticsView extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
+                reservedSize: 50,
                 getTitlesWidget: (value, meta) {
-                  if (value.toInt() < controller.revenueData.length) {
+                  if (value.toInt() < data.length) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
-                        controller.revenueData[value.toInt()].title,
+                        data[value.toInt()].title,
                         style: const TextStyle(fontSize: 10),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     );
                   }
@@ -276,209 +559,40 @@ class AdminStatisticsView extends StatelessWidget {
     });
   }
 
-  Widget _buildRevenueStats(AdminStatisticsController controller) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Obx(
-        () => Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    'Tổng doanh thu',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    NumberFormat.currency(
-                      locale: 'vi_VN',
-                      symbol: '₫',
-                    ).format(controller.totalRevenue.value),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    'Số lượng giao dịch',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    controller.totalTransactions.value.toString(),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserStatistics(AdminStatisticsController controller) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Thống kê người dùng',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Obx(
-                  () => ToggleButtons(
-                    isSelected: [
-                      controller.userChartType.value == 'pie',
-                      controller.userChartType.value == 'bar',
-                    ],
-                    onPressed: (index) {
-                      controller.updateUserChartType(
-                        index == 0 ? 'pie' : 'bar',
-                      );
-                    },
-                    children: const [
-                      Icon(Icons.pie_chart),
-                      Icon(Icons.bar_chart),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 300,
-              child: Obx(() {
-                if (controller.userChartType.value == 'pie') {
-                  return _buildUserPieChart(controller);
-                } else {
-                  return _buildUserBarChart(controller);
-                }
-              }),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserPieChart(AdminStatisticsController controller) {
+  Widget _buildRevenueLegend(AdminStatisticsController controller) {
     return Obx(() {
-      if (controller.userData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
+      final data = controller.filteredRevenueData;
+      if (data.isEmpty) return const SizedBox.shrink();
 
-      return PieChart(
-        PieChartData(
-          sections: controller.userData.map((data) {
-            return PieChartSectionData(
-              value: data.value,
-              title: '${data.value.toInt()}',
-              color: data.color,
-              radius: 100,
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            );
-          }).toList(),
-          borderData: FlBorderData(show: false),
-          sectionsSpace: 2,
-          centerSpaceRadius: 40,
-        ),
-      );
-    });
-  }
-
-  Widget _buildUserBarChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.userData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
-
-      return BarChart(
-        BarChartData(
-          barGroups: controller.userData.asMap().entries.map((entry) {
-            return BarChartGroupData(
-              x: entry.key,
-              barRods: [
-                BarChartRodData(
-                  toY: entry.value.value,
-                  color: entry.value.color,
-                  width: 30,
+      return Wrap(
+        spacing: 16,
+        runSpacing: 8,
+        children: data.map((chartData) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: chartData.color,
                   borderRadius: BorderRadius.circular(4),
                 ),
-              ],
-            );
-          }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10),
-                  );
-                },
               ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() < controller.userData.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        controller.userData[value.toInt()].title,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
+              const SizedBox(width: 8),
+              Text(
+                '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
+                style: const TextStyle(fontSize: 12),
               ),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(show: false),
-        ),
+            ],
+          );
+        }).toList(),
       );
     });
   }
 
-  Widget _buildWorkoutStatistics(AdminStatisticsController controller) {
+  // ============ MEMBERSHIP PLAN SECTION ============
+  Widget _buildMembershipPlanSection(AdminStatisticsController controller) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -488,154 +602,15 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Thống kê bài tập',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Obx(
-                  () => ToggleButtons(
-                    isSelected: [
-                      controller.workoutChartType.value == 'pie',
-                      controller.workoutChartType.value == 'bar',
-                    ],
-                    onPressed: (index) {
-                      controller.updateWorkoutChartType(
-                        index == 0 ? 'pie' : 'bar',
-                      );
-                    },
-                    children: const [
-                      Icon(Icons.pie_chart),
-                      Icon(Icons.bar_chart),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              height: 300,
-              child: Obx(() {
-                if (controller.workoutChartType.value == 'pie') {
-                  return _buildWorkoutPieChart(controller);
-                } else {
-                  return _buildWorkoutBarChart(controller);
-                }
-              }),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWorkoutPieChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.workoutData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
-
-      return PieChart(
-        PieChartData(
-          sections: controller.workoutData.map((data) {
-            return PieChartSectionData(
-              value: data.value,
-              title: '${data.value.toInt()}',
-              color: data.color,
-              radius: 100,
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            );
-          }).toList(),
-          borderData: FlBorderData(show: false),
-          sectionsSpace: 2,
-          centerSpaceRadius: 40,
-        ),
-      );
-    });
-  }
-
-  Widget _buildWorkoutBarChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.workoutData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
-
-      return BarChart(
-        BarChartData(
-          barGroups: controller.workoutData.asMap().entries.map((entry) {
-            return BarChartGroupData(
-              x: entry.key,
-              barRods: [
-                BarChartRodData(
-                  toY: entry.value.value,
-                  color: entry.value.color,
-                  width: 30,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
-            );
-          }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() < controller.workoutData.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        controller.workoutData[value.toInt()].title,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(show: false),
-        ),
-      );
-    });
-  }
-
-  Widget _buildMembershipPlanStatistics(AdminStatisticsController controller) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Thống kê thẻ tập (do admin tạo)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    const Icon(Icons.card_membership, color: Colors.purple),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Các Loại Thẻ Tập',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -648,22 +623,48 @@ class AdminStatisticsView extends StatelessWidget {
                         index == 0 ? 'pie' : 'bar',
                       );
                     },
+                    borderRadius: BorderRadius.circular(8),
                     children: const [
-                      Icon(Icons.pie_chart),
-                      Icon(Icons.bar_chart),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => controller.updateMembershipPlanSearch(value),
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm loại thẻ...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Container(
               height: 300,
               child: Obx(() {
                 if (controller.membershipPlanChartType.value == 'pie') {
-                  return _buildMembershipPlanPieChart(controller);
+                  return _buildGenericPieChart(
+                    controller.filteredMembershipPlanData,
+                  );
                 } else {
-                  return _buildMembershipPlanBarChart(controller);
+                  return _buildGenericBarChart(
+                    controller.filteredMembershipPlanData,
+                  );
                 }
               }),
             ),
@@ -673,104 +674,8 @@ class AdminStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildMembershipPlanPieChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.membershipPlanData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
-
-      return PieChart(
-        PieChartData(
-          sections: controller.membershipPlanData.map((data) {
-            return PieChartSectionData(
-              value: data.value,
-              title: '${data.value.toInt()}',
-              color: data.color,
-              radius: 100,
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            );
-          }).toList(),
-          borderData: FlBorderData(show: false),
-          sectionsSpace: 2,
-          centerSpaceRadius: 40,
-        ),
-      );
-    });
-  }
-
-  Widget _buildMembershipPlanBarChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.membershipPlanData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
-
-      return BarChart(
-        BarChartData(
-          barGroups: controller.membershipPlanData.asMap().entries.map((entry) {
-            return BarChartGroupData(
-              x: entry.key,
-              barRods: [
-                BarChartRodData(
-                  toY: entry.value.value,
-                  color: entry.value.color,
-                  width: 30,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
-            );
-          }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() < controller.membershipPlanData.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        controller.membershipPlanData[value.toInt()].title,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(show: false),
-        ),
-      );
-    });
-  }
-
-  Widget _buildActiveMembershipStatistics(
-    AdminStatisticsController controller,
-  ) {
+  // ============ ACTIVE MEMBERSHIP SECTION ============
+  Widget _buildActiveMembershipSection(AdminStatisticsController controller) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -780,9 +685,15 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Thống kê thẻ tập đang hoạt động',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Thẻ Đang Hoạt Động',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -795,22 +706,48 @@ class AdminStatisticsView extends StatelessWidget {
                         index == 0 ? 'pie' : 'bar',
                       );
                     },
+                    borderRadius: BorderRadius.circular(8),
                     children: const [
-                      Icon(Icons.pie_chart),
-                      Icon(Icons.bar_chart),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
+            TextField(
+              onChanged: (value) => controller.updateActiveMembershipSearch(value),
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm loại thẻ đang hoạt động...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Container(
               height: 300,
               child: Obx(() {
                 if (controller.activeMembershipChartType.value == 'pie') {
-                  return _buildActiveMembershipPieChart(controller);
+                  return _buildGenericPieChart(
+                    controller.filteredActiveMembershipData,
+                  );
                 } else {
-                  return _buildActiveMembershipBarChart(controller);
+                  return _buildGenericBarChart(
+                    controller.filteredActiveMembershipData,
+                  );
                 }
               }),
             ),
@@ -820,103 +757,233 @@ class AdminStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveMembershipPieChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.activeMembershipData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
+  // ============ GENERIC CHART WIDGETS ============
+  Widget _buildGenericPieChart(List<ChartData> data) {
+    if (data.isEmpty) {
+      return const Center(child: Text('Không có dữ liệu'));
+    }
 
-      return PieChart(
-        PieChartData(
-          sections: controller.activeMembershipData.map((data) {
-            return PieChartSectionData(
-              value: data.value,
-              title: '${data.value.toInt()}',
-              color: data.color,
-              radius: 100,
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            );
-          }).toList(),
-          borderData: FlBorderData(show: false),
-          sectionsSpace: 2,
-          centerSpaceRadius: 40,
-        ),
-      );
-    });
+    final total = data.fold<double>(0, (sum, item) => sum + item.value);
+
+    return PieChart(
+      PieChartData(
+        sections: data.map((chartData) {
+          final percentage = (chartData.value / total * 100);
+          return PieChartSectionData(
+            value: chartData.value,
+            title: '${chartData.value.toInt()}\n(${percentage.toStringAsFixed(1)}%)',
+            color: chartData.color,
+            radius: 100,
+            titleStyle: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          );
+        }).toList(),
+        borderData: FlBorderData(show: false),
+        sectionsSpace: 2,
+        centerSpaceRadius: 40,
+      ),
+    );
   }
 
-  Widget _buildActiveMembershipBarChart(AdminStatisticsController controller) {
-    return Obx(() {
-      if (controller.activeMembershipData.isEmpty) {
-        return const Center(child: Text('Không có dữ liệu'));
-      }
+  Widget _buildGenericBarChart(List<ChartData> data) {
+    if (data.isEmpty) {
+      return const Center(child: Text('Không có dữ liệu'));
+    }
 
-      return BarChart(
-        BarChartData(
-          barGroups: controller.activeMembershipData.asMap().entries.map((
-            entry,
-          ) {
-            return BarChartGroupData(
-              x: entry.key,
-              barRods: [
-                BarChartRodData(
-                  toY: entry.value.value,
-                  color: entry.value.color,
-                  width: 30,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ],
-            );
-          }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(fontSize: 10),
-                  );
-                },
+    return BarChart(
+      BarChartData(
+        barGroups: data.asMap().entries.map((entry) {
+          return BarChartGroupData(
+            x: entry.key,
+            barRods: [
+              BarChartRodData(
+                toY: entry.value.value,
+                color: entry.value.color,
+                width: 30,
+                borderRadius: BorderRadius.circular(4),
               ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 30,
-                getTitlesWidget: (value, meta) {
-                  if (value.toInt() < controller.activeMembershipData.length) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        controller.activeMembershipData[value.toInt()].title,
-                        style: const TextStyle(fontSize: 10),
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
+            ],
+          );
+        }).toList(),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toInt().toString(),
+                  style: const TextStyle(fontSize: 10),
+                );
+              },
             ),
           ),
-          borderData: FlBorderData(show: false),
-          gridData: const FlGridData(show: false),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 50,
+              getTitlesWidget: (value, meta) {
+                if (value.toInt() < data.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      data[value.toInt()].title,
+                      style: const TextStyle(fontSize: 10),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  );
+                }
+                return const Text('');
+              },
+            ),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
-      );
-    });
+        borderData: FlBorderData(show: false),
+        gridData: const FlGridData(show: false),
+      ),
+    );
   }
 
+  // ============ USER STATISTICS ============
+  Widget _buildUserStatistics(AdminStatisticsController controller) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.people, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Thống kê Người dùng',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Obx(
+                  () => ToggleButtons(
+                    isSelected: [
+                      controller.userChartType.value == 'pie',
+                      controller.userChartType.value == 'bar',
+                    ],
+                    onPressed: (index) {
+                      controller.updateUserChartType(
+                        index == 0 ? 'pie' : 'bar',
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 300,
+              child: Obx(() {
+                if (controller.userChartType.value == 'pie') {
+                  return _buildGenericPieChart(controller.userData);
+                } else {
+                  return _buildGenericBarChart(controller.userData);
+                }
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============ WORKOUT STATISTICS ============
+  Widget _buildWorkoutStatistics(AdminStatisticsController controller) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.fitness_center, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Thống kê Bài tập',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Obx(
+                  () => ToggleButtons(
+                    isSelected: [
+                      controller.workoutChartType.value == 'pie',
+                      controller.workoutChartType.value == 'bar',
+                    ],
+                    onPressed: (index) {
+                      controller.updateWorkoutChartType(
+                        index == 0 ? 'pie' : 'bar',
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 300,
+              child: Obx(() {
+                if (controller.workoutChartType.value == 'pie') {
+                  return _buildGenericPieChart(controller.workoutData);
+                } else {
+                  return _buildGenericBarChart(controller.workoutData);
+                }
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============ HELPER METHODS ============
   Future<void> _selectDate(
     AdminStatisticsController controller,
     bool isStartDate,

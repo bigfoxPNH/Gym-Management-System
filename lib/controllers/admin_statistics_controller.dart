@@ -7,8 +7,9 @@ class ChartData {
   final String title;
   final double value;
   final Color color;
+  final DateTime? date; // For time-series data
 
-  ChartData(this.title, this.value, this.color);
+  ChartData(this.title, this.value, this.color, {this.date});
 }
 
 class AdminStatisticsController extends GetxController {
@@ -25,22 +26,36 @@ class AdminStatisticsController extends GetxController {
   final endDateController = TextEditingController();
 
   // Chart types
-  final revenueChartType = 'pie'.obs;
+  final revenueChartType = 'line'.obs; // Changed default to line for revenue
   final userChartType = 'pie'.obs;
   final workoutChartType = 'pie'.obs;
   final membershipPlanChartType = 'pie'.obs;
   final activeMembershipChartType = 'pie'.obs;
 
+  // Search filters for each chart
+  final revenueSearchQuery = ''.obs;
+  final membershipPlanSearchQuery = ''.obs;
+  final activeMembershipSearchQuery = ''.obs;
+
   // Data
   final revenueData = <ChartData>[].obs;
+  final revenueDataByPlan = <ChartData>[].obs; // Revenue breakdown by plan
+  final revenueTimeSeriesData = <ChartData>[].obs; // Revenue over time
   final userData = <ChartData>[].obs;
   final workoutData = <ChartData>[].obs;
   final membershipPlanData = <ChartData>[].obs;
   final activeMembershipData = <ChartData>[].obs;
 
+  // Filtered data
+  final filteredRevenueData = <ChartData>[].obs;
+  final filteredMembershipPlanData = <ChartData>[].obs;
+  final filteredActiveMembershipData = <ChartData>[].obs;
+
   // Summary stats
   final totalRevenue = 0.0.obs;
   final totalTransactions = 0.obs;
+  final averageTransactionValue = 0.0.obs;
+  final totalActiveMemberships = 0.obs;
 
   @override
   void onInit() {
@@ -108,6 +123,63 @@ class AdminStatisticsController extends GetxController {
     activeMembershipChartType.value = type;
   }
 
+  // Search methods
+  void updateRevenueSearch(String query) {
+    revenueSearchQuery.value = query.toLowerCase();
+    _filterRevenueData();
+  }
+
+  void updateMembershipPlanSearch(String query) {
+    membershipPlanSearchQuery.value = query.toLowerCase();
+    _filterMembershipPlanData();
+  }
+
+  void updateActiveMembershipSearch(String query) {
+    activeMembershipSearchQuery.value = query.toLowerCase();
+    _filterActiveMembershipData();
+  }
+
+  void _filterRevenueData() {
+    if (revenueSearchQuery.value.isEmpty) {
+      filteredRevenueData.value = revenueDataByPlan;
+    } else {
+      filteredRevenueData.value = revenueDataByPlan
+          .where(
+            (data) =>
+                data.title.toLowerCase().contains(revenueSearchQuery.value),
+          )
+          .toList();
+    }
+  }
+
+  void _filterMembershipPlanData() {
+    if (membershipPlanSearchQuery.value.isEmpty) {
+      filteredMembershipPlanData.value = membershipPlanData;
+    } else {
+      filteredMembershipPlanData.value = membershipPlanData
+          .where(
+            (data) => data.title.toLowerCase().contains(
+              membershipPlanSearchQuery.value,
+            ),
+          )
+          .toList();
+    }
+  }
+
+  void _filterActiveMembershipData() {
+    if (activeMembershipSearchQuery.value.isEmpty) {
+      filteredActiveMembershipData.value = activeMembershipData;
+    } else {
+      filteredActiveMembershipData.value = activeMembershipData
+          .where(
+            (data) => data.title.toLowerCase().contains(
+              activeMembershipSearchQuery.value,
+            ),
+          )
+          .toList();
+    }
+  }
+
   Future<void> loadData() async {
     isLoading.value = true;
     try {
@@ -125,152 +197,105 @@ class AdminStatisticsController extends GetxController {
     }
   }
 
-  Future<void> _debugCollections() async {
-    try {
-      print('=== DEBUG: Checking all collections ===');
-
-      // Check available collections
-      final collections = [
-        'users',
-        'user_memberships',
-        'membership_cards',
-        'payment_transactions',
-      ];
-
-      for (final collectionName in collections) {
-        try {
-          final snapshot = await _firestore
-              .collection(collectionName)
-              .limit(1)
-              .get();
-          if (snapshot.docs.isNotEmpty) {
-            print('Collection $collectionName exists with sample data:');
-            print(snapshot.docs.first.data());
-          } else {
-            print('Collection $collectionName exists but is empty');
-          }
-        } catch (e) {
-          print('Collection $collectionName does not exist or error: $e');
-        }
-      }
-      print('=== END DEBUG ===');
-    } catch (e) {
-      print('Debug error: $e');
-    }
-  }
-
   Future<void> _loadRevenueData() async {
     try {
-      print('Loading revenue data...');
+      print('=== LOADING REVENUE DATA ===');
+      print('Date range: ${startDate.value} to ${endDate.value}');
 
-      // First, let's check what collections actually exist and their structure
-      await _debugCollections();
-
-      // Try multiple approaches to find revenue data
       double total = 0;
       int transactionCount = 0;
       final Map<String, double> revenueByPlan = {};
+      final Map<String, double> revenueByDate = {}; // For time series
+      final List<Map<String, dynamic>> allTransactions = [];
 
-      // Approach 1: Check user_memberships collection
-      try {
-        final userMemberships = await _firestore
-            .collection('user_memberships')
-            .get();
-        print('Found ${userMemberships.docs.length} user memberships');
+      // Load from user_memberships collection - THIS IS THE SOURCE OF TRUTH
+      final snapshot = await _firestore.collection('user_memberships').get();
 
-        for (final doc in userMemberships.docs) {
-          final data = doc.data();
-          print('User membership doc: $data');
+      print('Found ${snapshot.docs.length} user memberships');
 
-          // Check for price/amount fields
-          final amount = (data['price'] ?? data['amount'] ?? data['cost'] ?? 0)
-              .toDouble();
-          final planName =
-              data['planName'] ?? data['membershipCardId'] ?? 'Không xác định';
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
 
-          if (amount > 0) {
-            revenueByPlan[planName] = (revenueByPlan[planName] ?? 0) + amount;
-            total += amount;
-            transactionCount++;
+        // Get creation date (when membership was purchased)
+        DateTime? createdDate;
+        final createdAtData = data['createdAt'];
+
+        if (createdAtData is Timestamp) {
+          createdDate = createdAtData.toDate();
+        } else if (createdAtData is String) {
+          try {
+            createdDate = DateTime.parse(createdAtData);
+          } catch (e) {
+            print('Error parsing createdAt date: $createdAtData');
           }
         }
-      } catch (e) {
-        print('Error with user_memberships: $e');
-      }
 
-      // Approach 2: Check membership_cards for pricing info
-      try {
-        final membershipCards = await _firestore
-            .collection('membership_cards')
-            .get();
-        print('Found ${membershipCards.docs.length} membership cards');
-
-        for (final doc in membershipCards.docs) {
-          final data = doc.data();
-          print('Membership card doc: $data');
-
-          final price = (data['price'] ?? data['amount'] ?? data['cost'] ?? 0)
-              .toDouble();
-          final planName =
-              data['name'] ??
-              data['planName'] ??
-              data['id'] ??
-              'Không xác định';
-
-          if (price > 0) {
-            // This is just plan pricing, not actual revenue
-            // We'll use it if no actual transaction data exists
-            print('Plan $planName has price: $price');
-          }
+        // Skip if no creation date or outside date range
+        if (createdDate == null) {
+          print('Skipping membership without createdAt: ${doc.id}');
+          continue;
         }
-      } catch (e) {
-        print('Error with membership_cards: $e');
-      }
 
-      // Approach 3: Check users collection for purchase history
-      try {
-        final users = await _firestore.collection('users').get();
-        print('Checking ${users.docs.length} users for purchase history');
-
-        for (final doc in users.docs) {
-          final data = doc.data();
-
-          // Check if user has membership info
-          final membership = data['membership'];
-          if (membership != null && membership is Map) {
-            final amount = (membership['price'] ?? membership['amount'] ?? 0)
-                .toDouble();
-            final planName =
-                membership['planName'] ??
-                membership['type'] ??
-                'Không xác định';
-
-            if (amount > 0) {
-              revenueByPlan[planName] = (revenueByPlan[planName] ?? 0) + amount;
-              total += amount;
-              transactionCount++;
-            }
-          }
+        // Check if within date range
+        if (createdDate.isBefore(startDate.value) ||
+            createdDate.isAfter(endDate.value.add(const Duration(days: 1)))) {
+          continue; // Outside selected date range
         }
-      } catch (e) {
-        print('Error checking users: $e');
-      }
 
-      // If no revenue data found, set defaults
-      if (revenueByPlan.isEmpty) {
-        print('No revenue data found');
-        totalRevenue.value = 0;
-        totalTransactions.value = 0;
-        revenueData.clear();
-        return;
+        // Get payment status - only count completed payments
+        final paymentStatus = data['paymentStatus']?.toString().toLowerCase();
+        if (paymentStatus != 'completed') {
+          print('Skipping non-completed payment: $paymentStatus');
+          continue;
+        }
+
+        // Get amount
+        final amount = (data['price'] ?? data['amount'] ?? 0).toDouble();
+        if (amount <= 0) {
+          print('Skipping membership with zero amount');
+          continue;
+        }
+
+        // Get plan name
+        final planName =
+            data['membershipCardName'] ??
+            data['membershipType'] ??
+            data['planName'] ??
+            'Không xác định';
+
+        // Add to totals
+        total += amount;
+        transactionCount++;
+        revenueByPlan[planName] = (revenueByPlan[planName] ?? 0) + amount;
+
+        // Group by date for time series
+        final dateKey = DateFormat('dd/MM/yyyy').format(createdDate);
+        revenueByDate[dateKey] = (revenueByDate[dateKey] ?? 0) + amount;
+
+        allTransactions.add({
+          'date': createdDate,
+          'amount': amount,
+          'plan': planName,
+          'dateKey': dateKey,
+        });
+
+        print('✓ Added transaction: $planName - $amount VNĐ on $dateKey');
       }
 
       // Update totals
       totalRevenue.value = total;
       totalTransactions.value = transactionCount;
+      averageTransactionValue.value = transactionCount > 0
+          ? total / transactionCount
+          : 0;
 
-      print('Total revenue: $total, Total transactions: $transactionCount');
+      print('=== REVENUE SUMMARY ===');
+      print('Total Revenue: ${totalRevenue.value} VNĐ');
+      print('Total Transactions: ${totalTransactions.value}');
+      print('Average Transaction: ${averageTransactionValue.value} VNĐ');
+      print('Revenue by Plan: $revenueByPlan');
 
+      // Generate colors
       final colors = [
         Colors.blue,
         Colors.green,
@@ -282,7 +307,8 @@ class AdminStatisticsController extends GetxController {
         Colors.amber,
       ];
 
-      revenueData.value = revenueByPlan.entries
+      // Revenue by plan (for pie/bar chart)
+      revenueDataByPlan.value = revenueByPlan.entries
           .map(
             (entry) => ChartData(
               entry.key,
@@ -293,10 +319,101 @@ class AdminStatisticsController extends GetxController {
           )
           .toList();
 
-      print('Revenue data loaded: ${revenueData.length} entries');
-    } catch (e) {
+      // Revenue over time (for line chart)
+      // Sort transactions by date
+      allTransactions.sort(
+        (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
+      );
+
+      // Group by appropriate time unit based on date range
+      final daysDiff = endDate.value.difference(startDate.value).inDays;
+
+      if (daysDiff <= 7) {
+        // Show daily data
+        revenueTimeSeriesData.value =
+            revenueByDate.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.blue,
+                    date: DateFormat('dd/MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else if (daysDiff <= 31) {
+        // Show daily data
+        revenueTimeSeriesData.value =
+            revenueByDate.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.blue,
+                    date: DateFormat('dd/MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else if (daysDiff <= 365) {
+        // Group by month
+        final Map<String, double> monthlyRevenue = {};
+        for (final trans in allTransactions) {
+          final date = trans['date'] as DateTime;
+          final monthKey = DateFormat('MM/yyyy').format(date);
+          monthlyRevenue[monthKey] =
+              (monthlyRevenue[monthKey] ?? 0) + (trans['amount'] as double);
+        }
+        revenueTimeSeriesData.value =
+            monthlyRevenue.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.blue,
+                    date: DateFormat('MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else {
+        // Group by year
+        final Map<String, double> yearlyRevenue = {};
+        for (final trans in allTransactions) {
+          final date = trans['date'] as DateTime;
+          final yearKey = date.year.toString();
+          yearlyRevenue[yearKey] =
+              (yearlyRevenue[yearKey] ?? 0) + (trans['amount'] as double);
+        }
+        revenueTimeSeriesData.value =
+            yearlyRevenue.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.blue,
+                    date: DateTime(int.parse(entry.key)),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      }
+
+      // Initialize filtered data
+      filteredRevenueData.value = revenueDataByPlan;
+
+      print('Revenue data loaded successfully');
+      print('=== END REVENUE LOAD ===');
+    } catch (e, stackTrace) {
       print('Error loading revenue data: $e');
-      revenueData.clear();
+      print('Stack trace: $stackTrace');
+      revenueDataByPlan.clear();
+      revenueTimeSeriesData.clear();
+      filteredRevenueData.clear();
+      totalRevenue.value = 0;
+      totalTransactions.value = 0;
+      averageTransactionValue.value = 0;
     }
   }
 
@@ -385,8 +502,8 @@ class AdminStatisticsController extends GetxController {
 
       for (final doc in snapshot.docs) {
         final data = doc.data();
-        final planType = data['planType'] ?? 'Không xác định';
-        planByType[planType] = (planByType[planType] ?? 0) + 1;
+        final planName = data['name'] ?? data['planName'] ?? 'Không xác định';
+        planByType[planName] = (planByType[planName] ?? 0) + 1;
       }
 
       final colors = [
@@ -408,156 +525,83 @@ class AdminStatisticsController extends GetxController {
             ),
           )
           .toList();
+
+      // Initialize filtered data
+      filteredMembershipPlanData.value = membershipPlanData;
     } catch (e) {
       print('Error loading membership plan data: $e');
       membershipPlanData.clear();
+      filteredMembershipPlanData.clear();
     }
   }
 
   Future<void> _loadActiveMembershipData() async {
     try {
-      print('Loading active membership data...');
+      print('=== LOADING ACTIVE MEMBERSHIPS ===');
       final now = DateTime.now();
 
-      // Try multiple approaches to find active membership data
+      int totalActive = 0;
       final Map<String, int> activePlanByType = {};
 
-      // Approach 1: Check user_memberships collection
-      try {
-        final snapshot = await _firestore.collection('user_memberships').get();
+      // Load from user_memberships collection
+      final snapshot = await _firestore.collection('user_memberships').get();
+      print('Checking ${snapshot.docs.length} memberships for active status');
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        // Check if payment is completed
+        final paymentStatus = data['paymentStatus']?.toString().toLowerCase();
+        if (paymentStatus != 'completed') {
+          continue; // Skip non-completed payments
+        }
+
+        // Check isActive field
+        final isActiveField = data['isActive'];
+        if (isActiveField != true) {
+          continue; // Skip inactive memberships
+        }
+
+        // Check end date
+        final endDateData = data['endDate'];
+        DateTime? endDate;
+
+        if (endDateData is Timestamp) {
+          endDate = endDateData.toDate();
+        } else if (endDateData is String) {
+          try {
+            endDate = DateTime.parse(endDateData);
+          } catch (e) {
+            print('Error parsing end date: $endDateData');
+          }
+        }
+
+        // Check if not expired
+        if (endDate != null && endDate.isBefore(now)) {
+          print('Skipping expired membership ending $endDate');
+          continue;
+        }
+
+        // This membership is active!
+        final planName =
+            data['membershipCardName'] ??
+            data['membershipType'] ??
+            data['planName'] ??
+            'Không xác định';
+
+        activePlanByType[planName] = (activePlanByType[planName] ?? 0) + 1;
+        totalActive++;
+
         print(
-          'Found ${snapshot.docs.length} total memberships in user_memberships',
+          '✓ Active membership: $planName (expires: ${endDate != null ? DateFormat('dd/MM/yyyy').format(endDate) : 'không giới hạn'})',
         );
-
-        for (final doc in snapshot.docs) {
-          final data = doc.data();
-          print('Membership doc: $data');
-
-          // Check if membership is active using multiple field patterns
-          final status = data['status']?.toString().toLowerCase();
-          final isActiveField =
-              data['isActive']; // This is the actual field in Firebase
-          final paymentStatus = data['paymentStatus']?.toString().toLowerCase();
-          final endDateData = data['endDate'];
-
-          // Parse end date
-          DateTime? endDate;
-          if (endDateData is Timestamp) {
-            endDate = endDateData.toDate();
-          } else if (endDateData is String) {
-            try {
-              endDate = DateTime.parse(endDateData);
-            } catch (e) {
-              print('Error parsing date string: $endDateData');
-            }
-          } else if (endDateData is int) {
-            endDate = DateTime.fromMillisecondsSinceEpoch(endDateData);
-          }
-
-          // Check if membership is currently active
-          bool isActive = false;
-
-          // Check based on isActive field (this is what Firebase actually uses)
-          if (isActiveField == true && paymentStatus == 'completed') {
-            if (endDate != null && endDate.isAfter(now)) {
-              isActive = true;
-              print(
-                'Membership is active: ${data['membershipCardName']} until $endDate',
-              );
-            } else if (endDate == null) {
-              // Active status but no end date, consider it active
-              isActive = true;
-              print(
-                'Membership is active (no end date): ${data['membershipCardName']}',
-              );
-            } else {
-              print(
-                'Membership expired: ${data['membershipCardName']} ended $endDate',
-              );
-            }
-          } else if (status == 'active') {
-            // Fallback to status field
-            if (endDate != null && endDate.isAfter(now)) {
-              isActive = true;
-              print(
-                'Membership is active (status): ${data['membershipCardName']} until $endDate',
-              );
-            } else if (endDate == null) {
-              isActive = true;
-              print(
-                'Membership is active (status, no end date): ${data['membershipCardName']}',
-              );
-            }
-          }
-
-          if (isActive) {
-            final planName =
-                data['membershipCardName'] ??
-                data['planName'] ??
-                data['description'] ??
-                data['membershipCardId'] ??
-                'Không xác định';
-            activePlanByType[planName] = (activePlanByType[planName] ?? 0) + 1;
-            print('Added active membership: $planName');
-          }
-        }
-      } catch (e) {
-        print('Error with user_memberships: $e');
       }
 
-      // Approach 2: Check users collection for active membership info
-      try {
-        final users = await _firestore.collection('users').get();
-        print('Checking ${users.docs.length} users for active memberships');
+      totalActiveMemberships.value = totalActive;
 
-        for (final doc in users.docs) {
-          final data = doc.data();
-
-          // Check if user has active membership info
-          final membership = data['membership'];
-          if (membership != null && membership is Map) {
-            final status = membership['status']?.toString().toLowerCase();
-            final endDateData = membership['endDate'];
-
-            // Parse end date
-            DateTime? endDate;
-            if (endDateData is Timestamp) {
-              endDate = endDateData.toDate();
-            } else if (endDateData is String) {
-              try {
-                endDate = DateTime.parse(endDateData);
-              } catch (e) {
-                print('Error parsing user membership date: $endDateData');
-              }
-            } else if (endDateData is int) {
-              endDate = DateTime.fromMillisecondsSinceEpoch(endDateData);
-            }
-
-            // Check if membership is active
-            bool isActive = false;
-            if (status == 'active') {
-              if (endDate != null && endDate.isAfter(now)) {
-                isActive = true;
-              } else if (endDate == null) {
-                isActive = true;
-              }
-            }
-
-            if (isActive) {
-              final planName =
-                  membership['planName'] ??
-                  membership['type'] ??
-                  'Không xác định';
-              activePlanByType[planName] =
-                  (activePlanByType[planName] ?? 0) + 1;
-            }
-          }
-        }
-      } catch (e) {
-        print('Error checking users for memberships: $e');
-      }
-
-      print('Active memberships by plan: $activePlanByType');
+      print('=== ACTIVE MEMBERSHIP SUMMARY ===');
+      print('Total Active: $totalActive');
+      print('By Plan: $activePlanByType');
 
       final colors = [
         Colors.green,
@@ -580,12 +624,19 @@ class AdminStatisticsController extends GetxController {
           )
           .toList();
 
+      // Initialize filtered data
+      filteredActiveMembershipData.value = activeMembershipData;
+
       print(
-        'Active membership data loaded: ${activeMembershipData.length} entries',
+        'Active membership data loaded: ${activeMembershipData.length} plans',
       );
-    } catch (e) {
+      print('=== END ACTIVE MEMBERSHIP LOAD ===');
+    } catch (e, stackTrace) {
       print('Error loading active membership data: $e');
+      print('Stack trace: $stackTrace');
       activeMembershipData.clear();
+      filteredActiveMembershipData.clear();
+      totalActiveMemberships.value = 0;
     }
   }
 
