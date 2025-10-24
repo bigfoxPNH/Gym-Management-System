@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../views/splash/splash_view.dart';
 import '../views/auth/login_view.dart';
 import '../views/auth/register_view.dart';
 import '../views/home/home_view.dart';
@@ -7,7 +7,6 @@ import '../views/profile/profile_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/settings/privacy_policy_view.dart';
 import '../views/settings/settings_view.dart';
-import '../widgets/loading_overlay.dart';
 import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
 import '../views/admin/membership_card_management_view.dart';
@@ -45,13 +44,12 @@ import '../controllers/news_user_controller.dart';
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
-import '../controllers/auth_controller.dart';
 import '../bindings/membership_purchase_binding.dart';
 import 'app_routes.dart';
 
 class AppPages {
   static final routes = [
-    GetPage(name: AppRoutes.initial, page: () => const InitialView()),
+    GetPage(name: AppRoutes.initial, page: () => const SplashView()),
     GetPage(name: AppRoutes.login, page: () => const LoginView()),
     GetPage(name: AppRoutes.register, page: () => const RegisterView()),
     GetPage(name: AppRoutes.home, page: () => const HomeView()),
@@ -182,27 +180,4 @@ class AppPages {
       }),
     ),
   ];
-}
-
-class InitialView extends StatelessWidget {
-  const InitialView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<AuthController>(
-      builder: (controller) {
-        if (controller.isLoggedIn.value) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.offAllNamed(AppRoutes.home);
-          });
-        } else {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.offAllNamed(AppRoutes.login);
-          });
-        }
-
-        return const Scaffold(body: CenterLoading(message: 'Đang khởi tạo...'));
-      },
-    );
-  }
 }
