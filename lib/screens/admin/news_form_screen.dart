@@ -4,6 +4,7 @@ import '../../controllers/news_controller.dart';
 import '../../models/news.dart';
 import '../../widgets/image_base64_widget.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/loading_button.dart';
 
 class NewsFormScreen extends StatefulWidget {
   final String? newsId;
@@ -110,30 +111,14 @@ class _NewsFormScreenState extends State<NewsFormScreen> {
               ),
               // Save Button
               Obx(
-                () => TextButton(
-                  onPressed:
-                      controller.isCreating.value || controller.isUpdating.value
-                      ? null
-                      : _saveNews,
-                  child:
-                      controller.isCreating.value || controller.isUpdating.value
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : const Text(
-                          'Lưu',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                () => LoadingTextButton(
+                  text: 'Lưu',
+                  textColor: Colors.white,
+                  loadingColor: Colors.white,
+                  isLoading:
+                      controller.isCreating.value ||
+                      controller.isUpdating.value,
+                  onPressed: _saveNews,
                 ),
               ),
             ],

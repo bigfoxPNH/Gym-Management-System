@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gympro/controllers/schedule_management_controller.dart';
 import 'package:gympro/models/workout_schedule.dart';
+import '../../widgets/loading_button.dart';
 
 class CreateScheduleView extends StatelessWidget {
   const CreateScheduleView({Key? key}) : super(key: key);
@@ -342,23 +343,16 @@ class CreateScheduleView extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Obx(
-        () => ElevatedButton(
-          onPressed: controller.isLoading.value
-              ? null
-              : () async {
-                  await controller.createSchedule();
-                  if (!controller.isLoading.value) {
-                    Get.back();
-                  }
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: controller.isLoading.value
-              ? const CircularProgressIndicator(color: Colors.white)
-              : const Text('Tạo lịch trình', style: TextStyle(fontSize: 16)),
+        () => LoadingButton(
+          text: 'Tạo lịch trình',
+          isLoading: controller.isLoading.value,
+          backgroundColor: const Color(0xFF00BCD4),
+          onPressed: () async {
+            await controller.createSchedule();
+            if (!controller.isLoading.value) {
+              Get.back();
+            }
+          },
         ),
       ),
     );

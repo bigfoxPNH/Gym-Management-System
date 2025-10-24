@@ -4,6 +4,7 @@ import '../../controllers/news_user_controller.dart';
 import '../../models/news.dart';
 import '../../models/comment.dart';
 import '../../widgets/robust_image.dart';
+import '../../widgets/loading_overlay.dart';
 
 class NewsDetailUserScreen extends StatefulWidget {
   final String newsId;
@@ -591,7 +592,7 @@ class _NewsDetailUserScreenState extends State<NewsDetailUserScreen> {
 
         Obx(() {
           if (controller.isLoadingComments.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const CenterLoading(message: 'Đang tải bình luận...');
           }
 
           final comments = controller.getComments(widget.newsId);
@@ -740,7 +741,7 @@ class _NewsDetailUserScreenState extends State<NewsDetailUserScreen> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: InlineLoading(message: ''),
                     )
                   : Icon(Icons.send, color: Colors.cyan[600]),
             ),

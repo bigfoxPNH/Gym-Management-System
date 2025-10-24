@@ -4,6 +4,7 @@ import '../../controllers/news_user_controller.dart';
 import '../../models/news.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/robust_image.dart';
+import '../../widgets/loading_overlay.dart';
 
 class NewsFeedScreen extends StatelessWidget {
   const NewsFeedScreen({super.key});
@@ -131,7 +132,7 @@ class NewsFeedScreen extends StatelessWidget {
                 child: Obx(() {
                   if (controller.isLoading.value &&
                       controller.filteredNewsList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const CenterLoading(message: 'Đang tải bản tin...');
                   }
 
                   if (controller.filteredNewsList.isEmpty) {
@@ -178,7 +179,9 @@ class NewsFeedScreen extends StatelessWidget {
                               child: Center(
                                 child: Obx(
                                   () => controller.isLoading.value
-                                      ? const CircularProgressIndicator()
+                                      ? const InlineLoading(
+                                          message: 'Đang tải...',
+                                        )
                                       : TextButton(
                                           onPressed: () =>
                                               controller.loadPublishedNews(),

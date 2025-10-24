@@ -5,7 +5,8 @@ import 'dart:convert';
 import '../../controllers/auth_controller.dart';
 import '../../models/user_account.dart';
 import '../../widgets/app_text_field.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/loading_button.dart';
+import '../../widgets/loading_overlay.dart';
 import '../../services/firebase_service.dart';
 import '../settings/data_settings_view.dart';
 
@@ -18,7 +19,7 @@ class EditProfileView extends StatelessWidget {
     final user = authController.userAccount;
 
     if (user == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: CenterLoading(message: 'Đang tải hồ sơ...'));
     }
 
     final fullNameController = TextEditingController(text: user.fullName);
@@ -80,7 +81,7 @@ class EditProfileView extends StatelessWidget {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 3,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                                      Color(0xFF00BCD4),
                                     ),
                                   ),
                                 ),
@@ -110,7 +111,7 @@ class EditProfileView extends StatelessWidget {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
+                                        Color(0xFF00BCD4),
                                       ),
                                     ),
                                   )
@@ -289,9 +290,10 @@ class EditProfileView extends StatelessWidget {
 
               // Save Button
               Obx(
-                () => AppButton(
+                () => LoadingButton(
                   text: 'Lưu Thay Đổi',
                   isLoading: isLoading.value,
+                  backgroundColor: const Color(0xFF00BCD4),
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       await _updateProfile(
@@ -545,7 +547,12 @@ class EditProfileView extends StatelessWidget {
                   ? const SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFF00BCD4),
+                        ),
+                      ),
                     )
                   : const Text('Đổi'),
             );

@@ -4,6 +4,8 @@ import '../../controllers/news_controller.dart';
 import '../../models/news.dart';
 import '../../widgets/robust_image.dart';
 import '../../widgets/image_loading_issue_dialog.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class NewsManagementScreen extends StatelessWidget {
   const NewsManagementScreen({super.key});
@@ -174,7 +176,9 @@ class NewsManagementScreen extends StatelessWidget {
                 child: Obx(() {
                   if (controller.isLoading.value &&
                       controller.filteredNewsList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const CenterLoading(
+                      message: 'Đang tải danh sách bản tin...',
+                    );
                   }
 
                   if (controller.filteredNewsList.isEmpty) {
@@ -540,13 +544,19 @@ class NewsManagementScreen extends StatelessWidget {
         content: Text('Bạn có chắc chắn muốn xóa bản tin "${news.title}"?'),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.deleteNews(news.id!);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
+          Obx(
+            () => LoadingButton(
+              text: 'Xóa',
+              isLoading: controller.isLoading.value,
+              backgroundColor: Colors.red,
+              height: 42,
+              onPressed: () async {
+                await controller.deleteNews(news.id!);
+                if (!controller.isLoading.value) {
+                  Get.back();
+                }
+              },
+            ),
           ),
         ],
       ),

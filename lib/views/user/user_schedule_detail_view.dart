@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gympro/controllers/workout_schedule_controller.dart';
 import 'package:gympro/views/user/exercise_detail_view.dart';
+import '../../widgets/loading_button.dart';
 
 class UserScheduleDetailView extends StatelessWidget {
   const UserScheduleDetailView({Key? key}) : super(key: key);
@@ -461,13 +462,17 @@ class UserScheduleDetailView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.pauseCurrentSchedule();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: const Text('Tạm dừng'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Tạm dừng',
+              textColor: Colors.orange,
+              loadingColor: Colors.orange,
+              isLoading: controller.isLoading.value,
+              onPressed: () async {
+                await controller.pauseCurrentSchedule();
+                if (!controller.isLoading.value) Get.back();
+              },
+            ),
           ),
         ],
       ),
@@ -483,13 +488,17 @@ class UserScheduleDetailView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.completeCurrentSchedule();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.green),
-            child: const Text('Hoàn thành'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Hoàn thành',
+              textColor: Colors.green,
+              loadingColor: Colors.green,
+              isLoading: controller.isLoading.value,
+              onPressed: () async {
+                await controller.completeCurrentSchedule();
+                if (!controller.isLoading.value) Get.back();
+              },
+            ),
           ),
         ],
       ),

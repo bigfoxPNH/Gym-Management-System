@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/membership_card_controller.dart';
 import '../../models/membership_card.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class MembershipCardManagementView extends StatelessWidget {
   const MembershipCardManagementView({super.key});
@@ -201,7 +203,7 @@ class MembershipCardManagementView extends StatelessWidget {
   Widget _buildCardsList(MembershipCardController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const CenterLoading(message: 'Đang tải danh sách thẻ tập...');
       }
 
       if (controller.filteredCards.isEmpty) {
@@ -538,35 +540,24 @@ class MembershipCardManagementView extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Obx(
-                        () => ElevatedButton(
-                          onPressed:
-                              (isEdit
-                                  ? controller.isUpdating.value
-                                  : controller.isCreating.value)
-                              ? null
-                              : () async {
-                                  if (isEdit) {
-                                    await controller.updateCard();
-                                  } else {
-                                    await controller.createCard();
-                                  }
-                                  if (!controller.isCreating.value &&
-                                      !controller.isUpdating.value) {
-                                    Get.back();
-                                  }
-                                },
-                          child:
-                              (isEdit
-                                  ? controller.isUpdating.value
-                                  : controller.isCreating.value)
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(isEdit ? 'Cập nhật' : 'Tạo mới'),
+                        () => LoadingButton(
+                          text: isEdit ? 'Cập nhật' : 'Tạo mới',
+                          isLoading: isEdit
+                              ? controller.isUpdating.value
+                              : controller.isCreating.value,
+                          backgroundColor: const Color(0xFF00BCD4),
+                          height: 42,
+                          onPressed: () async {
+                            if (isEdit) {
+                              await controller.updateCard();
+                            } else {
+                              await controller.createCard();
+                            }
+                            if (!controller.isCreating.value &&
+                                !controller.isUpdating.value) {
+                              Get.back();
+                            }
+                          },
                         ),
                       ),
                     ],

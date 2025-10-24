@@ -4,6 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/auth_controller.dart';
 import '../../services/qr_checkin_service.dart';
+import '../../widgets/loading_overlay.dart';
 
 class MembershipCardExportView extends StatefulWidget {
   const MembershipCardExportView({super.key});
@@ -128,7 +129,7 @@ class _MembershipCardExportViewState extends State<MembershipCardExportView> {
           backgroundColor: const Color(0xFF2196F3),
           foregroundColor: Colors.white,
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const CenterLoading(message: 'Đang tải thông tin người dùng...'),
       );
     }
 
@@ -224,7 +225,7 @@ class _MembershipCardExportViewState extends State<MembershipCardExportView> {
                         : const SizedBox(
                             width: 160,
                             height: 160,
-                            child: Center(child: CircularProgressIndicator()),
+                            child: CenterLoading(message: 'Đang tạo mã QR...'),
                           ),
                   ),
 
@@ -391,7 +392,7 @@ class _MembershipCardExportViewState extends State<MembershipCardExportView> {
                     const Center(
                       child: Padding(
                         padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
+                        child: CenterLoading(message: 'Đang tải thẻ tập...'),
                       ),
                     )
                   else if (activeMemberships.isEmpty)

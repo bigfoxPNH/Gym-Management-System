@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/app_text_field.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/loading_button.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({super.key});
@@ -129,9 +129,10 @@ class RegisterView extends StatelessWidget {
 
                 // Sign Up Button
                 Obx(
-                  () => AppButton(
+                  () => LoadingButton(
                     text: 'Tạo Tài Khoản',
                     isLoading: authController.isLoading,
+                    backgroundColor: const Color(0xFF00BCD4), // Cyan color
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         authController.register(

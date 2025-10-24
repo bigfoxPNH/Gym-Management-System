@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../widgets/loading_overlay.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -58,7 +59,7 @@ class HomeView extends StatelessWidget {
       body: Obx(
         () => authController.userAccount != null
             ? _buildHomeContent(context, authController)
-            : const Center(child: CircularProgressIndicator()),
+            : const CenterLoading(message: 'Đang tải...'),
       ),
     );
   }

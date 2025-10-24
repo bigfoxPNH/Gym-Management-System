@@ -7,6 +7,8 @@ import '../../controllers/auth_controller.dart';
 import '../../models/user_account.dart';
 import '../../routes/app_routes.dart';
 import '../../services/qr_checkin_service.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -31,7 +33,7 @@ class ProfileView extends StatelessWidget {
       body: Obx(
         () => authController.userAccount != null
             ? _buildProfileContent(context, authController)
-            : const Center(child: CircularProgressIndicator()),
+            : const CenterLoading(message: 'Đang tải hồ sơ...'),
       ),
     );
   }
@@ -537,23 +539,10 @@ class ProfileView extends StatelessWidget {
       barrierDismissible: false,
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              const Text(
-                'Đang xóa tài khoản...',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Vui lòng đợi trong giây lát',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-            ],
+        child: const Padding(
+          padding: EdgeInsets.all(24),
+          child: CenterLoading(
+            message: 'Đang xóa tài khoản...\nVui lòng đợi trong giây lát',
           ),
         ),
       ),

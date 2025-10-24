@@ -4,7 +4,8 @@ import 'package:intl/intl.dart';
 import '../../controllers/membership_purchase_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/membership_card.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   const MembershipPurchaseView({super.key});
@@ -138,7 +139,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
 
   Widget _buildContent() {
     if (controller.isLoadingTemplates.value) {
-      return const Center(child: CircularProgressIndicator());
+      return const CenterLoading(message: 'Đang tải danh sách thẻ tập...');
     }
 
     if (controller.filteredTemplates.isEmpty) {
@@ -263,12 +264,11 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Obx(
-                    () => AppButton(
+                    () => LoadingButton(
                       text: 'Mua ngay',
-                      onPressed: controller.isPurchasing.value
-                          ? null
-                          : () => _confirmPurchase(template),
                       isLoading: controller.isPurchasing.value,
+                      backgroundColor: const Color(0xFF00BCD4),
+                      onPressed: () => _confirmPurchase(template),
                     ),
                   ),
                 ),
@@ -366,15 +366,14 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Obx(
-                      () => AppButton(
+                      () => LoadingButton(
                         text: 'Mua ngay',
-                        onPressed: controller.isPurchasing.value
-                            ? null
-                            : () {
-                                Get.back();
-                                _confirmPurchase(template);
-                              },
                         isLoading: controller.isPurchasing.value,
+                        backgroundColor: const Color(0xFF00BCD4),
+                        onPressed: () {
+                          Get.back();
+                          _confirmPurchase(template);
+                        },
                       ),
                     ),
                   ),
@@ -502,12 +501,12 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
           Obx(
-            () => AppButton(
+            () => LoadingButton(
               text: 'Xác nhận',
-              onPressed: controller.isPurchasing.value
-                  ? null
-                  : () => _processPurchase(template),
               isLoading: controller.isPurchasing.value,
+              backgroundColor: const Color(0xFF00BCD4),
+              height: 42,
+              onPressed: () => _processPurchase(template),
             ),
           ),
         ],

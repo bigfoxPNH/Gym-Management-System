@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../controllers/exercise_controller.dart';
 import '../../models/exercise.dart';
 import '../../widgets/exercise_card.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 import 'simple_exercise_detail_view.dart';
 
 class ExerciseListView extends StatelessWidget {
@@ -120,11 +122,7 @@ class ExerciseListView extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (controller.isLoading.value)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                    const InlineLoading(message: ''),
                 ],
               ),
             ),
@@ -136,7 +134,9 @@ class ExerciseListView extends StatelessWidget {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value && controller.exercises.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
+                return const CenterLoading(
+                  message: 'Đang tải danh sách bài tập...',
+                );
               }
 
               if (controller.filteredExercises.isEmpty) {

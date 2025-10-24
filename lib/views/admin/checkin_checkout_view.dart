@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/qr_checkin_service.dart';
 import '../../widgets/qr_scanner_widget.dart';
+import '../../widgets/loading_overlay.dart';
 
 class CheckinCheckoutController extends GetxController {
   final isLoading = false.obs;
@@ -265,8 +266,11 @@ class CheckinCheckoutView extends StatelessWidget {
             // Records list
             Expanded(
               child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CircularProgressIndicator());
+                if (controller.isLoading.value &&
+                    controller.checkinRecords.isEmpty) {
+                  return const CenterLoading(
+                    message: 'Đang tải lịch sử check-in...',
+                  );
                 }
 
                 final records = controller.filteredRecords;

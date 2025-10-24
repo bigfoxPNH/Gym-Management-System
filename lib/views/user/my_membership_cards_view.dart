@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/my_membership_cards_controller.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class MyMembershipCardsView extends StatelessWidget {
   const MyMembershipCardsView({super.key});
@@ -28,7 +30,7 @@ class MyMembershipCardsView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const CenterLoading(message: 'Đang tải thẻ tập của bạn...');
         }
 
         if (controller.membershipCards.isEmpty) {
@@ -48,18 +50,11 @@ class MyMembershipCardsView extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => Get.toNamed('/membership-purchase'),
+                LoadingButton(
+                  text: 'Mua thẻ tập',
                   icon: const Icon(Icons.shopping_cart),
-                  label: const Text('Mua thẻ tập'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
+                  backgroundColor: Colors.green,
+                  onPressed: () => Get.toNamed('/membership-purchase'),
                 ),
               ],
             ),
@@ -82,15 +77,11 @@ class MyMembershipCardsView extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
-              child: ElevatedButton.icon(
-                onPressed: () => Get.offAllNamed('/home'),
+              child: LoadingButton(
+                text: 'Về trang chủ',
                 icon: const Icon(Icons.home),
-                label: const Text('Về trang chủ'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
+                backgroundColor: Colors.blue,
+                onPressed: () => Get.offAllNamed('/home'),
               ),
             ),
           ],

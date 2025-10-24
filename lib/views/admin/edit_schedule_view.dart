@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gympro/controllers/schedule_management_controller.dart';
 import 'package:gympro/models/workout_schedule.dart';
+import '../../widgets/loading_button.dart';
 
 class EditScheduleView extends StatelessWidget {
   final WorkoutSchedule schedule;
@@ -350,41 +351,31 @@ class EditScheduleView extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: Obx(
-        () => ElevatedButton(
-          onPressed: controller.isLoading.value
-              ? null
-              : () async {
-                  final updatedSchedule = schedule.copyWith(
-                    title: controller.titleController.value,
-                    description: controller.descriptionController.value,
-                    category: controller.selectedCategoryForm.value,
-                    difficulty: controller.selectedDifficultyForm.value,
-                    exerciseIds: controller.selectedExerciseIds.toList(),
-                    durationWeeks: controller.durationWeeks.value,
-                    sessionsPerWeek: controller.sessionsPerWeek.value,
-                    imageUrl: controller.imageUrl.value.isEmpty
-                        ? null
-                        : controller.imageUrl.value,
-                    tags: controller.tags.toList(),
-                    updatedAt: DateTime.now(),
-                  );
+        () => LoadingButton(
+          text: 'Cập nhật lịch trình',
+          isLoading: controller.isLoading.value,
+          backgroundColor: Colors.orange,
+          onPressed: () async {
+            final updatedSchedule = schedule.copyWith(
+              title: controller.titleController.value,
+              description: controller.descriptionController.value,
+              category: controller.selectedCategoryForm.value,
+              difficulty: controller.selectedDifficultyForm.value,
+              exerciseIds: controller.selectedExerciseIds.toList(),
+              durationWeeks: controller.durationWeeks.value,
+              sessionsPerWeek: controller.sessionsPerWeek.value,
+              imageUrl: controller.imageUrl.value.isEmpty
+                  ? null
+                  : controller.imageUrl.value,
+              tags: controller.tags.toList(),
+              updatedAt: DateTime.now(),
+            );
 
-                  await controller.updateSchedule(updatedSchedule);
-                  if (!controller.isLoading.value) {
-                    Get.back();
-                  }
-                },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: controller.isLoading.value
-              ? const CircularProgressIndicator(color: Colors.white)
-              : const Text(
-                  'Cập nhật lịch trình',
-                  style: TextStyle(fontSize: 16),
-                ),
+            await controller.updateSchedule(updatedSchedule);
+            if (!controller.isLoading.value) {
+              Get.back();
+            }
+          },
         ),
       ),
     );

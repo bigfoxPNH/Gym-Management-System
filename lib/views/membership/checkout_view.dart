@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/checkout_controller.dart';
 import '../../models/membership_card.dart';
 import '../../models/payment_method.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/loading_button.dart';
 
 class CheckoutView extends StatelessWidget {
   CheckoutView({super.key});
@@ -199,13 +199,12 @@ class CheckoutView extends StatelessWidget {
                 children: [
                   Container(
                     width: double.infinity,
-                    child: AppButton(
+                    child: LoadingButton(
                       text:
                           'Xác nhận thanh toán ${controller.getFormattedTotalAmount()}',
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : () => controller.createPayment(),
                       isLoading: controller.isLoading.value,
+                      backgroundColor: const Color(0xFF00BCD4),
+                      onPressed: () => controller.createPayment(),
                     ),
                   ),
                   SizedBox(height: 12),

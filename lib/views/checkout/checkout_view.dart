@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/checkout_controller.dart';
 import '../../models/membership_card.dart';
+import '../../widgets/loading_button.dart';
 
 class CheckoutView extends StatelessWidget {
   final CheckoutController controller = Get.put(CheckoutController());
@@ -166,23 +167,13 @@ class CheckoutView extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: Obx(
-                () => ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          controller.createPayment();
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFB0006D),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: controller.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text(
-                          'Xác nhận thanh toán',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                () => LoadingButton(
+                  text: 'Xác nhận thanh toán',
+                  isLoading: controller.isLoading.value,
+                  backgroundColor: const Color(0xFFB0006D),
+                  onPressed: () {
+                    controller.createPayment();
+                  },
                 ),
               ),
             ),

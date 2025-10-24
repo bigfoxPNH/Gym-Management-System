@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:async';
 import '../../services/production_momo_service.dart';
+import '../../widgets/loading_overlay.dart';
 
 class MoMoPaymentView extends StatefulWidget {
   final String orderId;
@@ -215,16 +216,7 @@ class _MoMoPaymentViewState extends State<MoMoPaymentView> {
 
   Widget _buildPaymentContent() {
     if (_isLoading) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: Color(0xFFD82D8B)),
-            SizedBox(height: 16),
-            Text('Đang tạo mã QR thanh toán...'),
-          ],
-        ),
-      );
+      return const CenterLoading(message: 'Đang tạo mã QR thanh toán...');
     }
 
     if (_errorMessage != null) {
@@ -331,15 +323,7 @@ class _MoMoPaymentViewState extends State<MoMoPaymentView> {
               style: TextStyle(color: statusColor, fontWeight: FontWeight.w500),
             ),
           ),
-          if (status.isPending)
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: statusColor,
-              ),
-            ),
+          if (status.isPending) const InlineLoading(color: Color(0xFFD82D8B)),
         ],
       ),
     );

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/admin_statistics_controller.dart';
+import '../../widgets/loading_overlay.dart';
 
 class AdminStatisticsView extends StatelessWidget {
   const AdminStatisticsView({super.key});
@@ -26,7 +27,7 @@ class AdminStatisticsView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const CenterLoading(message: 'Đang tải dữ liệu thống kê...');
         }
 
         return SingleChildScrollView(
@@ -89,9 +90,18 @@ class AdminStatisticsView extends StatelessWidget {
                       ),
                       items: const [
                         DropdownMenuItem(value: 'day', child: Text('Hôm nay')),
-                        DropdownMenuItem(value: 'month', child: Text('30 ngày qua')),
-                        DropdownMenuItem(value: 'year', child: Text('1 năm qua')),
-                        DropdownMenuItem(value: 'custom', child: Text('Tùy chọn')),
+                        DropdownMenuItem(
+                          value: 'month',
+                          child: Text('30 ngày qua'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'year',
+                          child: Text('1 năm qua'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'custom',
+                          child: Text('Tùy chọn'),
+                        ),
                       ],
                       onChanged: (value) => controller.updateTimeFilter(value!),
                     ),
@@ -150,47 +160,53 @@ class AdminStatisticsView extends StatelessWidget {
 
   // ============ SUMMARY CARDS ============
   Widget _buildSummaryCards(AdminStatisticsController controller) {
-    return Obx(() => Row(
-          children: [
-            Expanded(
-              child: _buildSummaryCard(
-                'Tổng doanh thu',
-                NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                    .format(controller.totalRevenue.value),
-                Icons.attach_money,
-                Colors.green,
-              ),
+    return Obx(
+      () => Row(
+        children: [
+          Expanded(
+            child: _buildSummaryCard(
+              'Tổng doanh thu',
+              NumberFormat.currency(
+                locale: 'vi_VN',
+                symbol: '₫',
+              ).format(controller.totalRevenue.value),
+              Icons.attach_money,
+              Colors.green,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildSummaryCard(
-                'Giao dịch',
-                controller.totalTransactions.value.toString(),
-                Icons.receipt_long,
-                Colors.blue,
-              ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSummaryCard(
+              'Giao dịch',
+              controller.totalTransactions.value.toString(),
+              Icons.receipt_long,
+              Colors.blue,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildSummaryCard(
-                'TB/Giao dịch',
-                NumberFormat.currency(locale: 'vi_VN', symbol: '₫')
-                    .format(controller.averageTransactionValue.value),
-                Icons.trending_up,
-                Colors.orange,
-              ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSummaryCard(
+              'TB/Giao dịch',
+              NumberFormat.currency(
+                locale: 'vi_VN',
+                symbol: '₫',
+              ).format(controller.averageTransactionValue.value),
+              Icons.trending_up,
+              Colors.orange,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildSummaryCard(
-                'Thẻ đang hoạt động',
-                controller.totalActiveMemberships.value.toString(),
-                Icons.card_membership,
-                Colors.purple,
-              ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildSummaryCard(
+              'Thẻ đang hoạt động',
+              controller.totalActiveMemberships.value.toString(),
+              Icons.card_membership,
+              Colors.purple,
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSummaryCard(
@@ -222,10 +238,7 @@ class AdminStatisticsView extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               title,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Text(
@@ -261,7 +274,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Doanh thu từ Thẻ Tập',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -375,11 +391,13 @@ class AdminStatisticsView extends StatelessWidget {
                 showTitles: true,
                 reservedSize: 30,
                 interval: controller.revenueTimeSeriesData.length > 10
-                    ? (controller.revenueTimeSeriesData.length / 5).ceilToDouble()
+                    ? (controller.revenueTimeSeriesData.length / 5)
+                          .ceilToDouble()
                     : 1,
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() < controller.revenueTimeSeriesData.length) {
-                    final data = controller.revenueTimeSeriesData[value.toInt()];
+                    final data =
+                        controller.revenueTimeSeriesData[value.toInt()];
                     return Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
@@ -410,10 +428,9 @@ class AdminStatisticsView extends StatelessWidget {
               spots: controller.revenueTimeSeriesData
                   .asMap()
                   .entries
-                  .map((entry) => FlSpot(
-                        entry.key.toDouble(),
-                        entry.value.value,
-                      ))
+                  .map(
+                    (entry) => FlSpot(entry.key.toDouble(), entry.value.value),
+                  )
                   .toList(),
               isCurved: true,
               color: Colors.green,
@@ -441,7 +458,8 @@ class AdminStatisticsView extends StatelessWidget {
             touchTooltipData: LineTouchTooltipData(
               getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                 return touchedBarSpots.map((barSpot) {
-                  final data = controller.revenueTimeSeriesData[barSpot.x.toInt()];
+                  final data =
+                      controller.revenueTimeSeriesData[barSpot.x.toInt()];
                   return LineTooltipItem(
                     '${data.title}\n${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(barSpot.y)}',
                     const TextStyle(
@@ -468,7 +486,8 @@ class AdminStatisticsView extends StatelessWidget {
       return PieChart(
         PieChartData(
           sections: data.map((chartData) {
-            final percentage = (chartData.value / controller.totalRevenue.value * 100);
+            final percentage =
+                (chartData.value / controller.totalRevenue.value * 100);
             return PieChartSectionData(
               value: chartData.value,
               title: '${percentage.toStringAsFixed(1)}%',
@@ -608,7 +627,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Các Loại Thẻ Tập',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -640,7 +662,8 @@ class AdminStatisticsView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              onChanged: (value) => controller.updateMembershipPlanSearch(value),
+              onChanged: (value) =>
+                  controller.updateMembershipPlanSearch(value),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm loại thẻ...',
                 prefixIcon: const Icon(Icons.search),
@@ -691,7 +714,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Thẻ Đang Hoạt Động',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -723,7 +749,8 @@ class AdminStatisticsView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
-              onChanged: (value) => controller.updateActiveMembershipSearch(value),
+              onChanged: (value) =>
+                  controller.updateActiveMembershipSearch(value),
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm loại thẻ đang hoạt động...',
                 prefixIcon: const Icon(Icons.search),
@@ -771,7 +798,8 @@ class AdminStatisticsView extends StatelessWidget {
           final percentage = (chartData.value / total * 100);
           return PieChartSectionData(
             value: chartData.value,
-            title: '${chartData.value.toInt()}\n(${percentage.toStringAsFixed(1)}%)',
+            title:
+                '${chartData.value.toInt()}\n(${percentage.toStringAsFixed(1)}%)',
             color: chartData.color,
             radius: 100,
             titleStyle: const TextStyle(
@@ -872,7 +900,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Thống kê Người dùng',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -936,7 +967,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Thống kê Bài tập',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

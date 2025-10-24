@@ -4,6 +4,8 @@ import 'package:gympro/controllers/schedule_management_controller.dart';
 import 'package:gympro/models/workout_schedule.dart';
 import 'package:gympro/views/admin/create_schedule_view.dart';
 import 'package:gympro/views/admin/edit_schedule_view.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class ScheduleManagementView extends StatelessWidget {
   const ScheduleManagementView({Key? key}) : super(key: key);
@@ -174,8 +176,8 @@ class ScheduleManagementView extends StatelessWidget {
 
   Widget _buildSchedulesList(ScheduleManagementController controller) {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+      if (controller.isLoading.value && controller.schedules.isEmpty) {
+        return const CenterLoading(message: 'Đang tải danh sách lịch trình...');
       }
 
       if (controller.schedules.isEmpty) {
@@ -348,13 +350,19 @@ class ScheduleManagementView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.deleteSchedule(schedule.id);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
+          Obx(
+            () => LoadingButton(
+              text: 'Xóa',
+              isLoading: controller.isLoading.value,
+              backgroundColor: Colors.red,
+              height: 42,
+              onPressed: () async {
+                await controller.deleteSchedule(schedule.id);
+                if (!controller.isLoading.value) {
+                  Get.back();
+                }
+              },
+            ),
           ),
         ],
       ),

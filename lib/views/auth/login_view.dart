@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../widgets/app_text_field.dart';
-import '../../widgets/app_button.dart';
+import '../../widgets/loading_button.dart';
 import '../../routes/app_routes.dart';
+import '../../utils/loading_utils.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
@@ -88,9 +89,10 @@ class LoginView extends StatelessWidget {
 
                 // Sign In Button
                 Obx(
-                  () => AppButton(
+                  () => LoadingButton(
                     text: 'Đăng Nhập',
                     isLoading: authController.isLoading,
+                    backgroundColor: const Color(0xFF00BCD4), // Cyan color
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         authController.signIn(
@@ -146,6 +148,7 @@ class LoginView extends StatelessWidget {
     AuthController authController,
   ) {
     final emailController = TextEditingController();
+    final isSubmitting = false.obs;
 
     showDialog(
       context: context,
@@ -167,14 +170,21 @@ class LoginView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              if (emailController.text.isNotEmpty) {
-                authController.resetPassword(emailController.text.trim());
-                Get.back();
-              }
-            },
-            child: const Text('Gửi'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Gửi',
+              isLoading: isSubmitting.value,
+              onPressed: () async {
+                if (emailController.text.isNotEmpty) {
+                  isSubmitting.value = true;
+                  await authController.resetPassword(
+                    emailController.text.trim(),
+                  );
+                  isSubmitting.value = false;
+                  Get.back();
+                }
+              },
+            ),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/news_controller.dart';
 import '../../models/news.dart';
+import '../../widgets/loading_overlay.dart';
 
 class NewsDetailScreen extends StatelessWidget {
   final String newsId;
@@ -79,7 +80,9 @@ class NewsDetailScreen extends StatelessWidget {
                   future: controller.getNewsById(newsId),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return const CenterLoading(
+                        message: 'Đang tải bản tin...',
+                      );
                     }
 
                     if (snapshot.hasError || !snapshot.hasData) {

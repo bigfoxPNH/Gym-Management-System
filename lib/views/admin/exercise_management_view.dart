@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/exercise_management_controller.dart';
 import '../../models/exercise.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class ExerciseManagementView extends StatelessWidget {
   const ExerciseManagementView({super.key});
@@ -217,8 +219,8 @@ class ExerciseManagementView extends StatelessWidget {
 
   Widget _buildExerciseList(ExerciseManagementController controller) {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+      if (controller.isLoading.value && controller.exercises.isEmpty) {
+        return const CenterLoading(message: 'Đang tải danh sách bài tập...');
       }
 
       if (controller.filteredExercises.isEmpty) {
@@ -624,26 +626,11 @@ class ExerciseManagementView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Obx(
-                        () => ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () => controller.createExercise(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[600],
-                            foregroundColor: Colors.white,
-                          ),
-                          child: controller.isLoading.value
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : const Text('Tạo Bài Tập'),
+                        () => LoadingButton(
+                          text: 'Tạo Bài Tập',
+                          isLoading: controller.isLoading.value,
+                          backgroundColor: const Color(0xFF00BCD4),
+                          onPressed: () => controller.createExercise(),
                         ),
                       ),
                     ),
@@ -734,26 +721,12 @@ class ExerciseManagementView extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Obx(
-                        () => ElevatedButton(
-                          onPressed: controller.isLoading.value
-                              ? null
-                              : () => controller.updateExercise(exercise.id),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange[600],
-                            foregroundColor: Colors.white,
-                          ),
-                          child: controller.isLoading.value
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : const Text('Cập Nhật'),
+                        () => LoadingButton(
+                          text: 'Cập Nhật',
+                          isLoading: controller.isLoading.value,
+                          backgroundColor: Colors.orange[600],
+                          onPressed: () =>
+                              controller.updateExercise(exercise.id),
                         ),
                       ),
                     ),
@@ -1300,16 +1273,19 @@ class ExerciseManagementView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              controller.deleteExercise(exercise.id);
-            },
-            style: ElevatedButton.styleFrom(
+          Obx(
+            () => LoadingButton(
+              text: 'Xóa',
+              isLoading: controller.isLoading.value,
               backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              height: 42,
+              onPressed: () async {
+                await controller.deleteExercise(exercise.id);
+                if (!controller.isLoading.value) {
+                  Get.back();
+                }
+              },
             ),
-            child: const Text('Xóa'),
           ),
         ],
       ),

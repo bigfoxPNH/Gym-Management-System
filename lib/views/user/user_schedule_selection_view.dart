@@ -4,6 +4,8 @@ import 'package:gympro/controllers/workout_schedule_controller.dart';
 import 'package:gympro/models/workout_schedule.dart';
 import 'package:gympro/views/user/user_schedule_detail_view.dart';
 import 'package:gympro/views/user/workout_schedule_detail_view.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class UserScheduleSelectionView extends StatelessWidget {
   const UserScheduleSelectionView({Key? key}) : super(key: key);
@@ -367,7 +369,7 @@ class UserScheduleSelectionView extends StatelessWidget {
   Widget _buildSchedulesList(WorkoutScheduleController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return const CenterLoading(message: 'Đang tải danh sách lịch trình...');
       }
 
       if (controller.availableSchedules.isEmpty) {

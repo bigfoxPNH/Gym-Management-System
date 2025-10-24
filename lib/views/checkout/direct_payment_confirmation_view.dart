@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../controllers/direct_payment_controller.dart';
 import '../../models/membership_card.dart';
 import '../../models/payment_transaction.dart';
+import '../../widgets/loading_button.dart';
 
 class DirectPaymentConfirmationView extends StatelessWidget {
   const DirectPaymentConfirmationView({super.key});
@@ -182,27 +183,11 @@ class DirectPaymentConfirmationView extends StatelessWidget {
               children: [
                 // Confirm button
                 Obx(
-                  () => SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: controller.isLoading.value
-                          ? null
-                          : () => controller.confirmDirectPayment(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: controller.isLoading.value
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'Xác nhận đã thanh toán',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                    ),
+                  () => LoadingButton(
+                    text: 'Xác nhận đã thanh toán',
+                    isLoading: controller.isLoading.value,
+                    backgroundColor: Colors.green,
+                    onPressed: () => controller.confirmDirectPayment(),
                   ),
                 ),
 

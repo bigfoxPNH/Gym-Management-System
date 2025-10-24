@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../controllers/member_management_controller.dart';
 import '../../models/user_account.dart';
 import '../../models/membership_card.dart';
+import '../../widgets/loading_overlay.dart';
 
 class MemberManagementView extends StatelessWidget {
   const MemberManagementView({super.key});
@@ -31,7 +32,9 @@ class MemberManagementView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const CenterLoading(
+            message: 'Đang tải danh sách thành viên...',
+          );
         }
 
         if (controller.users.isEmpty) {

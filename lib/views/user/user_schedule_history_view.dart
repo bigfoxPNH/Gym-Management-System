@@ -4,6 +4,8 @@ import 'package:gympro/controllers/workout_schedule_controller.dart';
 import 'package:gympro/models/user_schedule.dart';
 import 'package:gympro/models/workout_schedule.dart';
 import '../../services/workout_schedule_service.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class UserScheduleHistoryView extends StatelessWidget {
   const UserScheduleHistoryView({Key? key}) : super(key: key);
@@ -26,7 +28,7 @@ class UserScheduleHistoryView extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const CenterLoading(message: 'Đang tải lịch sử lịch trình...');
         }
 
         if (controller.userSchedules.isEmpty) {
@@ -139,7 +141,7 @@ class UserScheduleHistoryView extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             child: Container(
               height: 100,
-              child: const Center(child: CircularProgressIndicator()),
+              child: const CenterLoading(message: 'Đang tải...'),
             ),
           );
         }
@@ -363,16 +365,20 @@ class UserScheduleHistoryView extends StatelessWidget {
         content: const Text('Bạn có chắc chắn muốn tạm dừng lịch trình này?'),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.changeUserScheduleStatus(
-                userSchedule.id,
-                UserScheduleStatus.paused,
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: const Text('Tạm dừng'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Tạm dừng',
+              textColor: Colors.orange,
+              loadingColor: Colors.orange,
+              isLoading: controller.isLoading.value,
+              onPressed: () async {
+                await controller.changeUserScheduleStatus(
+                  userSchedule.id,
+                  UserScheduleStatus.paused,
+                );
+                if (!controller.isLoading.value) Get.back();
+              },
+            ),
           ),
         ],
       ),
@@ -391,16 +397,20 @@ class UserScheduleHistoryView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.changeUserScheduleStatus(
-                userSchedule.id,
-                UserScheduleStatus.completed,
-              );
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.green),
-            child: const Text('Hoàn thành'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Hoàn thành',
+              textColor: Colors.green,
+              loadingColor: Colors.green,
+              isLoading: controller.isLoading.value,
+              onPressed: () async {
+                await controller.changeUserScheduleStatus(
+                  userSchedule.id,
+                  UserScheduleStatus.completed,
+                );
+                if (!controller.isLoading.value) Get.back();
+              },
+            ),
           ),
         ],
       ),
@@ -419,13 +429,17 @@ class UserScheduleHistoryView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Không')),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              controller.cancelSchedule(userSchedule.id);
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Hủy lịch trình'),
+          Obx(
+            () => LoadingTextButton(
+              text: 'Hủy lịch trình',
+              textColor: Colors.red,
+              loadingColor: Colors.red,
+              isLoading: controller.isLoading.value,
+              onPressed: () async {
+                await controller.cancelSchedule(userSchedule.id);
+                if (!controller.isLoading.value) Get.back();
+              },
+            ),
           ),
         ],
       ),

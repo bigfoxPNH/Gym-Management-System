@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/member_management_controller.dart';
 import '../../models/user_account.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class MemberManagementView extends StatelessWidget {
   const MemberManagementView({super.key});
@@ -167,6 +169,11 @@ class MemberManagementView extends StatelessWidget {
 
   Widget _buildUsersList(MemberManagementController controller) {
     return Obx(() {
+      // Show loading state
+      if (controller.isLoading.value && controller.users.isEmpty) {
+        return const CenterLoading(message: 'Đang tải danh sách thành viên...');
+      }
+
       // Show users list
       final usersToShow =
           controller.filteredUsers.isNotEmpty ||
@@ -630,29 +637,36 @@ class MemberManagementView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                final userData = {
-                  'fullName': nameController.text.trim(),
-                  'email': emailController.text.trim(),
-                  'phoneNumber': phoneController.text.trim(),
-                  'address': addressController.text.trim(),
-                  'dateOfBirth': dobController.text.trim(),
-                  'role': selectedRole,
-                  if (!isEdit) 'password': passwordController.text,
-                };
+          Obx(
+            () => LoadingButton(
+              text: isEdit ? 'Cập nhật' : 'Tạo mới',
+              isLoading: controller.isLoading.value,
+              backgroundColor: const Color(0xFF00BCD4),
+              height: 42,
+              onPressed: () async {
+                if (formKey.currentState?.validate() ?? false) {
+                  final userData = {
+                    'fullName': nameController.text.trim(),
+                    'email': emailController.text.trim(),
+                    'phoneNumber': phoneController.text.trim(),
+                    'address': addressController.text.trim(),
+                    'dateOfBirth': dobController.text.trim(),
+                    'role': selectedRole,
+                    if (!isEdit) 'password': passwordController.text,
+                  };
 
-                Get.back();
+                  if (isEdit) {
+                    await controller.updateUser(user.id, userData);
+                  } else {
+                    await controller.createUser(userData);
+                  }
 
-                if (isEdit) {
-                  await controller.updateUser(user.id, userData);
-                } else {
-                  await controller.createUser(userData);
+                  if (!controller.isLoading.value) {
+                    Get.back();
+                  }
                 }
-              }
-            },
-            child: Text(isEdit ? 'Cập nhật' : 'Tạo mới'),
+              },
+            ),
           ),
         ],
       ),
@@ -672,16 +686,19 @@ class MemberManagementView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () async {
-              Get.back();
-              await controller.deleteUser(user.id);
-            },
-            style: ElevatedButton.styleFrom(
+          Obx(
+            () => LoadingButton(
+              text: 'Xóa',
+              isLoading: controller.isLoading.value,
               backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              height: 42,
+              onPressed: () async {
+                await controller.deleteUser(user.id);
+                if (!controller.isLoading.value) {
+                  Get.back();
+                }
+              },
             ),
-            child: const Text('Xóa'),
           ),
         ],
       ),

@@ -7,6 +7,7 @@ import '../views/profile/profile_view.dart';
 import '../views/profile/edit_profile_view.dart';
 import '../views/settings/privacy_policy_view.dart';
 import '../views/settings/settings_view.dart';
+import '../widgets/loading_overlay.dart';
 import '../views/admin/member_management_view.dart';
 import '../views/admin/exercise_management_view.dart';
 import '../views/admin/membership_card_management_view.dart';
@@ -200,7 +201,7 @@ class InitialView extends StatelessWidget {
           });
         }
 
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return const Scaffold(body: CenterLoading(message: 'Đang khởi tạo...'));
       },
     );
   }

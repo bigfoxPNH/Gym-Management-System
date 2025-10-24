@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../controllers/payment_callback_controller.dart';
 import '../../controllers/payment_api_controller.dart';
 import '../../models/payment_transaction.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class PaymentStatusView extends StatelessWidget {
   final String orderId;
@@ -98,17 +100,7 @@ class PaymentStatusView extends StatelessWidget {
                 const Card(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        SizedBox(width: 12),
-                        Text('Đang xử lý callback...'),
-                      ],
-                    ),
+                    child: InlineLoading(message: 'Đang xử lý callback...'),
                   ),
                 ),
 
@@ -253,10 +245,10 @@ class PaymentStatusView extends StatelessWidget {
 
     switch (status) {
       case PaymentStatus.pending:
-        child = const CircularProgressIndicator();
+        child = const CenterLoading(message: '');
         break;
       case PaymentStatus.processing:
-        child = const CircularProgressIndicator();
+        child = const CenterLoading(message: '');
         break;
       case PaymentStatus.completed:
         child = Icon(

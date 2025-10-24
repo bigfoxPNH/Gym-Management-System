@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/member_management_controller.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class UserMembershipManagementView extends StatelessWidget {
   const UserMembershipManagementView({super.key});
@@ -162,6 +164,13 @@ class UserMembershipManagementView extends StatelessWidget {
 
   Widget _buildMembershipsList(MemberManagementController controller) {
     return Obx(() {
+      // Show loading state
+      if (controller.isLoading.value && controller.userMemberships.isEmpty) {
+        return const CenterLoading(
+          message: 'Đang tải danh sách thẻ hội viên...',
+        );
+      }
+
       if (controller.userMemberships.isEmpty) {
         return _buildNoMembershipsState();
       }
@@ -1148,53 +1157,65 @@ class UserMembershipManagementView extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Hủy'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // Check if either method is selected
-                final days = int.tryParse(daysController.text);
+            Obx(
+              () => LoadingButton(
+                text: 'Gia hạn',
+                isLoading: controller.isLoading.value,
+                backgroundColor: const Color(0xFF00BCD4),
+                height: 42,
+                onPressed: () async {
+                  // Check if either method is selected
+                  final days = int.tryParse(daysController.text);
 
-                if (days != null && days > 0) {
-                  // Method 1: Extend by days
-                  controller.extendMembership(membership['id'], days);
-                  Navigator.of(context).pop();
-                  Get.snackbar(
-                    'Thành công',
-                    'Đã gia hạn thẻ thêm $days ngày',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                } else if (selectedDate != null) {
-                  // Method 2: Set specific end date
-                  final daysToExtend = selectedDate!
-                      .difference(currentEndDate)
-                      .inDays;
-                  if (daysToExtend > 0) {
-                    controller.extendMembership(membership['id'], daysToExtend);
-                    Navigator.of(context).pop();
-                    Get.snackbar(
-                      'Thành công',
-                      'Đã gia hạn thẻ đến ${DateFormat('dd/MM/yyyy').format(selectedDate!)}',
-                      snackPosition: SnackPosition.BOTTOM,
-                    );
+                  if (days != null && days > 0) {
+                    // Method 1: Extend by days
+                    await controller.extendMembership(membership['id'], days);
+                    if (!controller.isLoading.value) {
+                      Navigator.of(context).pop();
+                      Get.snackbar(
+                        'Thành công',
+                        'Đã gia hạn thẻ thêm $days ngày',
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  } else if (selectedDate != null) {
+                    // Method 2: Set specific end date
+                    final daysToExtend = selectedDate!
+                        .difference(currentEndDate)
+                        .inDays;
+                    if (daysToExtend > 0) {
+                      await controller.extendMembership(
+                        membership['id'],
+                        daysToExtend,
+                      );
+                      if (!controller.isLoading.value) {
+                        Navigator.of(context).pop();
+                        Get.snackbar(
+                          'Thành công',
+                          'Đã gia hạn thẻ đến ${DateFormat('dd/MM/yyyy').format(selectedDate!)}',
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      }
+                    } else {
+                      Get.snackbar(
+                        'Lỗi',
+                        'Ngày hết hạn mới phải sau ngày hết hạn hiện tại',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.red,
+                        colorText: Colors.white,
+                      );
+                    }
                   } else {
                     Get.snackbar(
                       'Lỗi',
-                      'Ngày hết hạn mới phải sau ngày hết hạn hiện tại',
+                      'Vui lòng nhập số ngày hoặc chọn ngày hết hạn',
                       snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.orange,
                       colorText: Colors.white,
                     );
                   }
-                } else {
-                  Get.snackbar(
-                    'Lỗi',
-                    'Vui lòng nhập số ngày hoặc chọn ngày hết hạn',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.orange,
-                    colorText: Colors.white,
-                  );
-                }
-              },
-              child: const Text('Gia hạn'),
+                },
+              ),
             ),
           ],
         ),
@@ -1219,13 +1240,19 @@ class UserMembershipManagementView extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Hủy'),
           ),
-          ElevatedButton(
-            onPressed: () {
-              controller.deleteUserMembership(membership['id']);
-              Navigator.of(context).pop();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
+          Obx(
+            () => LoadingButton(
+              text: 'Xóa',
+              isLoading: controller.isLoading.value,
+              backgroundColor: Colors.red,
+              height: 42,
+              onPressed: () async {
+                await controller.deleteUserMembership(membership['id']);
+                if (!controller.isLoading.value) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
           ),
         ],
       ),

@@ -4,6 +4,8 @@ import 'package:gympro/models/workout_schedule.dart';
 import 'package:gympro/models/exercise.dart';
 import 'package:gympro/controllers/workout_schedule_controller.dart';
 import 'package:gympro/views/user/exercise_detail_view.dart';
+import '../../widgets/loading_overlay.dart';
+import '../../widgets/loading_button.dart';
 
 class WorkoutScheduleDetailView extends StatelessWidget {
   final WorkoutSchedule schedule;
@@ -336,7 +338,7 @@ class WorkoutScheduleDetailView extends StatelessWidget {
           const SizedBox(height: 16),
           Obx(() {
             if (controller.isLoading.value) {
-              return const Center(child: CircularProgressIndicator());
+              return const CenterLoading(message: 'Đang tải bài tập...');
             }
 
             final exercises = controller.exercises
@@ -533,20 +535,27 @@ class WorkoutScheduleDetailView extends StatelessWidget {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              controller.selectSchedule(schedule.id);
-              Get.back(); // Go back to schedule list
-              Get.snackbar(
-                'Thành công',
-                'Đã bắt đầu lịch trình "${schedule.title}"',
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.green,
-                colorText: Colors.white,
-              );
-            },
-            child: const Text('Bắt đầu'),
+          Obx(
+            () => LoadingButton(
+              text: 'Bắt đầu',
+              isLoading: controller.isLoading.value,
+              backgroundColor: const Color(0xFF00BCD4),
+              height: 42,
+              onPressed: () async {
+                await controller.selectSchedule(schedule.id);
+                if (!controller.isLoading.value) {
+                  Get.back();
+                  Get.back(); // Go back to schedule list
+                  Get.snackbar(
+                    'Thành công',
+                    'Đã bắt đầu lịch trình "${schedule.title}"',
+                    snackPosition: SnackPosition.BOTTOM,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                  );
+                }
+              },
+            ),
           ),
         ],
       ),

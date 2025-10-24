@@ -4,6 +4,7 @@ import '../../../routes/app_routes.dart';
 import '../../controllers/payment_callback_controller.dart';
 import '../../services/payment_service.dart';
 import '../../models/payment_transaction.dart';
+import '../../widgets/loading_overlay.dart';
 
 class PaymentResultView extends StatefulWidget {
   const PaymentResultView({super.key});
@@ -177,16 +178,7 @@ class _PaymentResultViewState extends State<PaymentResultView> {
         title: const Text('Kết quả thanh toán'),
         centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Đang xử lý kết quả thanh toán...'),
-          ],
-        ),
-      ),
+      body: const CenterLoading(message: 'Đang xử lý kết quả thanh toán...'),
     );
   }
 }
