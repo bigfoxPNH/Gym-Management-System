@@ -47,6 +47,10 @@ import '../views/admin/trainer_management_view.dart';
 // PT (Personal Trainer) imports
 import '../views/pt/pt_dashboard_view.dart';
 
+// Trainer Rental imports
+import '../views/trainer_rental/trainer_rental_view.dart';
+import '../views/trainer_rental/my_trainer_rentals_view.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -154,6 +158,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.trainerManagement,
       page: () => const TrainerManagementView(),
+    ),
+
+    // Trainer Rental Routes
+    GetPage(
+      name: AppRoutes.trainerRental,
+      page: () => const TrainerRentalView(),
+    ),
+    GetPage(
+      name: AppRoutes.myTrainerRentals,
+      page: () => const MyTrainerRentalsView(),
     ),
 
     // News Management Routes

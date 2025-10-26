@@ -339,6 +339,16 @@ class HomeView extends StatelessWidget {
                   Get.toNamed(AppRoutes.newsFeed);
                 },
               ),
+              _buildActionCard(
+                context,
+                icon: Icons.people,
+                title: 'Thuê PT',
+                subtitle: 'Thuê huấn luyện viên',
+                color: Colors.deepPurple,
+                onTap: () {
+                  Get.toNamed(AppRoutes.trainerRental);
+                },
+              ),
             ],
           ),
           const SizedBox(height: 24),

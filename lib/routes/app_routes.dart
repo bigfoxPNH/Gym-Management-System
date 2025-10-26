@@ -48,4 +48,8 @@ abstract class AppRoutes {
 
   // PT (Personal Trainer) Routes
   static const ptDashboard = '/pt/dashboard';
+
+  // Trainer Rental Routes (Member)
+  static const trainerRental = '/trainer-rental';
+  static const myTrainerRentals = '/my-trainer-rentals';
 }
