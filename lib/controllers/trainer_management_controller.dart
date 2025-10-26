@@ -64,18 +64,22 @@ class TrainerManagementController extends GetxController {
   Future<void> loadAssignments([String? trainerId]) async {
     try {
       isLoadingAssignments.value = true;
-      Query<Map<String, dynamic>> query = _firestore
-          .collection('trainer_assignments')
-          .orderBy('createdAt', descending: true);
+      Query<Map<String, dynamic>> query = _firestore.collection(
+        'trainer_assignments',
+      );
 
       if (trainerId != null) {
         query = query.where('trainerId', isEqualTo: trainerId);
       }
 
       final snapshot = await query.get();
-      assignments.value = snapshot.docs
+      final list = snapshot.docs
           .map((doc) => TrainerAssignment.fromFirestore(doc))
           .toList();
+
+      // Sort ở client-side để tránh cần composite index
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      assignments.value = list;
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải danh sách phân công: $e');
     } finally {
@@ -86,18 +90,22 @@ class TrainerManagementController extends GetxController {
   Future<void> loadReviews([String? trainerId]) async {
     try {
       isLoadingReviews.value = true;
-      Query<Map<String, dynamic>> query = _firestore
-          .collection('trainer_reviews')
-          .orderBy('createdAt', descending: true);
+      Query<Map<String, dynamic>> query = _firestore.collection(
+        'trainer_reviews',
+      );
 
       if (trainerId != null) {
         query = query.where('trainerId', isEqualTo: trainerId);
       }
 
       final snapshot = await query.get();
-      reviews.value = snapshot.docs
+      final list = snapshot.docs
           .map((doc) => TrainerReview.fromFirestore(doc))
           .toList();
+
+      // Sort ở client-side để tránh cần composite index
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      reviews.value = list;
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải đánh giá: $e');
     } finally {
@@ -108,9 +116,9 @@ class TrainerManagementController extends GetxController {
   Future<void> loadSchedules([String? trainerId, DateTime? date]) async {
     try {
       isLoadingSchedules.value = true;
-      Query<Map<String, dynamic>> query = _firestore
-          .collection('trainer_schedules')
-          .orderBy('ngay', descending: false);
+      Query<Map<String, dynamic>> query = _firestore.collection(
+        'trainer_schedules',
+      );
 
       if (trainerId != null) {
         query = query.where('trainerId', isEqualTo: trainerId);
@@ -128,9 +136,13 @@ class TrainerManagementController extends GetxController {
       }
 
       final snapshot = await query.get();
-      schedules.value = snapshot.docs
+      final list = snapshot.docs
           .map((doc) => TrainerSchedule.fromFirestore(doc))
           .toList();
+
+      // Sort ở client-side để tránh cần composite index
+      list.sort((a, b) => a.ngay.compareTo(b.ngay));
+      schedules.value = list;
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải lịch làm việc: $e');
     } finally {
