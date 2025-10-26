@@ -71,6 +71,15 @@ class MemberManagementController extends GetxController {
     }
   }
 
+  int get trainerCount {
+    try {
+      return users.where((u) => u.role == Role.trainer).length;
+    } catch (e) {
+      print('Error calculating trainerCount: $e');
+      return 0;
+    }
+  }
+
   int get membershipCardCount {
     try {
       return userMemberships.length;
@@ -246,9 +255,12 @@ class MemberManagementController extends GetxController {
         throw Exception('Failed to create user account');
       }
 
+      final userId = credential.user!.uid;
+      final role = _parseRole(userData['role']);
+
       // Create user document in Firestore
       final userAccount = UserAccount(
-        id: credential.user!.uid,
+        id: userId,
         email: userData['email'],
         fullName: userData['fullName'],
         phone: userData['phoneNumber'] ?? '',
@@ -259,18 +271,29 @@ class MemberManagementController extends GetxController {
             ? _parseDate(userData['dateOfBirth'])
             : null,
         avatarUrl: '',
-        role: _parseRole(userData['role']),
+        role: role,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      await _firestore
-          .collection('users')
-          .doc(credential.user!.uid)
-          .set(userAccount.toMap());
+      await _firestore.collection('users').doc(userId).set(userAccount.toMap());
+
+      // If role is trainer, create trainer profile
+      if (role == Role.trainer) {
+        await _createTrainerProfile(userId, userData);
+      }
 
       // Reload users list
       await loadAllUsers();
+
+      // Set isLoading false
+      isLoading.value = false;
+
+      // Close the dialog
+      Get.back();
+
+      // Small delay before showing snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
 
       Get.snackbar(
         'Thành công',
@@ -278,18 +301,75 @@ class MemberManagementController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF4CAF50),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
     } catch (e) {
       print('Error creating user: $e');
+      isLoading.value = false;
+
+      // Close dialog on error too
+      Get.back();
+
+      // Small delay before showing error snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
+
       Get.snackbar(
         'Lỗi',
         'Không thể tạo thành viên mới: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF44336),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 4),
+        icon: const Icon(Icons.error, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
-    } finally {
-      isLoading.value = false;
+    }
+  }
+
+  // Helper method to create trainer profile
+  Future<void> _createTrainerProfile(
+    String userId,
+    Map<String, dynamic> userData,
+  ) async {
+    try {
+      final trainerData = {
+        'userId': userId,
+        'hoTen': userData['fullName'],
+        'email': userData['email'],
+        'soDienThoai': userData['phoneNumber'] ?? '',
+        'gioiTinh': 'male', // Default, can be changed later
+        'namSinh':
+            userData['dateOfBirth'] != null &&
+                userData['dateOfBirth'].isNotEmpty
+            ? Timestamp.fromDate(_parseDate(userData['dateOfBirth'])!)
+            : null,
+        'anhDaiDien': null,
+        'diaChi': userData['address'] ?? '',
+        'bangCap': [],
+        'chuyenMon': [],
+        'moTa': 'Huấn luyện viên mới',
+        'chungChi': [],
+        'trangThai': 'active',
+        'mucLuongCoBan': 0.0,
+        'hoaHongPhanTram': 0.0,
+        'ngayVaoLam': Timestamp.now(),
+        'danhGiaTrungBinh': 0.0,
+        'soLuotDanhGia': 0,
+        'createdAt': Timestamp.now(),
+        'updatedAt': Timestamp.now(),
+        'createdBy': 'admin',
+      };
+
+      await _firestore.collection('trainers').add(trainerData);
+
+      print('Created trainer profile for userId: $userId');
+    } catch (e) {
+      print('Error creating trainer profile: $e');
+      // Don't throw - user is already created, just log the error
     }
   }
 
@@ -297,6 +377,11 @@ class MemberManagementController extends GetxController {
   Future<void> updateUser(String userId, Map<String, dynamic> userData) async {
     try {
       isLoading.value = true;
+
+      // Get old user data to check role change
+      final oldUserDoc = await _firestore.collection('users').doc(userId).get();
+      final oldRole = oldUserDoc.data()?['role'] ?? 'member';
+      final newRole = userData['role'];
 
       // Update user document in Firestore
       final updateData = {
@@ -309,7 +394,7 @@ class MemberManagementController extends GetxController {
                 userData['dateOfBirth'].isNotEmpty
             ? _parseDate(userData['dateOfBirth'])?.millisecondsSinceEpoch
             : null,
-        'role': userData['role'],
+        'role': newRole,
         'updatedAt': DateTime.now()
             .millisecondsSinceEpoch, // Fix: Use DateTime instead of Timestamp
       };
@@ -319,8 +404,48 @@ class MemberManagementController extends GetxController {
 
       await _firestore.collection('users').doc(userId).update(updateData);
 
+      // Handle role change to trainer
+      if (oldRole != 'trainer' && newRole == 'trainer') {
+        // Check if trainer profile exists
+        final trainerQuery = await _firestore
+            .collection('trainers')
+            .where('userId', isEqualTo: userId)
+            .get();
+
+        if (trainerQuery.docs.isEmpty) {
+          // Create trainer profile if not exists
+          await _createTrainerProfile(userId, userData);
+        }
+      }
+
+      // Handle role change from trainer to other role
+      if (oldRole == 'trainer' && newRole != 'trainer') {
+        // Optional: You might want to deactivate or delete trainer profile
+        // For now, we'll just set status to inactive
+        final trainerQuery = await _firestore
+            .collection('trainers')
+            .where('userId', isEqualTo: userId)
+            .get();
+
+        for (var doc in trainerQuery.docs) {
+          await _firestore.collection('trainers').doc(doc.id).update({
+            'trangThai': 'inactive',
+            'updatedAt': Timestamp.now(),
+          });
+        }
+      }
+
       // Reload users list
       await loadAllUsers();
+
+      // Set isLoading false
+      isLoading.value = false;
+
+      // Close the dialog
+      Get.back();
+
+      // Small delay before showing snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
 
       Get.snackbar(
         'Thành công',
@@ -328,18 +453,32 @@ class MemberManagementController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF4CAF50),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
     } catch (e) {
       print('Error updating user: $e');
+      isLoading.value = false;
+
+      // Close dialog on error
+      Get.back();
+
+      // Small delay before showing error snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
+
       Get.snackbar(
         'Lỗi',
         'Không thể cập nhật thông tin thành viên: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF44336),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 4),
+        icon: const Icon(Icons.error, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 
@@ -355,8 +494,17 @@ class MemberManagementController extends GetxController {
       // because we don't have admin privileges to do so
       // This would require Firebase Admin SDK
 
-      // Remove from local list
-      users.removeWhere((user) => user.id == userId);
+      // Reload users list from Firestore to ensure sync
+      await loadAllUsers();
+
+      // Set isLoading false
+      isLoading.value = false;
+
+      // Close the delete confirmation dialog
+      Get.back();
+
+      // Small delay before showing snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
 
       Get.snackbar(
         'Thành công',
@@ -364,18 +512,32 @@ class MemberManagementController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFF4CAF50),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check_circle, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
     } catch (e) {
       print('Error deleting user: $e');
+      isLoading.value = false;
+
+      // Close dialog on error
+      Get.back();
+
+      // Small delay before showing error snackbar
+      await Future.delayed(const Duration(milliseconds: 100));
+
       Get.snackbar(
         'Lỗi',
         'Không thể xóa thành viên: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: const Color(0xFFF44336),
         colorText: const Color(0xFFFFFFFF),
+        duration: const Duration(seconds: 4),
+        icon: const Icon(Icons.error, color: Colors.white),
+        margin: const EdgeInsets.all(16),
+        borderRadius: 8,
       );
-    } finally {
-      isLoading.value = false;
     }
   }
 

@@ -11,6 +11,25 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
 
+    return Obx(() {
+      final user = authController.userAccount;
+
+      // Redirect PT users to PT Dashboard
+      if (user != null && user.isTrainer) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAllNamed(AppRoutes.ptDashboard);
+        });
+        return const CenterLoading(message: 'Đang chuyển hướng...');
+      }
+
+      return _buildRegularHome(context, authController);
+    });
+  }
+
+  Widget _buildRegularHome(
+    BuildContext context,
+    AuthController authController,
+  ) {
     return Scaffold(
       appBar: AppBar(
         title: Obx(() {
@@ -226,6 +245,16 @@ class HomeView extends StatelessWidget {
                   color: Colors.amber,
                   onTap: () {
                     Get.toNamed(AppRoutes.userMembershipManagement);
+                  },
+                ),
+                _buildAdminActionCard(
+                  context,
+                  icon: Icons.fitness_center,
+                  title: 'Quản Lý PT',
+                  subtitle: 'Quản lý huấn luyện viên',
+                  color: const Color(0xFFFF9800),
+                  onTap: () {
+                    Get.toNamed(AppRoutes.trainerManagement);
                   },
                 ),
               ],

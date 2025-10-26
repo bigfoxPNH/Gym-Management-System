@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-enum Role { member, staff, manager, admin, membershipCard }
+enum Role { member, staff, manager, admin, membershipCard, trainer }
 
 enum Gender { male, female, other }
 
@@ -161,6 +161,8 @@ class UserAccount {
         return Role.admin;
       case 'membershipcard':
         return Role.membershipCard;
+      case 'trainer':
+        return Role.trainer;
       default:
         return Role.member;
     }
@@ -178,6 +180,8 @@ class UserAccount {
         return 'admin';
       case Role.membershipCard:
         return 'membershipCard';
+      case Role.trainer:
+        return 'trainer';
     }
   }
 
@@ -221,6 +225,8 @@ class UserAccount {
         return 'Admin';
       case Role.membershipCard:
         return 'Membership Card';
+      case Role.trainer:
+        return 'Personal Trainer';
     }
   }
 
@@ -228,6 +234,7 @@ class UserAccount {
   bool get isManager => role == Role.manager || isAdmin;
   bool get isStaff => role == Role.staff || isManager;
   bool get isMember => role == Role.member;
+  bool get isTrainer => role == Role.trainer;
 
   @override
   String toString() {

@@ -111,6 +111,14 @@ class MemberManagementView extends StatelessWidget {
               () => controller.updateRoleFilter(Role.member),
               controller.selectedRole.value == Role.member,
             ),
+            const SizedBox(width: 12),
+            _buildStatCard(
+              'PT',
+              controller.trainerCount.toString(),
+              const Color(0xFFFF9800),
+              () => controller.updateRoleFilter(Role.trainer),
+              controller.selectedRole.value == Role.trainer,
+            ),
           ],
         );
       }),
@@ -391,6 +399,8 @@ class MemberManagementView extends StatelessWidget {
         return Colors.blue;
       case Role.membershipCard:
         return Colors.teal;
+      case Role.trainer:
+        return const Color(0xFFFF9800);
     }
   }
 
@@ -627,6 +637,10 @@ class MemberManagementView extends StatelessWidget {
                         child: Text('Quản lý'),
                       ),
                       DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                      DropdownMenuItem(
+                        value: 'trainer',
+                        child: Text('Huấn luyện viên (PT)'),
+                      ),
                     ],
                     onChanged: (value) => selectedRole = value ?? 'member',
                   ),
@@ -660,10 +674,7 @@ class MemberManagementView extends StatelessWidget {
                   } else {
                     await controller.createUser(userData);
                   }
-
-                  if (!controller.isLoading.value) {
-                    Get.back();
-                  }
+                  // Controller will close dialog and show notification
                 }
               },
             ),
@@ -694,9 +705,7 @@ class MemberManagementView extends StatelessWidget {
               height: 42,
               onPressed: () async {
                 await controller.deleteUser(user.id);
-                if (!controller.isLoading.value) {
-                  Get.back();
-                }
+                // Controller will close dialog and show notification
               },
             ),
           ),

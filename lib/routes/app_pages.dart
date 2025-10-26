@@ -41,6 +41,12 @@ import '../screens/user/news_feed_screen.dart';
 import '../screens/user/news_detail_user_screen.dart';
 import '../controllers/news_user_controller.dart';
 
+// Trainer Management imports
+import '../views/admin/trainer_management_view.dart';
+
+// PT (Personal Trainer) imports
+import '../views/pt/pt_dashboard_view.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -144,6 +150,12 @@ class AppPages {
       page: () => const MembershipCardExportView(),
     ),
 
+    // Trainer Management Routes
+    GetPage(
+      name: AppRoutes.trainerManagement,
+      page: () => const TrainerManagementView(),
+    ),
+
     // News Management Routes
     GetPage(
       name: AppRoutes.newsManagement,
@@ -179,5 +191,8 @@ class AppPages {
         Get.lazyPut<NewsUserController>(() => NewsUserController());
       }),
     ),
+
+    // PT Dashboard
+    GetPage(name: AppRoutes.ptDashboard, page: () => const PTDashboardView()),
   ];
 }

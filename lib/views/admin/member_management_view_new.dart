@@ -433,6 +433,8 @@ class MemberManagementView extends StatelessWidget {
         return Colors.blue;
       case Role.membershipCard:
         return Colors.teal;
+      case Role.trainer:
+        return const Color(0xFFFF9800);
     }
   }
 
@@ -683,6 +685,10 @@ class MemberManagementView extends StatelessWidget {
                         child: Text('Quản lý'),
                       ),
                       DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                      DropdownMenuItem(
+                        value: 'trainer',
+                        child: Text('Huấn luyện viên (PT)'),
+                      ),
                     ],
                     onChanged: (value) => selectedRole = value ?? 'member',
                   ),

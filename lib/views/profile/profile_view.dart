@@ -594,6 +594,8 @@ class ProfileView extends StatelessWidget {
         return 'Thành Viên';
       case Role.membershipCard:
         return 'Thẻ Hội Viên';
+      case Role.trainer:
+        return 'Huấn Luyện Viên';
     }
   }
 

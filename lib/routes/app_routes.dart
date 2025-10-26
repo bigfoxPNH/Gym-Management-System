@@ -42,4 +42,10 @@ abstract class AppRoutes {
   // News User Routes
   static const newsFeed = '/news-feed';
   static const newsDetailUser = '/news-detail';
+
+  // Trainer Management Routes
+  static const trainerManagement = '/admin/trainer-management';
+
+  // PT (Personal Trainer) Routes
+  static const ptDashboard = '/pt/dashboard';
 }
