@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/trainer.dart';
+import '../../models/certificate.dart';
 import '../../controllers/trainer_management_controller.dart';
 import '../../widgets/loading_button.dart';
+import '../../services/image_base64_service.dart';
 
 /// Form thêm/sửa PT đầy đủ
 class TrainerFormView extends StatefulWidget {
@@ -31,10 +33,12 @@ class _TrainerFormViewState extends State<TrainerFormView> {
   // State
   String selectedGender = 'male';
   String selectedStatus = 'active';
+  String selectedTrinhDo = 'moi'; // Trình độ PT
+  int namKinhNghiem = 0; // Số năm kinh nghiệm
   DateTime? selectedBirthDate;
   List<String> selectedSpecialties = [];
-  List<String> degrees = [];
-  List<String> certifications = [];
+  List<Certificate> degrees = []; // Đổi sang Certificate
+  List<Certificate> certifications = []; // Đổi sang Certificate
 
   // Available options
   final List<String> availableSpecialties = [
@@ -69,6 +73,8 @@ class _TrainerFormViewState extends State<TrainerFormView> {
     if (trainer != null) {
       selectedGender = trainer.gioiTinh ?? 'male';
       selectedStatus = trainer.trangThai;
+      selectedTrinhDo = trainer.trinhDoPT;
+      namKinhNghiem = trainer.namKinhNghiem;
       selectedBirthDate = trainer.namSinh;
       selectedSpecialties = List.from(trainer.chuyenMon);
       degrees = List.from(trainer.bangCap);
@@ -210,6 +216,90 @@ class _TrainerFormViewState extends State<TrainerFormView> {
             ),
             const SizedBox(height: 24),
 
+            // Trình độ PT
+            _buildSectionTitle(
+              'Trình độ & Kinh nghiệm',
+              Icons.workspace_premium,
+            ),
+            const SizedBox(height: 12),
+
+            // Trình độ PT dropdown
+            DropdownButtonFormField<String>(
+              value: selectedTrinhDo,
+              decoration: const InputDecoration(
+                labelText: 'Trình độ PT',
+                prefixIcon: Icon(Icons.military_tech),
+                border: OutlineInputBorder(),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'moi',
+                  child: Text('Huấn luyện viên mới (100k/giờ)'),
+                ),
+                DropdownMenuItem(
+                  value: 'trung_cap',
+                  child: Text('HLV Trung cấp (150k/giờ)'),
+                ),
+                DropdownMenuItem(
+                  value: 'chuyen_nghiep',
+                  child: Text('HLV Chuyên nghiệp (200k/giờ)'),
+                ),
+                DropdownMenuItem(
+                  value: 'ifbb_pro',
+                  child: Text('IFBB Pro (300k/giờ)'),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => selectedTrinhDo = value);
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Số năm kinh nghiệm
+            Row(
+              children: [
+                const Text(
+                  'Số năm kinh nghiệm:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 16),
+                IconButton(
+                  onPressed: namKinhNghiem > 0
+                      ? () => setState(() => namKinhNghiem--)
+                      : null,
+                  icon: const Icon(Icons.remove_circle_outline),
+                  color: Colors.orange,
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '$namKinhNghiem năm',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: namKinhNghiem < 50
+                      ? () => setState(() => namKinhNghiem++)
+                      : null,
+                  icon: const Icon(Icons.add_circle_outline),
+                  color: Colors.orange,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
             // Section: Chuyên môn
             _buildSectionTitle('Chuyên môn', Icons.fitness_center),
             const SizedBox(height: 12),
@@ -261,18 +351,21 @@ class _TrainerFormViewState extends State<TrainerFormView> {
             _buildSectionTitle('Bằng cấp & Chứng chỉ', Icons.school),
             const SizedBox(height: 12),
 
-            _buildListSection(
+            _buildCertificateSection(
               title: 'Bằng cấp',
               items: degrees,
-              onAdd: () => _addItem('Bằng cấp', degrees),
+              onAdd: () => _addCertificate('Bằng cấp', degrees),
+              onEdit: (index) => _editCertificate('Bằng cấp', degrees, index),
               onRemove: (index) => setState(() => degrees.removeAt(index)),
             ),
             const SizedBox(height: 16),
 
-            _buildListSection(
+            _buildCertificateSection(
               title: 'Chứng chỉ',
               items: certifications,
-              onAdd: () => _addItem('Chứng chỉ', certifications),
+              onAdd: () => _addCertificate('Chứng chỉ', certifications),
+              onEdit: (index) =>
+                  _editCertificate('Chứng chỉ', certifications, index),
               onRemove: (index) =>
                   setState(() => certifications.removeAt(index)),
             ),
@@ -380,10 +473,11 @@ class _TrainerFormViewState extends State<TrainerFormView> {
     );
   }
 
-  Widget _buildListSection({
+  Widget _buildCertificateSection({
     required String title,
-    required List<String> items,
+    required List<Certificate> items,
     required VoidCallback onAdd,
+    required void Function(int) onEdit,
     required void Function(int) onRemove,
   }) {
     return Container(
@@ -416,21 +510,80 @@ class _TrainerFormViewState extends State<TrainerFormView> {
             )
           else
             ...items.asMap().entries.map((entry) {
-              return ListTile(
-                dense: true,
-                leading: Icon(
-                  title == 'Bằng cấp'
-                      ? Icons.verified
-                      : Icons.workspace_premium,
-                  color: title == 'Bằng cấp' ? Colors.green : Colors.blue,
-                  size: 20,
+              final cert = entry.value;
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  dense: true,
+                  leading: cert.anhUrl != null && cert.anhUrl!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: cert.anhUrl!.startsWith('data:image')
+                              ? Image.memory(
+                                  Uri.parse(
+                                    cert.anhUrl!,
+                                  ).data!.contentAsBytes(),
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stack) =>
+                                      const Icon(
+                                        Icons.image_not_supported,
+                                        size: 50,
+                                      ),
+                                )
+                              : Image.network(
+                                  cert.anhUrl!,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stack) =>
+                                      const Icon(
+                                        Icons.image_not_supported,
+                                        size: 50,
+                                      ),
+                                ),
+                        )
+                      : Icon(
+                          title == 'Bằng cấp'
+                              ? Icons.verified
+                              : Icons.workspace_premium,
+                          color: title == 'Bằng cấp'
+                              ? Colors.green
+                              : Colors.blue,
+                          size: 40,
+                        ),
+                  title: Text(cert.ten),
+                  subtitle: cert.moTa != null && cert.moTa!.isNotEmpty
+                      ? Text(
+                          cert.moTa!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                          size: 20,
+                        ),
+                        onPressed: () => onEdit(entry.key),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                        onPressed: () => onRemove(entry.key),
+                      ),
+                    ],
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                 ),
-                title: Text(entry.value),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                  onPressed: () => onRemove(entry.key),
-                ),
-                contentPadding: EdgeInsets.zero,
               );
             }),
         ],
@@ -459,40 +612,352 @@ class _TrainerFormViewState extends State<TrainerFormView> {
     }
   }
 
-  Future<void> _addItem(String title, List<String> list) async {
-    final controller = TextEditingController();
+  Future<void> _addCertificate(String title, List<Certificate> list) async {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+    DateTime? selectedDate;
+    String? uploadedImageUrl;
+    bool isUploading = false;
 
-    final result = await showDialog<String>(
+    final result = await showDialog<Certificate>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Thêm $title'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            labelText: title,
-            border: const OutlineInputBorder(),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFF9800),
-              foregroundColor: Colors.white,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Thêm $title'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Tên $title *',
+                    border: const OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mô tả',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+
+                // Image options
+                const Text(
+                  'Tải ảnh chứng chỉ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+
+                // Upload from device button
+                OutlinedButton.icon(
+                  onPressed: isUploading
+                      ? null
+                      : () async {
+                          setState(() => isUploading = true);
+                          try {
+                            final base64Image =
+                                await ImageBase64Service.pickAndConvertImage();
+                            if (base64Image != null) {
+                              setState(() {
+                                uploadedImageUrl = base64Image;
+                              });
+                            }
+                          } finally {
+                            setState(() => isUploading = false);
+                          }
+                        },
+                  icon: isUploading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload_file),
+                  label: Text(
+                    isUploading ? 'Đang xử lý...' : 'Chọn ảnh từ thiết bị',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 44),
+                  ),
+                ),
+
+                if (uploadedImageUrl != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(child: Text('Đã chọn ảnh')),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () =>
+                              setState(() => uploadedImageUrl = null),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today),
+                  title: Text(
+                    selectedDate != null
+                        ? 'Ngày cấp: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                        : 'Chọn ngày cấp (tùy chọn)',
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(1950),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() => selectedDate = picked);
+                    }
+                  },
+                ),
+              ],
             ),
-            child: const Text('Thêm'),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập tên')),
+                  );
+                  return;
+                }
+
+                Navigator.pop(
+                  context,
+                  Certificate(
+                    ten: name,
+                    moTa: descController.text.trim().isEmpty
+                        ? null
+                        : descController.text.trim(),
+                    anhUrl: uploadedImageUrl,
+                    ngayCap: selectedDate,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF9800),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Thêm'),
+            ),
+          ],
+        ),
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
+    if (result != null) {
       setState(() => list.add(result));
+    }
+  }
+
+  Future<void> _editCertificate(
+    String title,
+    List<Certificate> list,
+    int index,
+  ) async {
+    final cert = list[index];
+    final nameController = TextEditingController(text: cert.ten);
+    final descController = TextEditingController(text: cert.moTa ?? '');
+    DateTime? selectedDate = cert.ngayCap;
+    String? uploadedImageUrl;
+    bool isUploading = false;
+
+    final result = await showDialog<Certificate>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Chỉnh sửa $title'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Tên $title *',
+                    border: const OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: descController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mô tả',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 16),
+
+                // Image options
+                const Text(
+                  'Ảnh chứng chỉ',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+
+                // Upload from device button
+                OutlinedButton.icon(
+                  onPressed: isUploading
+                      ? null
+                      : () async {
+                          setState(() => isUploading = true);
+                          try {
+                            final base64Image =
+                                await ImageBase64Service.pickAndConvertImage();
+                            if (base64Image != null) {
+                              setState(() {
+                                uploadedImageUrl = base64Image;
+                              });
+                            }
+                          } finally {
+                            setState(() => isUploading = false);
+                          }
+                        },
+                  icon: isUploading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload_file),
+                  label: Text(
+                    isUploading ? 'Đang xử lý...' : 'Chọn ảnh mới từ thiết bị',
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 44),
+                  ),
+                ),
+
+                if (uploadedImageUrl != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Expanded(child: Text('Đã chọn ảnh mới')),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () =>
+                              setState(() => uploadedImageUrl = null),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.calendar_today),
+                  title: Text(
+                    selectedDate != null
+                        ? 'Ngày cấp: ${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                        : 'Chọn ngày cấp (tùy chọn)',
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate ?? DateTime.now(),
+                      firstDate: DateTime(1950),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() => selectedDate = picked);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng nhập tên')),
+                  );
+                  return;
+                }
+
+                // Use uploaded image or keep original
+                final finalImageUrl = uploadedImageUrl ?? cert.anhUrl;
+
+                Navigator.pop(
+                  context,
+                  Certificate(
+                    ten: name,
+                    moTa: descController.text.trim().isEmpty
+                        ? null
+                        : descController.text.trim(),
+                    anhUrl: finalImageUrl,
+                    ngayCap: selectedDate,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF9800),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Lưu'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() => list[index] = result);
     }
   }
 
@@ -523,6 +988,8 @@ class _TrainerFormViewState extends State<TrainerFormView> {
       chuyenMon: selectedSpecialties,
       bangCap: degrees,
       chungChi: certifications,
+      namKinhNghiem: namKinhNghiem,
+      trinhDoPT: selectedTrinhDo,
       trangThai: selectedStatus,
       mucLuongCoBan: double.tryParse(luongController.text) ?? 10000000,
       hoaHongPhanTram: (int.tryParse(hoaHongController.text) ?? 10).toDouble(),

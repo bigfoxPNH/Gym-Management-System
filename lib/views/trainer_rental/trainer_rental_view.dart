@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import '../../controllers/trainer_rental_controller.dart';
 import '../../models/trainer.dart';
 import 'trainer_rental_detail_view.dart';

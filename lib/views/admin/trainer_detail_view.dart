@@ -413,7 +413,7 @@ class TrainerDetailView extends StatelessWidget {
                     children: [
                       const Icon(Icons.verified, size: 16, color: Colors.green),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(degree)),
+                      Expanded(child: Text(degree.ten)),
                     ],
                   ),
                 ),
@@ -443,7 +443,7 @@ class TrainerDetailView extends StatelessWidget {
                         color: Colors.blue,
                       ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(cert)),
+                      Expanded(child: Text(cert.ten)),
                     ],
                   ),
                 ),

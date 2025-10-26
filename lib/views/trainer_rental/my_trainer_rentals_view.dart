@@ -182,7 +182,7 @@ class MyTrainerRentalsView extends StatelessWidget {
     TrainerRental rental,
     TrainerRentalController controller,
   ) {
-    final numberFormat = NumberFormat('#,###', 'vi_VN');
+    final numberFormat = NumberFormat('#,###');
     final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Card(
