@@ -975,6 +975,7 @@ class _TrainerFormViewState extends State<TrainerFormView> {
 
     final trainer = Trainer(
       id: widget.trainer?.id ?? '',
+      userId: widget.trainer?.userId, // CRITICAL: Preserve userId when editing
       hoTen: hoTenController.text.trim(),
       email: emailController.text.trim().isEmpty
           ? null

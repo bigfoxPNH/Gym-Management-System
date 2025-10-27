@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/trainer.dart';
 import '../models/trainer_assignment.dart';
 import '../models/trainer_review.dart';
 import '../models/trainer_schedule.dart';
+import 'member_management_controller.dart';
 
 class TrainerManagementController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -44,17 +46,38 @@ class TrainerManagementController extends GetxController {
   Future<void> loadTrainers() async {
     try {
       isLoading.value = true;
+      print('🔄 [TrainerMgmt] Loading trainers from Firestore...');
+
       final snapshot = await _firestore
           .collection('trainers')
           .orderBy('createdAt', descending: true)
           .get();
 
-      trainers.value = snapshot.docs
-          .map((doc) => Trainer.fromFirestore(doc))
-          .toList();
+      print(
+        '✅ [TrainerMgmt] Firestore returned ${snapshot.docs.length} documents',
+      );
 
+      final loadedTrainers = <Trainer>[];
+      for (var doc in snapshot.docs) {
+        final trainer = Trainer.fromFirestore(doc);
+        loadedTrainers.add(trainer);
+        print(
+          '   - Trainer: ${trainer.hoTen} (docId: ${doc.id}, userId: ${trainer.userId})',
+        );
+      }
+
+      print(
+        '✅ [TrainerMgmt] Loaded ${loadedTrainers.length} trainers from Firestore',
+      );
+
+      trainers.value = loadedTrainers;
       applyFilters();
+
+      print(
+        '✅ [TrainerMgmt] Applied filters, filteredTrainers: ${filteredTrainers.length}',
+      );
     } catch (e) {
+      print('❌ [TrainerMgmt] Error loading trainers: $e');
       Get.snackbar('Lỗi', 'Không thể tải danh sách PT: $e');
     } finally {
       isLoading.value = false;
@@ -183,9 +206,91 @@ class TrainerManagementController extends GetxController {
 
   // ============ CRUD OPERATIONS ============
 
+  // Cleanup invalid trainers (those with null userId)
+  Future<void> cleanupInvalidTrainers() async {
+    try {
+      print('🔄 [TrainerMgmt.cleanup] Starting cleanup of invalid trainers...');
+
+      final snapshot = await _firestore.collection('trainers').get();
+      int deletedCount = 0;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final userId = data['userId'];
+
+        // STRICT CHECK: Only delete if userId is ACTUALLY null or empty string
+        final isInvalid =
+            userId == null || (userId is String && userId.trim().isEmpty);
+
+        if (isInvalid) {
+          print(
+            '   🗑️ Deleting trainer with null/empty userId: ${doc.id} (${data['hoTen']})',
+          );
+          print('      userId value: $userId (type: ${userId.runtimeType})');
+          await doc.reference.delete();
+          deletedCount++;
+        } else {
+          print(
+            '   ✅ Keeping trainer with valid userId: ${doc.id} (${data['hoTen']}) - userId: $userId',
+          );
+        }
+      }
+
+      print(
+        '✅ [TrainerMgmt.cleanup] Cleanup completed. Deleted $deletedCount invalid trainer(s)',
+      );
+
+      if (deletedCount > 0) {
+        Get.snackbar(
+          'Thành công',
+          'Đã xóa $deletedCount PT không hợp lệ',
+          duration: const Duration(seconds: 3),
+        );
+        await loadTrainers();
+      } else {
+        Get.snackbar(
+          'Thông báo',
+          'Không tìm thấy PT không hợp lệ. Tất cả PT đều có userId.',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      print('❌ [TrainerMgmt.cleanup] Error: $e');
+      Get.snackbar('Lỗi', 'Không thể xóa PT không hợp lệ: $e');
+    }
+  }
+
   Future<void> addTrainer(Trainer trainer) async {
     try {
       isLoading.value = true;
+
+      // VALIDATE: Trainer must have userId
+      if (trainer.userId == null || trainer.userId!.isEmpty) {
+        Get.snackbar(
+          'Lỗi',
+          'PT phải có tài khoản người dùng. Vui lòng tạo tài khoản từ Quản Lý Thành Viên trước.',
+          backgroundColor: Colors.red[100],
+          duration: const Duration(seconds: 4),
+        );
+        return;
+      }
+
+      // Check if trainer with this userId already exists
+      final existingQuery = await _firestore
+          .collection('trainers')
+          .where('userId', isEqualTo: trainer.userId)
+          .get();
+
+      if (existingQuery.docs.isNotEmpty) {
+        Get.snackbar(
+          'Lỗi',
+          'Tài khoản này đã có hồ sơ PT. Vui lòng sửa hồ sơ hiện tại thay vì tạo mới.',
+          backgroundColor: Colors.red[100],
+          duration: const Duration(seconds: 4),
+        );
+        return;
+      }
+
       await _firestore.collection('trainers').add(trainer.toFirestore());
       Get.back();
       Get.snackbar('Thành công', 'Đã thêm PT mới');
@@ -200,17 +305,196 @@ class TrainerManagementController extends GetxController {
   Future<void> updateTrainer(Trainer trainer) async {
     try {
       isLoading.value = true;
-      await _firestore
-          .collection('trainers')
-          .doc(trainer.id)
-          .update(trainer.toFirestore());
+
+      print('🔄 [TrainerMgmt.update] Updating trainer: ${trainer.hoTen}');
+      print('   Trainer ID: ${trainer.id}');
+      print('   Trainer userId: ${trainer.userId}');
+
+      // CRITICAL VALIDATION: Ensure userId is not null when updating
+      if (trainer.userId == null || trainer.userId!.trim().isEmpty) {
+        print(
+          '❌ [TrainerMgmt.update] ERROR: Attempting to update with null/empty userId!',
+        );
+        print(
+          '   This would break sync. Fetching current userId from Firestore...',
+        );
+
+        // Fetch current trainer data to preserve userId
+        final currentDoc = await _firestore
+            .collection('trainers')
+            .doc(trainer.id)
+            .get();
+
+        if (currentDoc.exists) {
+          final currentUserId = currentDoc.data()?['userId'];
+          if (currentUserId != null &&
+              currentUserId.toString().trim().isNotEmpty) {
+            print(
+              '✅ [TrainerMgmt.update] Preserved userId from Firestore: $currentUserId',
+            );
+
+            // Create new trainer object with preserved userId
+            final trainerWithUserId = Trainer(
+              id: trainer.id,
+              userId: currentUserId,
+              hoTen: trainer.hoTen,
+              email: trainer.email,
+              soDienThoai: trainer.soDienThoai,
+              gioiTinh: trainer.gioiTinh,
+              namSinh: trainer.namSinh,
+              anhDaiDien: trainer.anhDaiDien,
+              diaChi: trainer.diaChi,
+              bangCap: trainer.bangCap,
+              chuyenMon: trainer.chuyenMon,
+              moTa: trainer.moTa,
+              chungChi: trainer.chungChi,
+              namKinhNghiem: trainer.namKinhNghiem,
+              trinhDoPT: trainer.trinhDoPT,
+              trangThai: trainer.trangThai,
+              mucLuongCoBan: trainer.mucLuongCoBan,
+              hoaHongPhanTram: trainer.hoaHongPhanTram,
+              ngayVaoLam: trainer.ngayVaoLam,
+              ngayNghiViec: trainer.ngayNghiViec,
+              danhGiaTrungBinh: trainer.danhGiaTrungBinh,
+              soLuotDanhGia: trainer.soLuotDanhGia,
+              facebookUrl: trainer.facebookUrl,
+              instagramUrl: trainer.instagramUrl,
+              ghiChu: trainer.ghiChu,
+              createdAt: trainer.createdAt,
+              updatedAt: trainer.updatedAt,
+              createdBy: trainer.createdBy,
+            );
+
+            // Update with preserved userId
+            await _firestore
+                .collection('trainers')
+                .doc(trainer.id)
+                .update(trainerWithUserId.toFirestore());
+
+            // SYNC with preserved userId
+            await _syncUserAccount(trainerWithUserId);
+          } else {
+            print(
+              '⚠️ [TrainerMgmt.update] WARNING: Current document also has no userId!',
+            );
+            print('   Proceeding with update but sync will fail.');
+            await _firestore
+                .collection('trainers')
+                .doc(trainer.id)
+                .update(trainer.toFirestore());
+          }
+        }
+      } else {
+        // Normal update with valid userId
+        print(
+          '✅ [TrainerMgmt.update] Trainer has valid userId, proceeding with update',
+        );
+        await _firestore
+            .collection('trainers')
+            .doc(trainer.id)
+            .update(trainer.toFirestore());
+
+        // SYNC: Always try to sync user account (method will handle finding user)
+        await _syncUserAccount(trainer);
+      }
+
       Get.back();
       Get.snackbar('Thành công', 'Đã cập nhật thông tin PT');
+
+      // Reload trainers list
       await loadTrainers();
+
+      // IMPORTANT: Also reload MemberManagementController if exists
+      print(
+        '🔄 [TrainerMgmt] Attempting to find MemberManagementController...',
+      );
+      try {
+        final memberController = Get.find<MemberManagementController>();
+        print('✅ [TrainerMgmt] Found MemberManagementController! Reloading...');
+        await memberController.loadAllUsers();
+        print(
+          '✅ [TrainerMgmt] MemberManagementController reloaded successfully!',
+        );
+      } catch (e) {
+        print('⚠️ [TrainerMgmt] Could not find MemberManagementController');
+        print('   Error: ${e.toString().split('\n').first}');
+        print(
+          '   This is normal if Member Management page hasn\'t been opened yet.',
+        );
+      }
     } catch (e) {
+      print('❌ [TrainerMgmt.update] Error: $e');
       Get.snackbar('Lỗi', 'Không thể cập nhật: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  // Helper method to sync trainer data back to user account
+  Future<void> _syncUserAccount(Trainer trainer) async {
+    try {
+      print(
+        '🔄 [SYNC] Starting sync user account for trainer: ${trainer.hoTen}',
+      );
+
+      String? userId = trainer.userId;
+
+      // CRITICAL: Validate userId before proceeding
+      if (userId == null || userId.trim().isEmpty) {
+        print('❌ [SYNC] Trainer has no userId, cannot sync to user account');
+        print('   Trainer ID: ${trainer.id}');
+        print('   Trainer name: ${trainer.hoTen}');
+        return;
+      }
+
+      print('✅ [SYNC] Trainer has userId: $userId');
+
+      // Check if user document exists
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+
+      if (!userDoc.exists) {
+        print('❌ [SYNC] User document not found for userId: $userId');
+        return;
+      }
+
+      print('✅ [SYNC] Found user document for userId: $userId');
+
+      // Update user document with trainer data
+      final updateData = <String, dynamic>{
+        'fullName': trainer.hoTen,
+        'updatedAt': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      // Only update email if it's not empty
+      if (trainer.email != null && trainer.email!.isNotEmpty) {
+        updateData['email'] = trainer.email;
+      }
+
+      // Only update phone if it's not empty
+      if (trainer.soDienThoai != null && trainer.soDienThoai!.isNotEmpty) {
+        updateData['phone'] = trainer.soDienThoai;
+      }
+
+      // Only update address if it's not empty
+      if (trainer.diaChi != null && trainer.diaChi!.isNotEmpty) {
+        updateData['address'] = trainer.diaChi;
+      }
+
+      // Only update dob if it exists
+      if (trainer.namSinh != null) {
+        updateData['dob'] = trainer.namSinh!.millisecondsSinceEpoch;
+      }
+
+      // Remove null values
+      updateData.removeWhere((key, value) => value == null);
+
+      await _firestore.collection('users').doc(userId).update(updateData);
+
+      print('✅ [SYNC] Synced user account $userId with trainer data');
+      print('📝 [SYNC] Updated data: $updateData');
+    } catch (e) {
+      print('❌ [SYNC] Error syncing user account: $e');
+      // Don't throw - trainer update should still succeed
     }
   }
 
@@ -287,6 +571,13 @@ class TrainerManagementController extends GetxController {
   // ============ FILTERS ============
 
   void applyFilters() {
+    print(
+      '🔄 [TrainerMgmt.applyFilters] Starting filter with ${trainers.length} trainers',
+    );
+    print(
+      '   Search: "${searchQuery.value}", Status: ${selectedStatus.value}, Specialty: ${selectedSpecialty.value}',
+    );
+
     var filtered = trainers.toList();
 
     // Search by name
@@ -312,6 +603,9 @@ class TrainerManagementController extends GetxController {
       }).toList();
     }
 
+    print(
+      '✅ [TrainerMgmt.applyFilters] Filtered to ${filtered.length} trainers',
+    );
     filteredTrainers.value = filtered;
   }
 

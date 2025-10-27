@@ -10,7 +10,7 @@ class MemberManagementView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(MemberManagementController());
+    final controller = Get.put(MemberManagementController(), permanent: true);
 
     return Scaffold(
       appBar: AppBar(

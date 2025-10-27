@@ -164,6 +164,7 @@ class Trainer {
   }
 
   Trainer copyWith({
+    String? userId, // Add userId to copyWith
     String? hoTen,
     String? email,
     String? soDienThoai,
@@ -191,6 +192,7 @@ class Trainer {
   }) {
     return Trainer(
       id: id,
+      userId: userId ?? this.userId, // CRITICAL: Preserve userId
       hoTen: hoTen ?? this.hoTen,
       email: email ?? this.email,
       soDienThoai: soDienThoai ?? this.soDienThoai,

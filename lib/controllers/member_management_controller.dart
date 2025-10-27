@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../models/user_account.dart';
 import '../models/membership_card.dart';
+import 'trainer_management_controller.dart';
 
 class MemberManagementController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -336,8 +337,25 @@ class MemberManagementController extends GetxController {
     Map<String, dynamic> userData,
   ) async {
     try {
+      // VALIDATE: userId must not be null or empty
+      if (userId.isEmpty) {
+        print('❌ Cannot create trainer profile: userId is empty');
+        return;
+      }
+
+      // Check if trainer profile already exists
+      final existingQuery = await _firestore
+          .collection('trainers')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      if (existingQuery.docs.isNotEmpty) {
+        print('⚠️ Trainer profile already exists for userId: $userId');
+        return;
+      }
+
       final trainerData = {
-        'userId': userId,
+        'userId': userId, // CRITICAL: Always set userId
         'hoTen': userData['fullName'],
         'email': userData['email'],
         'soDienThoai': userData['phoneNumber'] ?? '',
@@ -366,10 +384,65 @@ class MemberManagementController extends GetxController {
 
       await _firestore.collection('trainers').add(trainerData);
 
-      print('Created trainer profile for userId: $userId');
+      print('✅ Created trainer profile for userId: $userId');
     } catch (e) {
-      print('Error creating trainer profile: $e');
+      print('❌ Error creating trainer profile: $e');
       // Don't throw - user is already created, just log the error
+    }
+  }
+
+  // Helper method to sync trainer profile with user data
+  Future<void> _syncTrainerProfile(
+    String userId,
+    Map<String, dynamic> userData,
+  ) async {
+    try {
+      print('🔄 [SYNC] Starting sync trainer profile for userId: $userId');
+
+      // Find trainer document by userId
+      final trainerQuery = await _firestore
+          .collection('trainers')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      if (trainerQuery.docs.isEmpty) {
+        print('⚠️ [SYNC] No trainer profile found for userId: $userId');
+        return;
+      }
+
+      print('✅ [SYNC] Found ${trainerQuery.docs.length} trainer profile(s)');
+
+      // Update all trainer profiles with this userId (should be only 1)
+      for (var doc in trainerQuery.docs) {
+        final updateData = <String, dynamic>{
+          'userId': userId, // CRITICAL: Always preserve userId
+          'hoTen': userData['fullName'],
+          'email': userData['email'],
+          'soDienThoai': userData['phoneNumber'] ?? '',
+          'diaChi': userData['address'] ?? '',
+          'updatedAt': Timestamp.now(),
+        };
+
+        // Only update namSinh if dateOfBirth is provided
+        if (userData['dateOfBirth'] != null &&
+            userData['dateOfBirth'].toString().isNotEmpty) {
+          final dob = _parseDate(userData['dateOfBirth']);
+          if (dob != null) {
+            updateData['namSinh'] = Timestamp.fromDate(dob);
+          }
+        }
+
+        // Remove null values
+        updateData.removeWhere((key, value) => value == null);
+
+        await _firestore.collection('trainers').doc(doc.id).update(updateData);
+
+        print('✅ [SYNC] Synced trainer profile ${doc.id} for userId: $userId');
+        print('📝 [SYNC] Updated data: $updateData');
+      }
+    } catch (e) {
+      print('❌ [SYNC] Error syncing trainer profile: $e');
+      // Don't throw - user update should still succeed
     }
   }
 
@@ -435,8 +508,32 @@ class MemberManagementController extends GetxController {
         }
       }
 
+      // SYNC: If current role is trainer, update trainer profile
+      if (newRole == 'trainer') {
+        await _syncTrainerProfile(userId, userData);
+      }
+
       // Reload users list
       await loadAllUsers();
+
+      // IMPORTANT: Also reload TrainerManagementController if exists
+      print(
+        '🔄 [MemberMgmt] Attempting to find TrainerManagementController...',
+      );
+      try {
+        final trainerController = Get.find<TrainerManagementController>();
+        print('✅ [MemberMgmt] Found TrainerManagementController! Reloading...');
+        await trainerController.loadTrainers();
+        print(
+          '✅ [MemberMgmt] TrainerManagementController reloaded successfully!',
+        );
+      } catch (e) {
+        print('⚠️ [MemberMgmt] Could not find TrainerManagementController');
+        print('   Error: ${e.toString().split('\n').first}');
+        print(
+          '   This is normal if Trainer Management page hasn\'t been opened yet.',
+        );
+      }
 
       // Set isLoading false
       isLoading.value = false;
@@ -486,16 +583,114 @@ class MemberManagementController extends GetxController {
   Future<void> deleteUser(String userId) async {
     try {
       isLoading.value = true;
+      print('🔄 [MemberMgmt.delete] Starting delete for userId: $userId');
+
+      // Get user data to check role
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      final userData = userDoc.data();
+      final userRole = userData?['role'] ?? 'member';
+      final userName = userData?['fullName'] ?? 'Unknown';
+
+      print('   User role: $userRole, name: $userName');
+
+      // If user is trainer, also delete/deactivate trainer profile
+      if (userRole == 'trainer') {
+        print(
+          '🔄 [MemberMgmt.delete] User is trainer, looking for trainer profile...',
+        );
+        print('   Query: trainers where userId == $userId');
+
+        final trainerQuery = await _firestore
+            .collection('trainers')
+            .where('userId', isEqualTo: userId)
+            .get();
+
+        print('   Found ${trainerQuery.docs.length} trainer profile(s)');
+
+        for (var doc in trainerQuery.docs) {
+          final trainerData = doc.data();
+          print('   Trainer doc ID: ${doc.id}');
+          print(
+            '   Trainer data: hoTen=${trainerData['hoTen']}, userId=${trainerData['userId']}',
+          );
+
+          // DELETE the trainer document
+          print('   🗑️ Deleting trainer document: ${doc.id}');
+          await _firestore.collection('trainers').doc(doc.id).delete();
+          print('   ✅ Deleted trainer document: ${doc.id}');
+
+          // Verify deletion
+          final verifyDoc = await _firestore
+              .collection('trainers')
+              .doc(doc.id)
+              .get();
+          if (verifyDoc.exists) {
+            print(
+              '   ❌ WARNING: Trainer document ${doc.id} still exists after delete!',
+            );
+          } else {
+            print(
+              '   ✅ Verified: Trainer document ${doc.id} successfully deleted',
+            );
+          }
+        }
+
+        print(
+          '✅ [MemberMgmt.delete] Deleted ${trainerQuery.docs.length} trainer profile(s) for userId: $userId',
+        );
+      }
 
       // Delete user document from Firestore
+      print('🔄 [MemberMgmt.delete] Deleting user document...');
       await _firestore.collection('users').doc(userId).delete();
+      print('✅ [MemberMgmt.delete] User document deleted');
 
       // Note: We can't delete the user from Firebase Auth here
       // because we don't have admin privileges to do so
       // This would require Firebase Admin SDK
 
       // Reload users list from Firestore to ensure sync
+      print('🔄 [MemberMgmt.delete] Reloading users list...');
       await loadAllUsers();
+      print('✅ [MemberMgmt.delete] Users list reloaded');
+
+      // IMPORTANT: Also reload TrainerManagementController if exists
+      print(
+        '🔄 [MemberMgmt.delete] Attempting to find TrainerManagementController...',
+      );
+      try {
+        final trainerController = Get.find<TrainerManagementController>();
+        print(
+          '✅ [MemberMgmt.delete] Found TrainerManagementController! Reloading...',
+        );
+
+        // Check current trainer count BEFORE reload
+        print(
+          '   Current trainers count BEFORE reload: ${trainerController.trainers.length}',
+        );
+
+        await trainerController.loadTrainers();
+
+        // Check trainer count AFTER reload
+        print(
+          '   Current trainers count AFTER reload: ${trainerController.trainers.length}',
+        );
+        print(
+          '   Filtered trainers count: ${trainerController.filteredTrainers.length}',
+        );
+
+        print(
+          '✅ [MemberMgmt.delete] TrainerManagementController reloaded successfully!',
+        );
+      } catch (e) {
+        print(
+          '⚠️ [MemberMgmt.delete] Could not find TrainerManagementController',
+        );
+        print('   Error: ${e.toString().split('\n').first}');
+        print(
+          '   This is normal if Trainer Management page hasn\'t been opened yet.',
+        );
+      }
 
       // Set isLoading false
       isLoading.value = false;
