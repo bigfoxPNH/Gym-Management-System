@@ -29,7 +29,7 @@ class _PaymentResultViewState extends State<PaymentResultView> {
       final uri = Uri.parse(Get.currentRoute);
       final queryParams = uri.queryParameters;
 
-      // Log tất cả parameters từ MoMo
+      // Log tất cả parameters từ payment gateway
       print('Payment Result Parameters:');
       queryParams.forEach((key, value) {
         print('$key: $value');
@@ -70,7 +70,7 @@ class _PaymentResultViewState extends State<PaymentResultView> {
       try {
         final paymentCallbackController = Get.find<PaymentCallbackController>();
         await paymentCallbackController.processReturnUrl(
-          provider: 'momo',
+          provider: 'banking',
           returnData: params,
         );
         print('PaymentCallbackController updated successfully');

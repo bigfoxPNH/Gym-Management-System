@@ -278,7 +278,7 @@ class PaymentStatusView extends StatelessWidget {
   }
 
   void _simulateSuccessCallback(PaymentApiController apiController) {
-    MockPaymentServer.simulateMoMoWebhook(
+    MockPaymentServer.simulatePaymentWebhook(
       orderId: orderId,
       paymentSuccess: true,
     );
@@ -293,7 +293,7 @@ class PaymentStatusView extends StatelessWidget {
   }
 
   void _simulateFailureCallback(PaymentApiController apiController) {
-    MockPaymentServer.simulateMoMoWebhook(
+    MockPaymentServer.simulatePaymentWebhook(
       orderId: orderId,
       paymentSuccess: false,
       errorMessage: 'Tài khoản không đủ số dư',

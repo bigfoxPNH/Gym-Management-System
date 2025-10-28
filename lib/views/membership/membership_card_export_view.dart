@@ -685,8 +685,6 @@ class _MembershipCardExportViewState extends State<MembershipCardExportView> {
     switch (paymentMethod.toLowerCase()) {
       case 'direct':
         return 'Trực tiếp';
-      case 'momo':
-        return 'MoMo';
       case 'banking':
       case 'bank':
         return 'Chuyển khoản';

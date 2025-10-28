@@ -10,7 +10,7 @@ class CheckoutController extends GetxController {
   // Observable state
   final isLoading = false.obs;
   final selectedPaymentMethod = Rxn<PaymentMethod>();
-  final selectedPaymentType = 'momo'.obs; // Payment type selection
+  final selectedPaymentType = 'direct'.obs; // Payment type selection
   final currentTransaction = Rxn<PaymentTransaction>();
   final availablePaymentMethods = <PaymentMethod>[].obs;
   final isProcessingPayment = false.obs;
@@ -63,7 +63,7 @@ class CheckoutController extends GetxController {
     selectedPaymentMethod.value = method;
   }
 
-  // Create payment - supports both MoMo and direct payment
+  // Create payment - direct payment only
   Future<void> createPayment() async {
     if (membershipCard == null) {
       Get.snackbar('Lỗi', 'Vui lòng chọn thẻ tập');
@@ -103,7 +103,7 @@ class CheckoutController extends GetxController {
           },
         );
       } else {
-        // MoMo payment (existing logic)
+        // Banking payment
         transaction = PaymentTransaction(
           id: transactionId,
           userId: currentUser?.id ?? '',
@@ -114,7 +114,7 @@ class CheckoutController extends GetxController {
           amount: membershipCard!.price,
           status: PaymentStatus.pending,
           createdAt: DateTime.now(),
-          description: 'Mua ${membershipCard!.cardName} - MoMo',
+          description: 'Mua ${membershipCard!.cardName} - Banking',
         );
 
         // Navigate to Banking payment page

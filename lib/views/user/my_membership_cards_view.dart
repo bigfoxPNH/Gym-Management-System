@@ -273,8 +273,6 @@ class MyMembershipCardsView extends StatelessWidget {
     switch (method) {
       case 'direct':
         return 'Trực tiếp';
-      case 'momo':
-        return 'MoMo';
       case 'banking':
         return 'Ngân hàng';
       default:

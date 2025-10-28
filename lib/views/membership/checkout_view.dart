@@ -155,7 +155,7 @@ class CheckoutView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
-                            Icons.account_balance_wallet,
+                            Icons.money,
                             color: Colors.white,
                             size: 24,
                           ),
@@ -166,14 +166,14 @@ class CheckoutView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Ví MoMo',
+                                'Thanh toán trực tiếp',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                 ),
                               ),
                               Text(
-                                'Thanh toán qua ví điện tử MoMo',
+                                'Thanh toán bằng tiền mặt tại phòng gym',
                                 style: TextStyle(
                                   color: Colors.grey[600],
                                   fontSize: 14,

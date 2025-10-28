@@ -123,25 +123,6 @@ class CheckoutView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // MoMo Payment Option
-            Obx(
-              () => Card(
-                child: ListTile(
-                  leading: const Icon(Icons.payment, color: Color(0xFFB0006D)),
-                  title: const Text('Chuyển khoản ngân hàng'),
-                  subtitle: const Text('Ví điện tử MoMo'),
-                  trailing: Radio<String>(
-                    value: 'momo',
-                    groupValue: controller.selectedPaymentType.value,
-                    onChanged: (value) {
-                      controller.selectedPaymentType.value = value!;
-                    },
-                    activeColor: const Color(0xFFB0006D),
-                  ),
-                ),
-              ),
-            ),
-
             // Direct Payment Option
             Obx(
               () => Card(

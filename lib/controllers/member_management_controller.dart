@@ -1189,8 +1189,6 @@ class MemberManagementController extends GetxController {
     switch (paymentMethod.toLowerCase()) {
       case 'direct':
         return 'Thanh toán trực tiếp';
-      case 'momo':
-        return 'Ví MoMo';
       case 'bank':
         return 'Chuyển khoản ngân hàng';
       case 'cash':

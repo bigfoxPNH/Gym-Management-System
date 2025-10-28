@@ -240,18 +240,18 @@ class PaymentCallbackController extends GetxController {
     String? message,
   }) async {
     final mockCallback = {
-      'partnerCode': 'MOMO',
+      'partnerCode': 'BANK',
       'orderId': orderId,
       'requestId': 'REQ_${DateTime.now().millisecondsSinceEpoch}',
       'amount': 50000,
       'orderInfo': 'Test payment',
-      'orderType': 'momo_wallet',
+      'orderType': 'banking',
       'transId': success
           ? 'TRANS_${DateTime.now().millisecondsSinceEpoch}'
           : '',
       'resultCode': success ? 0 : 1006,
       'message': message ?? (success ? 'Successful.' : 'Transaction failed'),
-      'payType': 'qr',
+      'payType': 'banking',
       'responseTime': DateTime.now().millisecondsSinceEpoch,
       'extraData': '',
       'signature': 'mock_signature_for_testing',

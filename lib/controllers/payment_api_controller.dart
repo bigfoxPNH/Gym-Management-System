@@ -37,7 +37,7 @@ class PaymentApiController extends GetxController {
       print('Query params: $queryParams');
 
       await _callbackController.processReturnUrl(
-        provider: 'momo',
+        provider: 'banking',
         returnData: Map<String, dynamic>.from(queryParams),
       );
 
@@ -47,7 +47,7 @@ class PaymentApiController extends GetxController {
         'redirect': '/membership/purchase-success',
       };
     } catch (e) {
-      print('Error in MoMo return endpoint: $e');
+      print('Error in banking return endpoint: $e');
       return {
         'status': 'error',
         'message': 'Error processing return',
@@ -56,17 +56,17 @@ class PaymentApiController extends GetxController {
     }
   }
 
-  /// Test webhook endpoint để simulate callback từ MoMo
-  Future<Map<String, dynamic>> testMoMoCallback({
+  /// Test webhook endpoint để simulate callback
+  Future<Map<String, dynamic>> testPaymentCallback({
     required String orderId,
     required bool success,
     String? message,
   }) async {
     try {
-      print('=== Testing MoMo Callback ===');
+      print('=== Testing Payment Callback ===');
       print('OrderId: $orderId, Success: $success');
 
-      // Simulate callback from MoMo
+      // Simulate callback
       await _callbackController.simulateCallback(
         orderId: orderId,
         success: success,
@@ -102,22 +102,22 @@ class PaymentApiController extends GetxController {
 class MockPaymentServer {
   static final PaymentApiController _controller = PaymentApiController();
 
-  /// Mô phỏng việc nhận POST request từ MoMo
-  static Future<void> simulateMoMoWebhook({
+  /// Mô phỏng việc nhận POST request từ payment gateway
+  static Future<void> simulatePaymentWebhook({
     required String orderId,
     required bool paymentSuccess,
     String? errorMessage,
   }) async {
-    print('\n🚀 === SIMULATING MOMO WEBHOOK ===');
+    print('\n🚀 === SIMULATING PAYMENT WEBHOOK ===');
 
-    // Mock MoMo callback data
+    // Mock payment callback data
     final mockCallbackData = {
-      'partnerCode': 'MOMO',
+      'partnerCode': 'BANK',
       'orderId': orderId,
       'requestId': 'REQ_${DateTime.now().millisecondsSinceEpoch}',
       'amount': 50000,
       'orderInfo': 'Thanh toán thẻ tập gym',
-      'orderType': 'momo_wallet',
+      'orderType': 'banking',
       'transId': paymentSuccess
           ? 'TRANS_${DateTime.now().millisecondsSinceEpoch}'
           : '',
@@ -146,18 +146,18 @@ class MockPaymentServer {
     print('\n🔄 === SIMULATING RETURN URL ===');
 
     final returnParams = {
-      'partnerCode': 'MOMO',
+      'partnerCode': 'BANK',
       'orderId': orderId,
       'requestId': 'REQ_${DateTime.now().millisecondsSinceEpoch}',
       'amount': '50000',
       'orderInfo': 'Thanh toán thẻ tập gym',
-      'orderType': 'momo_wallet',
+      'orderType': 'banking',
       'transId': paymentSuccess
           ? 'TRANS_${DateTime.now().millisecondsSinceEpoch}'
           : '',
       'resultCode': paymentSuccess ? '0' : '1006',
       'message': paymentSuccess ? 'Successful.' : 'Transaction failed',
-      'payType': 'qr',
+      'payType': 'banking',
       'responseTime': DateTime.now().millisecondsSinceEpoch.toString(),
       'signature': 'mock_signature_${DateTime.now().millisecondsSinceEpoch}',
     };
