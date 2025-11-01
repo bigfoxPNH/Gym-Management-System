@@ -243,10 +243,26 @@ class MemberManagementController extends GetxController {
 
   // Create new user
   Future<void> createUser(Map<String, dynamic> userData) async {
+    // ✅ STEP 1: Save admin password (ask user once at the beginning)
+    final adminPassword = await _requestAdminPassword();
+    if (adminPassword == null) {
+      // User cancelled password input
+      return;
+    }
+
     try {
       isLoading.value = true;
 
-      // Create user in Firebase Auth
+      // ✅ STEP 2: Save current admin email
+      final currentAdminUser = _auth.currentUser;
+      final adminEmail = currentAdminUser?.email;
+
+      if (adminEmail == null) {
+        throw Exception('Admin must be logged in to create users');
+      }
+
+      // ✅ STEP 3: Create new user in Firebase Auth
+      // WARNING: This will automatically sign in as the new user
       final credential = await _auth.createUserWithEmailAndPassword(
         email: userData['email'],
         password: userData['password'],
@@ -259,7 +275,7 @@ class MemberManagementController extends GetxController {
       final userId = credential.user!.uid;
       final role = _parseRole(userData['role']);
 
-      // Create user document in Firestore
+      // ✅ STEP 4: Create user document in Firestore
       final userAccount = UserAccount(
         id: userId,
         email: userData['email'],
@@ -279,12 +295,23 @@ class MemberManagementController extends GetxController {
 
       await _firestore.collection('users').doc(userId).set(userAccount.toMap());
 
-      // If role is trainer, create trainer profile
+      // ✅ STEP 5: If role is trainer, create trainer profile
       if (role == Role.trainer) {
         await _createTrainerProfile(userId, userData);
       }
 
-      // Reload users list
+      // ✅ STEP 6: CRITICAL FIX - Sign out the newly created user
+      // This kicks out the auto-login from the new user account
+      await _auth.signOut();
+
+      // ✅ STEP 7: CRITICAL FIX - Re-authenticate as admin
+      // This restores the admin session
+      await _auth.signInWithEmailAndPassword(
+        email: adminEmail,
+        password: adminPassword,
+      );
+
+      // ✅ STEP 8: Reload users list
       await loadAllUsers();
 
       // Set isLoading false
@@ -806,6 +833,74 @@ class MemberManagementController extends GetxController {
       default:
         return Role.member;
     }
+  }
+
+  // ✅ Helper method to request admin password before creating user
+  // This is needed to restore admin session after creating a new user
+  Future<String?> _requestAdminPassword() async {
+    String? password;
+    final controller = TextEditingController();
+
+    await Get.dialog(
+      AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.security, color: Color(0xFF2196F3)),
+            SizedBox(width: 8),
+            Text('Xác thực Admin'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Để tạo thành viên mới, vui lòng xác nhận mật khẩu Admin của bạn:',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              obscureText: true,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Mật khẩu Admin',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.lock_outline),
+                helperText:
+                    'Mật khẩu sẽ được dùng để khôi phục phiên đăng nhập',
+              ),
+              onSubmitted: (value) {
+                password = value;
+                Get.back();
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              password = null;
+              Get.back();
+            },
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              password = controller.text;
+              Get.back();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2196F3),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    return password;
   }
 
   // Search users by name or email
