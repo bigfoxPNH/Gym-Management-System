@@ -126,6 +126,7 @@ class TrainerRentalController extends GetxController {
     required int soGio,
     required String goiTap,
     String? ghiChu,
+    List<TrainerSession>? sessions,
   }) async {
     try {
       isSubmitting.value = true;
@@ -158,7 +159,7 @@ class TrainerRentalController extends GetxController {
         goiTap: goiTap,
         trangThai: 'pending',
         ghiChu: ghiChu,
-        sessions: [],
+        sessions: sessions ?? [],
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

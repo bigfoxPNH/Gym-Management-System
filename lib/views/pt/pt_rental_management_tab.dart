@@ -680,186 +680,219 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
                         ),
 
                         // Sessions (Lịch các buổi tập)
-                        if (rental.sessions.isNotEmpty) ...[
-                          const Divider(height: 32),
-                          _buildDetailSection(
-                            'Lịch các buổi tập (${rental.sessions.length} buổi)',
-                            Column(
-                              children: rental.sessions.asMap().entries.map((
-                                entry,
-                              ) {
-                                final index = entry.key;
-                                final session = entry.value;
-                                return Container(
-                                  margin: EdgeInsets.only(
-                                    bottom: index < rental.sessions.length - 1
-                                        ? 12
-                                        : 0,
-                                  ),
-                                  padding: const EdgeInsets.all(12),
+                        const Divider(height: 32),
+                        _buildDetailSection(
+                          rental.sessions.isNotEmpty
+                              ? 'Lịch các buổi tập (${rental.sessions.length} buổi)'
+                              : 'Lịch các buổi tập',
+                          rental.sessions.isEmpty
+                              ? Container(
+                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: _getSessionStatusColor(
-                                      session.trangThai,
-                                    ).withOpacity(0.1),
+                                    color: Colors.orange[50],
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: _getSessionStatusColor(
-                                        session.trangThai,
-                                      ).withOpacity(0.3),
+                                      color: Colors.orange[200]!,
                                     ),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  child: Row(
                                     children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFFF9800),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              'Buổi ${index + 1}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getSessionStatusColor(
-                                                session.trangThai,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(4),
-                                            ),
-                                            child: Text(
-                                              _getSessionStatusLabel(
-                                                session.trangThai,
-                                              ),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                      Icon(
+                                        Icons.info_outline,
+                                        color: Colors.orange[700],
+                                        size: 20,
                                       ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_today,
-                                            size: 14,
-                                            color: Colors.grey[600],
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Chưa có lịch tập cụ thể. Hãy liên hệ với học viên để sắp xếp lịch tập sau khi chấp nhận đơn.',
+                                          style: TextStyle(
+                                            color: Colors.orange[900],
+                                            fontSize: 13,
                                           ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            DateFormat(
-                                              'EEEE, dd/MM/yyyy',
-                                              'vi',
-                                            ).format(session.ngay),
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.access_time,
-                                            size: 14,
-                                            color: Colors.grey[600],
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            '${session.gioBatDau} - ${session.gioKetThuc}',
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
+                                    ],
+                                  ),
+                                )
+                              : Column(
+                                  children: rental.sessions.asMap().entries.map((
+                                    entry,
+                                  ) {
+                                    final index = entry.key;
+                                    final session = entry.value;
+                                    return Container(
+                                      margin: EdgeInsets.only(
+                                        bottom:
+                                            index < rental.sessions.length - 1
+                                            ? 12
+                                            : 0,
                                       ),
-                                      if (session.diaDiem != null &&
-                                          session.diaDiem!.isNotEmpty) ...[
-                                        const SizedBox(height: 6),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on,
-                                              size: 14,
-                                              color: Colors.grey[600],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Expanded(
-                                              child: Text(
-                                                session.diaDiem!,
-                                                style: const TextStyle(
-                                                  fontSize: 13,
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: _getSessionStatusColor(
+                                          session.trangThai,
+                                        ).withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: _getSessionStatusColor(
+                                            session.trangThai,
+                                          ).withOpacity(0.3),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFF9800,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  'Buổi ${index + 1}',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                      if (session.ghiChu != null &&
-                                          session.ghiChu!.isNotEmpty) ...[
-                                        const SizedBox(height: 6),
-                                        Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Icons.note,
-                                                size: 14,
-                                                color: Colors.grey[600],
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Expanded(
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: _getSessionStatusColor(
+                                                    session.trangThai,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
                                                 child: Text(
-                                                  session.ghiChu!,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[700],
+                                                  _getSessionStatusLabel(
+                                                    session.trangThai,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ],
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.calendar_today,
+                                                size: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                DateFormat(
+                                                  'dd/MM/yyyy',
+                                                ).format(session.ngay),
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 14,
+                                                color: Colors.grey[600],
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '${session.gioBatDau} - ${session.gioKetThuc}',
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          if (session.diaDiem != null &&
+                                              session.diaDiem!.isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on,
+                                                  size: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    session.diaDiem!,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                          if (session.ghiChu != null &&
+                                              session.ghiChu!.isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Icon(
+                                                    Icons.note,
+                                                    size: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      session.ghiChu!,
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                        ),
 
                         if (rental.ghiChu != null &&
                             rental.ghiChu!.isNotEmpty) ...[

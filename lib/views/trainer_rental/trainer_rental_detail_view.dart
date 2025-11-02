@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/trainer_rental_controller.dart';
 import '../../models/trainer.dart';
+import '../../models/trainer_rental.dart';
 import '../../models/certificate.dart';
 
 /// Model cho 1 buổi tập cụ thể
@@ -937,6 +938,21 @@ class _TrainerRentalDetailViewState extends State<TrainerRentalDetailView> {
       return;
     }
 
+    // Convert TrainingSession to TrainerSession
+    final trainerSessions = _sessions.map((session) {
+      final endTime = session.dateTime.add(
+        Duration(hours: session.durationHours),
+      );
+      return TrainerSession(
+        ngay: session.dateTime,
+        gioBatDau: DateFormat('HH:mm').format(session.dateTime),
+        gioKetThuc: DateFormat('HH:mm').format(endTime),
+        diaDiem: 'Phòng tập', // Default location
+        trangThai: 'scheduled',
+        ghiChu: null,
+      );
+    }).toList();
+
     final success = await controller.createRental(
       trainer: widget.trainer,
       startDate: _startDate!,
@@ -946,6 +962,7 @@ class _TrainerRentalDetailViewState extends State<TrainerRentalDetailView> {
       ghiChu: _ghiChuController.text.trim().isEmpty
           ? null
           : _ghiChuController.text.trim(),
+      sessions: trainerSessions,
     );
 
     if (success) {
