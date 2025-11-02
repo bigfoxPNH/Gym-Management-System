@@ -45,7 +45,7 @@ import '../controllers/news_user_controller.dart';
 import '../views/admin/trainer_management_view.dart';
 
 // PT (Personal Trainer) imports
-import '../views/pt/pt_dashboard_view.dart';
+import '../views/pt/pt_dashboard_tabs_view.dart';
 
 // Trainer Rental imports
 import '../views/trainer_rental/trainer_rental_view.dart';
@@ -207,6 +207,9 @@ class AppPages {
     ),
 
     // PT Dashboard
-    GetPage(name: AppRoutes.ptDashboard, page: () => const PTDashboardView()),
+    GetPage(
+      name: AppRoutes.ptDashboard,
+      page: () => const PTDashboardTabsView(),
+    ),
   ];
 }

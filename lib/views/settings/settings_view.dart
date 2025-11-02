@@ -163,9 +163,7 @@ class SettingsView extends StatelessWidget {
             title: const Text('Facebook'),
             subtitle: const Text('Theo dõi chúng tôi trên Facebook'),
             trailing: const Icon(Icons.open_in_new, size: 16),
-            onTap: () => _launchUrl(
-              'https://www.facebook.com/people/Gym-Pro/61576247638943/',
-            ),
+            onTap: () => _launchUrl('https://www.facebook.com/pqtrung72/'),
           ),
           const Divider(height: 1),
           ListTile(
