@@ -189,7 +189,7 @@ class QRCheckinService {
     String? notes,
   }) async {
     try {
-      await _firestore.collection('checkin_records').add({
+      await _firestore.collection('check_ins').add({
         'userId': userId,
         'userName': userName,
         'userEmail': membership['userEmail'] ?? '',
@@ -217,7 +217,7 @@ class QRCheckinService {
   }) async {
     try {
       final querySnapshot = await _firestore
-          .collection('checkin_records')
+          .collection('check_ins')
           .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
           .limit(limit)
@@ -242,7 +242,7 @@ class QRCheckinService {
       final endOfDay = startOfDay.add(const Duration(days: 1));
 
       final querySnapshot = await _firestore
-          .collection('checkin_records')
+          .collection('check_ins')
           .where(
             'timestamp',
             isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),

@@ -22,7 +22,7 @@ class CheckinCheckoutController extends GetxController {
     isLoading.value = true;
     try {
       final snapshot = await _firestore
-          .collection('checkin_records')
+          .collection('check_ins')
           .orderBy('timestamp', descending: true)
           .limit(50)
           .get();
@@ -40,7 +40,7 @@ class CheckinCheckoutController extends GetxController {
 
   Future<void> checkinUser(String userId, String userName) async {
     try {
-      await _firestore.collection('checkin_records').add({
+      await _firestore.collection('check_ins').add({
         'userId': userId,
         'userName': userName,
         'type': 'checkin',
@@ -58,7 +58,7 @@ class CheckinCheckoutController extends GetxController {
 
   Future<void> checkoutUser(String userId, String userName) async {
     try {
-      await _firestore.collection('checkin_records').add({
+      await _firestore.collection('check_ins').add({
         'userId': userId,
         'userName': userName,
         'type': 'checkout',

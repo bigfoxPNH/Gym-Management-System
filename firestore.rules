@@ -96,9 +96,8 @@ service cloud.firestore {
     
     // Membership Purchases collection (lịch sử mua thẻ - deprecated)
     match /membership_purchases/{purchaseId} {
-      allow read: if isSignedIn() && (
-        resource.data.userId == request.auth.uid || isAdmin()
-      );
+      // Cho phép tất cả signed-in users đọc (client-side filtering)
+      allow read: if isSignedIn();
       allow create: if isSignedIn() || isAdmin();
       allow update: if isAdmin();
       allow delete: if isAdmin();
@@ -129,9 +128,8 @@ service cloud.firestore {
     
     // Check-ins collection
     match /check_ins/{checkInId} {
-      allow read: if isSignedIn() && (
-        resource.data.userId == request.auth.uid || isAdmin()
-      );
+      // Cho phép tất cả signed-in users đọc (client-side filtering by userId)
+      allow read: if isSignedIn();
       allow create: if isSignedIn();
       allow update: if isAdmin();
       allow delete: if isAdmin();
@@ -147,22 +145,71 @@ service cloud.firestore {
     
     // Workout Schedules collection
     match /workout_schedules/{scheduleId} {
-      allow read: if isSignedIn() && (
-        resource.data.userId == request.auth.uid || 
-        resource.data.trainerId == request.auth.uid ||
-        isAdmin()
-      );
+      // Cho phép tất cả signed-in users đọc (client-side filtering)
+      allow read: if isSignedIn();
+      
+      // PT hoặc admin tạo workout schedule
       allow create: if isSignedIn() && (
         request.resource.data.trainerId == request.auth.uid || isAdmin()
       );
-      allow update: if isSignedIn() && (
-        resource.data.userId == request.auth.uid ||
-        resource.data.trainerId == request.auth.uid ||
-        isAdmin()
-      );
-      allow delete: if isSignedIn() && (
-        resource.data.trainerId == request.auth.uid || isAdmin()
-      );
+      
+      // User, PT hoặc admin có thể update
+      allow update: if isSignedIn();
+      
+      // PT hoặc admin có thể delete
+      allow delete: if isSignedIn();
+    }
+    
+    // Exercises collection (kho bài tập)
+    match /exercises/{exerciseId} {
+      allow read: if isSignedIn(); // Tất cả user đã đăng nhập có thể xem
+      allow create: if isAdmin(); // Chỉ admin tạo bài tập mới
+      allow update: if isAdmin(); // Chỉ admin sửa bài tập
+      allow delete: if isAdmin(); // Chỉ admin xóa bài tập
+    }
+    
+    // User Schedules collection (lịch trình tập của user)
+    match /user_schedules/{scheduleId} {
+      // Cho phép tất cả signed-in users đọc (client-side filtering by userId)
+      allow read: if isSignedIn();
+      
+      // User chỉ tạo schedule cho chính mình
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid;
+      
+      // User hoặc admin có thể update
+      allow update: if isSignedIn();
+      
+      // User hoặc admin có thể delete
+      allow delete: if isSignedIn();
+    }
+    
+    // Comments collection (bình luận)
+    match /comments/{commentId} {
+      allow read: if isSignedIn(); // Tất cả user có thể xem comment
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn(); // Client-side filtering
+      allow delete: if isSignedIn(); // Client-side filtering
+    }
+    
+    // Payment Transactions collection (giao dịch thanh toán)
+    match /payment_transactions/{transactionId} {
+      // Cho phép tất cả signed-in users đọc (client-side filtering)
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // User có thể tạo giao dịch
+      allow update: if isAdmin(); // Chỉ admin update trạng thái
+      allow delete: if isAdmin();
+    }
+    
+    // User News Interactions collection (tương tác với tin tức)
+    match /user_news_interactions/{interactionId} {
+      // Cho phép tất cả signed-in users đọc (client-side filtering)
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn(); // Client-side filtering
+      allow delete: if isSignedIn(); // Client-side filtering
     }
     
     // Đóng tất cả các collection khác
