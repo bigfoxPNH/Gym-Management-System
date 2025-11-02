@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/trainer_rental_controller.dart';
 import '../../models/trainer.dart';
 import 'trainer_rental_detail_view.dart';
+import 'user_trainer_detail_view.dart';
 
 /// Màn hình danh sách PT có thể thuê
 class TrainerRentalView extends StatelessWidget {
@@ -169,117 +170,163 @@ class TrainerRentalView extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () => Get.to(() => TrainerRentalDetailView(trainer: trainer)),
+        onTap: () => Get.to(() => UserTrainerDetailView(trainer: trainer)),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Avatar
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.deepPurple, width: 2),
-                ),
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: trainer.anhDaiDien != null
-                      ? NetworkImage(trainer.anhDaiDien!)
-                      : null,
-                  child: trainer.anhDaiDien == null
-                      ? Icon(Icons.person, size: 40, color: Colors.grey[600])
-                      : null,
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name
-                    Text(
-                      trainer.hoTen,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Rating
-                    Row(
+              // Header với "Xem chi tiết"
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () =>
+                        Get.to(() => UserTrainerDetailView(trainer: trainer)),
+                    child: Row(
                       children: [
-                        Icon(Icons.star, size: 16, color: Colors.amber[700]),
-                        const SizedBox(width: 4),
                         Text(
-                          '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} (${trainer.soLuotDanhGia} đánh giá)',
+                          'Xem chi tiết',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 12,
+                          color: Colors.deepPurple,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Content
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Avatar
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.deepPurple, width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.grey[300],
+                      backgroundImage: trainer.anhDaiDien != null
+                          ? NetworkImage(trainer.anhDaiDien!)
+                          : null,
+                      child: trainer.anhDaiDien == null
+                          ? Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.grey[600],
+                            )
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name
+                        Text(
+                          trainer.hoTen,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+
+                        // Rating
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.star,
+                              size: 16,
+                              color: Colors.amber[700],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} (${trainer.soLuotDanhGia} đánh giá)',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Chuyên môn
+                        if (trainer.chuyenMon.isNotEmpty)
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: trainer.chuyenMon.take(3).map((skill) {
+                              return Chip(
+                                label: Text(
+                                  skill,
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                backgroundColor: Colors.deepPurple.shade50,
+                                padding: const EdgeInsets.all(0),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              );
+                            }).toList(),
+                          ),
+                        const SizedBox(height: 8),
+
+                        // Số giờ làm việc
+                        Text(
+                          'Kinh nghiệm: ${_getExperienceYears(trainer.ngayVaoLam)} năm',
+                          style: TextStyle(
+                            fontSize: 12,
                             color: Colors.grey[600],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => Get.to(
+                              () => TrainerRentalDetailView(trainer: trainer),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurple,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Thuê PT'),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-
-                    // Chuyên môn
-                    if (trainer.chuyenMon.isNotEmpty)
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: trainer.chuyenMon.take(3).map((skill) {
-                          return Chip(
-                            label: Text(
-                              skill,
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                            backgroundColor: Colors.deepPurple.shade50,
-                            padding: const EdgeInsets.all(0),
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                          );
-                        }).toList(),
-                      ),
-                    const SizedBox(height: 8),
-
-                    // Số giờ làm việc
-                    Text(
-                      'Kinh nghiệm: ${_getExperienceYears(trainer.ngayVaoLam)} năm',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Get.to(
-                          () => TrainerRentalDetailView(trainer: trainer),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Thuê PT'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                  ),
+                ], // End of Row children
+              ), // End of Row
+            ], // End of Column children
+          ), // End of Column (Padding child)
+        ), // End of Padding
+      ), // End of InkWell
+    ); // End of Card
   }
 
   int _getExperienceYears(DateTime startDate) {

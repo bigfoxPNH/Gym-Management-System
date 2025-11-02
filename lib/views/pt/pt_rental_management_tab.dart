@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../models/trainer_rental.dart';
 import '../../controllers/pt_controller.dart';
+import '../../controllers/trainer_rental_controller.dart';
 import '../../widgets/loading_overlay.dart';
 
 /// Tab quản lý đơn thuê PT trong PT Dashboard
@@ -17,6 +18,7 @@ class PTRentalManagementTab extends StatefulWidget {
 class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
   final _firestore = FirebaseFirestore.instance;
   final _controller = Get.find<PTController>();
+  TrainerRentalController? _rentalController;
 
   List<TrainerRental> _rentals = [];
   bool _isLoading = false;
@@ -26,7 +28,19 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
   @override
   void initState() {
     super.initState();
+    // Khởi tạo hoặc lấy TrainerRentalController
+    try {
+      _rentalController = Get.find<TrainerRentalController>();
+    } catch (e) {
+      _rentalController = Get.put(TrainerRentalController());
+    }
     _loadRentals();
+  }
+
+  /// Helper method để kiểm tra xem rental có đang active không
+  bool _isRentalActive(TrainerRental rental) {
+    if (_rentalController == null) return false;
+    return _rentalController!.isRentalActive(rental);
   }
 
   Future<void> _loadRentals() async {
@@ -271,7 +285,46 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
                       ],
                     ),
                   ),
-                  _buildStatusBadge(rental.trangThai),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _buildStatusBadge(rental.trangThai),
+                      // Hiển thị thêm chip "Đang hoạt động" nếu đơn đang active
+                      if (_isRentalActive(rental)) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.cyan.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.cyan),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 12,
+                                color: Colors.cyan,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Đang hoạt động',
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -371,15 +424,39 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
                 const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  onPressed: () => _contactUser(rental),
-                  icon: const Icon(Icons.phone),
-                  label: const Text('Liên hệ học viên'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF9800),
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 40),
-                  ),
+                Row(
+                  children: [
+                    // Nút "Hoàn thành" chỉ hiện khi đơn đang active
+                    if (_isRentalActive(rental)) ...[
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _completeRental(rental),
+                          icon: const Icon(Icons.check_circle),
+                          label: const Text('Hoàn thành'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(0, 40),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    // Nút "Liên hệ học viên"
+                    Expanded(
+                      flex: _isRentalActive(rental) ? 1 : 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _contactUser(rental),
+                        icon: const Icon(Icons.phone),
+                        label: const Text('Liên hệ học viên'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF9800),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(0, 40),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ],
@@ -1115,6 +1192,45 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
         'Không thể cập nhật: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
+    }
+  }
+
+  Future<void> _completeRental(TrainerRental rental) async {
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: const Text('Hoàn thành đơn thuê'),
+        content: Text(
+          'Bạn xác nhận đã hoàn thành tất cả buổi tập với ${rental.userName}?\n\n'
+          'Sau khi hoàn thành, học viên sẽ có thể đánh giá bạn.',
+          style: const TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Hoàn thành'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    if (_rentalController == null) {
+      Get.snackbar('Lỗi', 'Không thể hoàn thành đơn');
+      return;
+    }
+
+    final success = await _rentalController!.completeRental(rental.id);
+    if (success) {
+      _loadRentals();
     }
   }
 

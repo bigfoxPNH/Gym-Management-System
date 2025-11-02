@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/trainer_rental_controller.dart';
 import '../../models/trainer_rental.dart';
+import '../../widgets/review_trainer_dialog.dart';
 
 /// Màn hình lịch sử thuê PT của user
 class MyTrainerRentalsView extends StatefulWidget {
@@ -31,7 +32,8 @@ class _MyTrainerRentalsViewState extends State<MyTrainerRentalsView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<TrainerRentalController>();
+    // Khởi tạo hoặc lấy controller
+    final controller = Get.put(TrainerRentalController(), permanent: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -277,7 +279,46 @@ class _MyTrainerRentalsViewState extends State<MyTrainerRentalsView> {
                       ],
                     ),
                   ),
-                  _buildStatusChip(rental.trangThai),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _buildStatusChip(rental.trangThai),
+                      // Hiển thị thêm chip "Đang hoạt động" nếu đơn đang active
+                      if (controller.isRentalActive(rental)) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.cyan.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.cyan),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                size: 12,
+                                color: Colors.cyan,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Đang hoạt động',
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
               const Divider(height: 24),
@@ -552,6 +593,36 @@ class _MyTrainerRentalsViewState extends State<MyTrainerRentalsView> {
                       side: const BorderSide(color: Colors.red),
                     ),
                   ),
+                ),
+              ],
+
+              // Nút đánh giá cho đơn hoàn thành
+              if (rental.trangThai == 'completed') ...[
+                const SizedBox(height: 12),
+                FutureBuilder<bool>(
+                  future: controller.canReviewTrainer(rental.trainerId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final canReview = snapshot.data ?? false;
+                    if (!canReview) return const SizedBox.shrink();
+
+                    return SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () =>
+                            _showReviewDialog(context, rental, controller),
+                        icon: const Icon(Icons.rate_review),
+                        label: const Text('Đánh giá PT'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ],
@@ -1067,6 +1138,31 @@ class _MyTrainerRentalsViewState extends State<MyTrainerRentalsView> {
               ),
         ),
       ],
+    );
+  }
+
+  void _showReviewDialog(
+    BuildContext context,
+    TrainerRental rental,
+    TrainerRentalController controller,
+  ) {
+    // Import ReviewTrainerDialog
+    Get.dialog(
+      ReviewTrainerDialog(
+        trainerId: rental.trainerId,
+        trainerName: rental.trainerName,
+        onSubmit: (rating, comment, tags) async {
+          await controller.submitReview(
+            trainerId: rental.trainerId,
+            trainerName: rental.trainerName,
+            rating: rating,
+            comment: comment,
+            tags: tags,
+          );
+          // Reload để cập nhật UI
+          await controller.loadMyRentals();
+        },
+      ),
     );
   }
 

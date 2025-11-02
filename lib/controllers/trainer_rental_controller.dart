@@ -75,6 +75,13 @@ class TrainerRentalController extends GetxController {
       // Sort theo ngày tạo mới nhất
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       myRentals.value = list;
+
+      // Tự động cập nhật trạng thái active cho các đơn đã duyệt trong thời gian thuê
+      for (final rental in list) {
+        if (rental.trangThai == 'approved') {
+          await checkAndUpdateActiveStatus(rental.id);
+        }
+      }
     } catch (e) {
       Get.snackbar(
         'Lỗi',
@@ -107,6 +114,13 @@ class TrainerRentalController extends GetxController {
       // Sort theo ngày tạo
       list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       allRentals.value = list;
+
+      // Tự động cập nhật trạng thái active cho các đơn đã duyệt trong thời gian thuê
+      for (final rental in list) {
+        if (rental.trangThai == 'approved') {
+          await checkAndUpdateActiveStatus(rental.id);
+        }
+      }
     } catch (e) {
       Get.snackbar(
         'Lỗi',
@@ -301,4 +315,227 @@ class TrainerRentalController extends GetxController {
       myRentals.where((r) => r.trangThai == 'completed').length;
   int get pendingRentals =>
       myRentals.where((r) => r.trangThai == 'pending').length;
+
+  /// Kiểm tra và cập nhật trạng thái rental thành "active" nếu đang trong thời gian thuê
+  Future<void> checkAndUpdateActiveStatus(String rentalId) async {
+    try {
+      final rental = await getRentalById(rentalId);
+      if (rental == null) return;
+
+      final now = DateTime.now();
+
+      // Nếu đơn đã được duyệt và đang trong khoảng thời gian thuê
+      if (rental.trangThai == 'approved' &&
+          now.isAfter(rental.startDate) &&
+          now.isBefore(rental.endDate)) {
+        await _firestore.collection('trainer_rentals').doc(rentalId).update({
+          'trangThai': 'active',
+          'updatedAt': Timestamp.fromDate(now),
+        });
+
+        await loadMyRentals();
+        await loadAllRentals();
+      }
+    } catch (e) {
+      print('Error checking active status: $e');
+    }
+  }
+
+  /// Kiểm tra xem rental có đang active không
+  bool isRentalActive(TrainerRental rental) {
+    final now = DateTime.now();
+    return (rental.trangThai == 'approved' || rental.trangThai == 'active') &&
+        now.isAfter(rental.startDate) &&
+        now.isBefore(rental.endDate);
+  }
+
+  /// Hoàn thành đơn thuê PT (chuyển từ active sang completed)
+  Future<bool> completeRental(String rentalId) async {
+    try {
+      isSubmitting.value = true;
+
+      await _firestore.collection('trainer_rentals').doc(rentalId).update({
+        'trangThai': 'completed',
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      });
+
+      Get.snackbar(
+        'Thành công',
+        'Đã hoàn thành đơn thuê PT',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Get.theme.colorScheme.primaryContainer,
+        colorText: Get.theme.colorScheme.onPrimaryContainer,
+      );
+
+      await loadMyRentals();
+      await loadAllRentals();
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể hoàn thành đơn: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  /// Kiểm tra user có thể đánh giá PT này không
+  Future<bool> canReviewTrainer(String trainerId) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return false;
+
+      // 1. Kiểm tra có đơn thuê completed với PT này không
+      final completedRentals = myRentals.where(
+        (r) => r.trainerId == trainerId && r.trangThai == 'completed',
+      );
+
+      if (completedRentals.isEmpty) return false;
+
+      // 2. Kiểm tra đã đánh giá PT này chưa
+      final reviewSnapshot = await _firestore
+          .collection('trainer_reviews')
+          .where('userId', isEqualTo: userId)
+          .where('trainerId', isEqualTo: trainerId)
+          .limit(1)
+          .get();
+
+      if (reviewSnapshot.docs.isNotEmpty) return false;
+
+      // 3. Kiểm tra thời hạn (30 ngày sau completed)
+      final latestRental = completedRentals.reduce(
+        (a, b) => a.updatedAt.isAfter(b.updatedAt) ? a : b,
+      );
+      final daysSinceCompleted = DateTime.now()
+          .difference(latestRental.updatedAt)
+          .inDays;
+
+      if (daysSinceCompleted > 30) return false;
+
+      return true;
+    } catch (e) {
+      print('Error checking canReviewTrainer: $e');
+      return false;
+    }
+  }
+
+  /// Kiểm tra đã đánh giá PT này chưa
+  Future<bool> hasReviewedTrainer(String trainerId) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return false;
+
+      final reviewSnapshot = await _firestore
+          .collection('trainer_reviews')
+          .where('userId', isEqualTo: userId)
+          .where('trainerId', isEqualTo: trainerId)
+          .limit(1)
+          .get();
+
+      return reviewSnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Error checking hasReviewedTrainer: $e');
+      return false;
+    }
+  }
+
+  /// Submit đánh giá PT
+  Future<bool> submitReview({
+    required String trainerId,
+    required String trainerName,
+    required double rating,
+    String? comment,
+    List<String> tags = const [],
+  }) async {
+    try {
+      isSubmitting.value = true;
+
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) {
+        Get.snackbar('Lỗi', 'Bạn cần đăng nhập');
+        return false;
+      }
+
+      // Lấy thông tin user
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      final userData = userDoc.data();
+      final userName = userData?['fullName'] ?? 'User';
+      final userAvatar = userData?['avatarUrl'];
+
+      // Kiểm tra có thể đánh giá không
+      final canReview = await canReviewTrainer(trainerId);
+      if (!canReview) {
+        Get.snackbar(
+          'Không thể đánh giá',
+          'Bạn chỉ có thể đánh giá PT sau khi hoàn thành thuê và trong vòng 30 ngày',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return false;
+      }
+
+      // Tạo review mới
+      final reviewData = {
+        'trainerId': trainerId,
+        'userId': userId,
+        'userName': userName,
+        'userAvatar': userAvatar,
+        'rating': rating,
+        'comment': comment,
+        'tags': tags,
+        'createdAt': Timestamp.fromDate(DateTime.now()),
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      };
+
+      await _firestore.collection('trainer_reviews').add(reviewData);
+
+      // Cập nhật rating trung bình của trainer
+      await _updateTrainerRating(trainerId);
+
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể gửi đánh giá: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  /// Cập nhật rating trung bình của trainer
+  Future<void> _updateTrainerRating(String trainerId) async {
+    try {
+      // Lấy tất cả reviews của trainer
+      final reviewsSnapshot = await _firestore
+          .collection('trainer_reviews')
+          .where('trainerId', isEqualTo: trainerId)
+          .get();
+
+      if (reviewsSnapshot.docs.isEmpty) return;
+
+      // Tính rating trung bình
+      final totalRating = reviewsSnapshot.docs.fold<double>(
+        0.0,
+        (sum, doc) => sum + ((doc.data()['rating'] ?? 0) as num).toDouble(),
+      );
+      final avgRating = totalRating / reviewsSnapshot.docs.length;
+
+      // Cập nhật trainer
+      await _firestore.collection('trainers').doc(trainerId).update({
+        'danhGiaTrungBinh': avgRating,
+        'soLuotDanhGia': reviewsSnapshot.docs.length,
+        'updatedAt': Timestamp.fromDate(DateTime.now()),
+      });
+
+      // Reload trainers nếu cần
+      await loadAvailableTrainers();
+    } catch (e) {
+      print('Error updating trainer rating: $e');
+    }
+  }
 }
