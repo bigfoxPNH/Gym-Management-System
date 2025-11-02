@@ -183,7 +183,7 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
   }) {
     final isSelected = _selectedStatus == value;
     return FilterChip(
-      label: Text('$label ($count)'),
+      label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
         if (selected) {
