@@ -288,9 +288,9 @@ class TrainerRentalView extends StatelessWidget {
                           ),
                         const SizedBox(height: 8),
 
-                        // Số giờ làm việc
+                        // Kinh nghiệm
                         Text(
-                          'Kinh nghiệm: ${_getExperienceYears(trainer.ngayVaoLam)} năm',
+                          'Kinh nghiệm: ${trainer.namKinhNghiem} năm',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -327,11 +327,5 @@ class TrainerRentalView extends StatelessWidget {
         ), // End of Padding
       ), // End of InkWell
     ); // End of Card
-  }
-
-  int _getExperienceYears(DateTime startDate) {
-    final now = DateTime.now();
-    final diff = now.difference(startDate);
-    return (diff.inDays / 365).floor();
   }
 }

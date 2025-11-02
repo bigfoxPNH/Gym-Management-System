@@ -122,7 +122,6 @@ class UserTrainerDetailView extends StatelessWidget {
 
   Widget _buildDetailSection() {
     final dateFormat = DateFormat('dd/MM/yyyy');
-    final experienceYears = _getExperienceYears(trainer.ngayVaoLam);
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -152,7 +151,7 @@ class UserTrainerDetailView extends StatelessWidget {
           _buildInfoRow(
             Icons.work_outline,
             'Kinh nghiệm',
-            '$experienceYears năm (từ ${dateFormat.format(trainer.ngayVaoLam)})',
+            '${trainer.namKinhNghiem} năm (từ ${dateFormat.format(trainer.ngayVaoLam)})',
           ),
           const SizedBox(height: 12),
           _buildInfoRow(
