@@ -91,9 +91,10 @@ class PTController extends GetxController {
       final trainerDoc = querySnapshot.docs.first;
       _trainerProfile.value = Trainer.fromFirestore(trainerDoc);
 
-      // Load assignments and reviews
+      // Load assignments, reviews and rental statistics
       await _loadMyAssignments();
       await _loadMyReviews();
+      await loadRentalStatistics();
     } catch (e) {
       print('Error loading trainer profile: $e');
       Get.snackbar(
@@ -235,4 +236,83 @@ class PTController extends GetxController {
 
   /// Get recent reviews (last 5)
   List<TrainerReview> get recentReviews => _myReviews.take(5).toList();
+
+  // ========== THỐNG KÊ TỪ TRAINER_RENTALS ==========
+
+  final RxInt _totalStudents = 0.obs;
+  final RxInt _totalCompletedSessions = 0.obs;
+  final RxInt _totalCompletedRentals = 0.obs;
+  final RxInt _totalValidRentals = 0.obs; // Tổng đơn không tính cancelled
+
+  int get totalStudents => _totalStudents.value;
+  int get totalCompletedSessions => _totalCompletedSessions.value;
+  double get rentalCompletionRate => _totalValidRentals.value > 0
+      ? (_totalCompletedRentals.value / _totalValidRentals.value * 100)
+      : 0;
+
+  /// Load thống kê từ trainer_rentals
+  Future<void> loadRentalStatistics() async {
+    try {
+      if (_trainerProfile.value == null) return;
+
+      final trainerId = _trainerProfile.value!.id;
+
+      // Lấy tất cả đơn thuê của PT này
+      final rentalsSnapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trainerId', isEqualTo: trainerId)
+          .get();
+
+      // Tính số học viên unique (user đã hoàn thành ít nhất 1 đơn)
+      final completedUserIds = <String>{};
+      int completedSessions = 0;
+      int completedRentals = 0;
+      int validRentals = 0; // Đếm tổng đơn (không tính pending và cancelled)
+
+      for (final doc in rentalsSnapshot.docs) {
+        final data = doc.data();
+        var trangThai = data['trangThai'] as String?;
+        final userId = data['userId'] as String?;
+        final soGio = data['soGio'] as int? ?? 0;
+
+        // Check và update expired status
+        final endDate = (data['endDate'] as Timestamp?)?.toDate();
+        if (endDate != null && DateTime.now().isAfter(endDate)) {
+          if (trangThai == 'approved' || trangThai == 'active') {
+            // Cập nhật thành expired
+            await _firestore.collection('trainer_rentals').doc(doc.id).update({
+              'trangThai': 'expired',
+              'updatedAt': Timestamp.fromDate(DateTime.now()),
+            });
+            trangThai = 'expired'; // Update local variable
+          }
+        }
+
+        // Đếm tổng đơn hợp lệ (không tính pending và cancelled)
+        // Chỉ tính: approved, active, completed, expired
+        if (trangThai == 'approved' ||
+            trangThai == 'active' ||
+            trangThai == 'completed' ||
+            trangThai == 'expired') {
+          validRentals++;
+        }
+
+        // Đếm học viên và buổi tập từ đơn hoàn thành hoặc hết hạn
+        if (trangThai == 'completed' || trangThai == 'expired') {
+          if (userId != null) {
+            completedUserIds.add(userId);
+          }
+          completedSessions += soGio;
+          completedRentals++;
+        }
+      }
+
+      _totalStudents.value = completedUserIds.length;
+      _totalCompletedSessions.value = completedSessions;
+      _totalCompletedRentals.value = completedRentals;
+      _totalValidRentals.value = validRentals;
+    } catch (e) {
+      print('Error loading rental statistics: $e');
+    }
+  }
 }

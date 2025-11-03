@@ -686,6 +686,10 @@ class _MyTrainerRentalsViewState extends State<MyTrainerRentalsView> {
         color = Colors.red;
         text = 'Đã hủy';
         break;
+      case 'expired':
+        color = Colors.brown;
+        text = 'Hết hạn';
+        break;
       default:
         color = Colors.grey;
         text = status;

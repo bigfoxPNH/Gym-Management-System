@@ -134,6 +134,8 @@ class TrainerRental {
         return 'Hoàn thành';
       case 'cancelled':
         return 'Đã hủy';
+      case 'expired':
+        return 'Hết hạn';
       default:
         return trangThai;
     }

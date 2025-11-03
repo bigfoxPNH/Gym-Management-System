@@ -46,6 +46,7 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
   Future<void> _loadRentals() async {
     if (_controller.trainerProfile == null) return;
 
+    if (!mounted) return;
     setState(() => _isLoading = true);
 
     try {
@@ -62,6 +63,7 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
 
       final snapshot = await query.get();
 
+      if (!mounted) return;
       setState(() {
         _rentals = snapshot.docs
             .map((doc) => TrainerRental.fromFirestore(doc))
@@ -74,6 +76,7 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
+      if (!mounted) return;
       setState(() => _isLoading = false);
     }
   }
@@ -200,7 +203,7 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
-        if (selected) {
+        if (selected && mounted) {
           setState(() => _selectedStatus = value);
           _loadRentals();
         }
@@ -519,6 +522,10 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
       case 'cancelled':
         color = Colors.red;
         label = 'Đã hủy';
+        break;
+      case 'expired':
+        color = Colors.brown;
+        label = 'Hết hạn';
         break;
       default:
         color = Colors.grey;

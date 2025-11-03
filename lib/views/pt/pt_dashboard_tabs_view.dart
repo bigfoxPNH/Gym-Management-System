@@ -140,8 +140,8 @@ class _PTDashboardContent extends StatelessWidget {
             _buildWelcomeCard(context, controller),
             const SizedBox(height: 24),
 
-            // Stats Grid
-            _buildStatsGrid(context, controller),
+            // Stats Grid (wrap in Obx to auto-update)
+            Obx(() => _buildStatsGrid(context, controller)),
             const SizedBox(height: 24),
 
             // Quick Actions
@@ -256,7 +256,7 @@ class _PTDashboardContent extends StatelessWidget {
               child: _buildStatCard(
                 icon: Icons.people,
                 label: 'Học viên',
-                value: '${controller.activeClients}',
+                value: '${controller.totalStudents}',
                 color: Colors.blue,
               ),
             ),
@@ -265,7 +265,7 @@ class _PTDashboardContent extends StatelessWidget {
               child: _buildStatCard(
                 icon: Icons.event,
                 label: 'Buổi tập',
-                value: '${controller.totalSessions}',
+                value: '${controller.totalCompletedSessions}',
                 color: Colors.green,
               ),
             ),
@@ -278,7 +278,7 @@ class _PTDashboardContent extends StatelessWidget {
               child: _buildStatCard(
                 icon: Icons.check_circle,
                 label: 'Hoàn thành',
-                value: '${controller.completionRate.toStringAsFixed(0)}%',
+                value: '${controller.rentalCompletionRate.toStringAsFixed(0)}%',
                 color: Colors.orange,
               ),
             ),
@@ -349,13 +349,7 @@ class _PTDashboardContent extends StatelessWidget {
               child: _buildActionButton(
                 icon: Icons.calendar_today,
                 label: 'Lịch tập',
-                onTap: () {
-                  Get.snackbar(
-                    'Thông tin',
-                    'Chức năng lịch tập đang được phát triển',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
+                onTap: () => Get.toNamed('/pt/schedule'),
               ),
             ),
             const SizedBox(width: 12),

@@ -316,7 +316,7 @@ class TrainerRentalController extends GetxController {
   int get pendingRentals =>
       myRentals.where((r) => r.trangThai == 'pending').length;
 
-  /// Kiểm tra và cập nhật trạng thái rental thành "active" nếu đang trong thời gian thuê
+  /// Kiểm tra và cập nhật trạng thái rental thành "active" hoặc "expired"
   Future<void> checkAndUpdateActiveStatus(String rentalId) async {
     try {
       final rental = await getRentalById(rentalId);
@@ -324,14 +324,23 @@ class TrainerRentalController extends GetxController {
 
       final now = DateTime.now();
 
-      // Nếu đơn đã được duyệt và đang trong khoảng thời gian thuê
-      if (rental.trangThai == 'approved' &&
-          now.isAfter(rental.startDate) &&
-          now.isBefore(rental.endDate)) {
-        await _firestore.collection('trainer_rentals').doc(rentalId).update({
-          'trangThai': 'active',
-          'updatedAt': Timestamp.fromDate(now),
-        });
+      // Nếu đơn đã được duyệt hoặc đang active
+      if (rental.trangThai == 'approved' || rental.trangThai == 'active') {
+        // Nếu đã quá thời gian → expired
+        if (now.isAfter(rental.endDate)) {
+          await _firestore.collection('trainer_rentals').doc(rentalId).update({
+            'trangThai': 'expired',
+            'updatedAt': Timestamp.fromDate(now),
+          });
+        }
+        // Nếu đang trong thời gian thuê → active
+        else if (now.isAfter(rental.startDate) &&
+            now.isBefore(rental.endDate)) {
+          await _firestore.collection('trainer_rentals').doc(rentalId).update({
+            'trangThai': 'active',
+            'updatedAt': Timestamp.fromDate(now),
+          });
+        }
 
         await loadMyRentals();
         await loadAllRentals();
