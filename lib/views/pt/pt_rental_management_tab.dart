@@ -877,6 +877,45 @@ class _PTRentalManagementTabState extends State<PTRentalManagementTab> {
                                                   ),
                                                 ),
                                               ),
+                                              const Spacer(),
+                                              // Chip "Hoàn thành" ở góc phải trên
+                                              if (session.trangThai ==
+                                                  'completed')
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.green,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: const [
+                                                      Icon(
+                                                        Icons.check_circle,
+                                                        color: Colors.white,
+                                                        size: 14,
+                                                      ),
+                                                      SizedBox(width: 4),
+                                                      Text(
+                                                        'Hoàn thành',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                           const SizedBox(height: 8),
