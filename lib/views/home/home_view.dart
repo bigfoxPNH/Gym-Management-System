@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../features/ai_chat/widgets/draggable_ai_chat_button.dart';
+import '../../features/ai_chat/views/ai_chat_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -75,10 +77,18 @@ class HomeView extends StatelessWidget {
           ),
         ],
       ),
-      body: Obx(
-        () => authController.userAccount != null
-            ? _buildHomeContent(context, authController)
-            : const CenterLoading(message: 'Đang tải...'),
+      body: Stack(
+        children: [
+          Obx(
+            () => authController.userAccount != null
+                ? _buildHomeContent(context, authController)
+                : const CenterLoading(message: 'Đang tải...'),
+          ),
+          // AI Chat Button (draggable)
+          const DraggableAIChatButton(),
+          // AI Chat View
+          const AIChatView(),
+        ],
       ),
     );
   }
