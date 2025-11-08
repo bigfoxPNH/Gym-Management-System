@@ -1,0 +1,164 @@
+{
+  "cards": [
+    {
+      "tenGoi": "Hội viên cơ bản 1",
+      "loaiGoi": "member",
+      "moTa": "Gói tập cơ bản 1 ngày – phù hợp cho người mới muốn thử trải nghiệm phòng gym hoặc tập ngắn hạn.",
+      "gia": 10000,
+      "thoiLuong": 1,
+      "donViThoiLuong": "ngày",
+      "trangThai": true,
+      "phuHopCho": "Người mới bắt đầu, khách vãng lai",
+      "mucTieuTapLuyen": "Làm quen máy móc, kiểm tra thể lực ban đầu",
+      "loiIch": [
+        "Truy cập khu tập cơ bản (khu A)",
+        "Sử dụng các thiết bị cardio, tạ, máy chạy",
+        "Nhân viên hướng dẫn cách sử dụng máy cơ bản"
+      ]
+    },
+    {
+      "tenGoi": "Hội viên cơ bản 2",
+      "loaiGoi": "member",
+      "moTa": "Gói tập cơ bản 7 ngày – giúp người mới bắt đầu hình thành thói quen luyện tập và trải nghiệm không gian tập luyện hiện đại.",
+      "gia": 49000,
+      "thoiLuong": 7,
+      "donViThoiLuong": "ngày",
+      "trangThai": true,
+      "phuHopCho": "Người mới, nhân viên văn phòng, người ít thời gian",
+      "mucTieuTapLuyen": "Tăng cường sức khỏe, làm quen thiết bị",
+      "loiIch": [
+        "Truy cập không giới hạn khu tập cơ bản (A)",
+        "Hỗ trợ đăng ký và theo dõi tiến độ qua app",
+        "Được khuyến nghị bài tập phù hợp thể trạng"
+      ]
+    },
+    {
+      "tenGoi": "Hội viên cơ bản 3",
+      "loaiGoi": "member",
+      "moTa": "Gói tập 1 tháng cơ bản – lựa chọn phổ biến cho người muốn duy trì sức khỏe, cải thiện vóc dáng và thể lực.",
+      "gia": 199000,
+      "thoiLuong": 1,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người muốn tập đều đặn, không cần PT riêng",
+      "mucTieuTapLuyen": "Giảm mỡ nhẹ, cải thiện sức bền và năng lượng",
+      "loiIch": [
+        "Truy cập toàn bộ khu tập A",
+        "Sử dụng locker miễn phí",
+        "Theo dõi lịch tập, tiến độ qua ứng dụng"
+      ]
+    },
+    {
+      "tenGoi": "Premium 1",
+      "loaiGoi": "premium",
+      "moTa": "Gói tập nâng cao 3 tháng – dành cho người tập lâu dài, có mục tiêu rõ ràng như giảm mỡ, tăng cơ hoặc cải thiện thể hình.",
+      "gia": 499000,
+      "thoiLuong": 3,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người tập trung cải thiện vóc dáng",
+      "mucTieuTapLuyen": "Tăng cơ, giảm mỡ, cải thiện thể lực",
+      "loiIch": [
+        "Truy cập khu tập A và B",
+        "Tham gia lớp nhóm miễn phí mỗi tuần",
+        "Được đo chỉ số cơ thể (InBody) định kỳ"
+      ]
+    },
+    {
+      "tenGoi": "Premium 2",
+      "loaiGoi": "premium",
+      "moTa": "Gói tập nâng cao 6 tháng – phù hợp cho người cam kết tập luyện đều đặn và muốn theo dõi tiến trình thể hình lâu dài.",
+      "gia": 649000,
+      "thoiLuong": 6,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người tập trung cải thiện hình thể toàn diện",
+      "mucTieuTapLuyen": "Duy trì cơ bắp, cải thiện sức bền",
+      "loiIch": [
+        "Toàn quyền sử dụng khu tập A và B",
+        "Ưu đãi 10% khi mua sản phẩm dinh dưỡng",
+        "Theo dõi tiến trình tập luyện qua app"
+      ]
+    },
+    {
+      "tenGoi": "Premium 3",
+      "loaiGoi": "premium",
+      "moTa": "Gói tập 1 năm – giúp duy trì sức khỏe bền vững và hình thể ổn định, thích hợp với người tập trung lâu dài.",
+      "gia": 999000,
+      "thoiLuong": 1,
+      "donViThoiLuong": "năm",
+      "trangThai": true,
+      "phuHopCho": "Người muốn duy trì tập luyện đều đặn quanh năm",
+      "mucTieuTapLuyen": "Cân bằng cơ thể, giữ dáng lâu dài",
+      "loiIch": [
+        "Truy cập khu tập A, B, locker riêng",
+        "Ưu đãi đo InBody hàng quý",
+        "Giảm 15% cho gói tập tiếp theo"
+      ]
+    },
+    {
+      "tenGoi": "VIP 1",
+      "loaiGoi": "vip",
+      "moTa": "Gói VIP 1 tháng – dành cho người muốn trải nghiệm đầy đủ tiện ích cao cấp và không gian tập riêng biệt.",
+      "gia": 1299000,
+      "thoiLuong": 1,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người yêu cầu chất lượng dịch vụ cao cấp",
+      "mucTieuTapLuyen": "Tập luyện chuyên sâu, thư giãn, giảm stress",
+      "loiIch": [
+        "Truy cập toàn bộ khu A, B và khu VIP",
+        "Phòng tắm, xông hơi riêng",
+        "Miễn phí nước uống thể thao"
+      ]
+    },
+    {
+      "tenGoi": "VIP 2",
+      "loaiGoi": "vip",
+      "moTa": "Gói VIP 3 tháng – hướng đến người tập nghiêm túc, muốn tận hưởng dịch vụ và môi trường tập luyện đẳng cấp.",
+      "gia": 2899000,
+      "thoiLuong": 3,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người tập luyện chuyên sâu, doanh nhân, nhân viên cao cấp",
+      "mucTieuTapLuyen": "Giữ dáng, thư giãn, cải thiện sức khỏe toàn diện",
+      "loiIch": [
+        "Toàn quyền sử dụng khu tập A, B, VIP",
+        "Sử dụng khu nghỉ dưỡng, xông hơi cao cấp",
+        "Ưu tiên đặt chỗ trong giờ cao điểm"
+      ]
+    },
+    {
+      "tenGoi": "VIP 3",
+      "loaiGoi": "vip",
+      "moTa": "Gói VIP 6 tháng – lựa chọn của người có mục tiêu tập luyện chuyên nghiệp và muốn trải nghiệm dịch vụ cao cấp trọn vẹn.",
+      "gia": 4999000,
+      "thoiLuong": 6,
+      "donViThoiLuong": "tháng",
+      "trangThai": true,
+      "phuHopCho": "Người tập chuyên sâu, cần không gian riêng tư",
+      "mucTieuTapLuyen": "Tăng cường thể lực, duy trì hình thể ổn định",
+      "loiIch": [
+        "Truy cập toàn bộ khu tập (A, B, VIP)",
+        "Dịch vụ giặt đồ tập miễn phí",
+        "Phòng tắm riêng và khu nghỉ cao cấp"
+      ]
+    },
+    {
+      "tenGoi": "VIP X",
+      "loaiGoi": "vip",
+      "moTa": "Gói VIP 5 năm – đỉnh cao trải nghiệm dành cho khách hàng trung thành và người tập luyện chuyên nghiệp lâu dài.",
+      "gia": 19999000,
+      "thoiLuong": 5,
+      "donViThoiLuong": "năm",
+      "trangThai": true,
+      "phuHopCho": "Khách hàng thân thiết, người đam mê thể hình lâu dài",
+      "mucTieuTapLuyen": "Duy trì sức khỏe, tập luyện toàn diện, tận hưởng dịch vụ cao cấp",
+      "loiIch": [
+        "Sử dụng không giới hạn tất cả khu tập và tiện ích",
+        "Xông hơi, locker, nước uống, giặt đồ miễn phí",
+        "Ưu đãi đặc biệt khi tham gia các chương trình dinh dưỡng"
+      ]
+    }
+  ]
+}

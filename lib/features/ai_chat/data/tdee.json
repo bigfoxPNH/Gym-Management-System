@@ -1,0 +1,131 @@
+{
+  "tdee_reference": {
+    "title": "TDEE – Tổng năng lượng tiêu hao hàng ngày (Total Daily Energy Expenditure)",
+    "description": "TDEE = tổng số kcal cơ thể tiêu thụ trong một ngày, bao gồm BMR (Basal Metabolic Rate) + hoạt động (NEAT, TEF, luyện tập). File này cung cấp công thức, hệ số hoạt động, cách điều chỉnh theo mục tiêu (giảm cân/giữ cân/tăng cơ), phân bổ macro, ví dụ minh họa và lưu ý an toàn.",
+    "units": {
+      "energy": "kcal/ngày",
+      "weight": "kg",
+      "height": "cm",
+      "age": "năm"
+    },
+    "formula": {
+      "note": "Quy trình tính chuẩn: 1) Tính BMR (ví dụ dùng Mifflin-St Jeor) 2) TDEE = BMR × activity_multiplier",
+      "bmr_mifflin_st_jeor": {
+        "male": "BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age + 5",
+        "female": "BMR = 10 × weight(kg) + 6.25 × height(cm) - 5 × age - 161"
+      },
+      "tdee_formula": "TDEE = BMR × activity_multiplier"
+    },
+    "activity_levels": [
+      {
+        "level_code": "sedentary",
+        "label": "Rất ít vận động (Sedentary)",
+        "multiplier": 1.2,
+        "description": "Công việc ngồi nhiều, ít hoặc không tập luyện (VD: nhân viên văn phòng)."
+      },
+      {
+        "level_code": "light",
+        "label": "Vận động nhẹ (Light)",
+        "multiplier": 1.375,
+        "description": "Tập luyện 1–3 buổi/tuần hoặc hoạt động nhẹ trong ngày."
+      },
+      {
+        "level_code": "moderate",
+        "label": "Vận động vừa (Moderate)",
+        "multiplier": 1.55,
+        "description": "Tập 3–5 buổi/tuần, hoặc công việc có vận động vừa phải."
+      },
+      {
+        "level_code": "very_active",
+        "label": "Vận động nặng (Very Active)",
+        "multiplier": 1.725,
+        "description": "Tập 6–7 buổi/tuần hoặc lao động thể lực nặng."
+      },
+      {
+        "level_code": "extra_active",
+        "label": "Cường độ rất cao (Extra Active)",
+        "multiplier": 1.9,
+        "description": "Vận động viên, luyện tập chuyên nghiệp hoặc lao động cực nặng."
+      }
+    ],
+    "goal_adjustments": {
+      "maintenance": {
+        "description": "Duy trì cân nặng hiện tại",
+        "calories": "TDEE (không điều chỉnh)",
+        "advice": "Theo dõi ±200 kcal để tối ưu."
+      },
+      "weight_loss": {
+        "description": "Giảm mỡ/giảm cân an toàn",
+        "recommended_deficits": [
+          {
+            "rate": "nhẹ",
+            "weight_change_per_week": "0.25% - 0.5%",
+            "calorie_deficit": "200 - 300 kcal/ngày"
+          },
+          {
+            "rate": "tiêu chuẩn",
+            "weight_change_per_week": "0.5% - 1%",
+            "calorie_deficit": "400 - 700 kcal/ngày"
+          },
+          {
+            "rate": "nhanh",
+            "weight_change_per_week": ">1%",
+            "calorie_deficit": ">700 kcal/ngày"
+          }
+        ]
+      },
+      "weight_gain": {
+        "description": "Tăng cơ/tăng cân có kiểm soát",
+        "recommended_surplus": [
+          {
+            "rate": "chậm",
+            "weight_change_per_week": "0.25% - 0.5%",
+            "calorie_surplus": "200 - 300 kcal/ngày"
+          },
+          {
+            "rate": "thường",
+            "weight_change_per_week": "0.5% - 1%",
+            "calorie_surplus": "300 - 500 kcal/ngày"
+          }
+        ]
+      }
+    },
+    "macronutrient_guidelines": {
+      "protein": {
+        "weight_loss": "1.6 - 2.4 g/kg",
+        "maintenance": "1.4 - 1.8 g/kg",
+        "weight_gain": "1.6 - 2.2 g/kg"
+      },
+      "fat": {
+        "percent_of_calories": "20% - 35%",
+        "minimum": "Không dưới 15%"
+      },
+      "carbohydrate": {
+        "calculation": "Phần còn lại của tổng năng lượng sau khi tính protein và fat"
+      },
+      "fiber_and_water": {
+        "fiber": "25 - 35 g/ngày",
+        "water": "30 - 40 ml/kg/ngày"
+      }
+    },
+    "examples": [
+      {
+        "example": "Nam, 25 tuổi, 175 cm, 75 kg, vận động vừa (1.55)",
+        "bmr": "1674 kcal",
+        "tdee": "≈ 2595 kcal",
+        "recommendation": "Giảm cân: ăn ~2100 kcal/ngày, Protein 150g, Fat 58g, Carb 269g"
+      },
+      {
+        "example": "Nữ, 30 tuổi, 160 cm, 68 kg, vận động nhẹ (1.375)",
+        "bmr": "1397 kcal",
+        "tdee": "≈ 1920 kcal",
+        "recommendation": "Giảm cân: ăn 1400-1500 kcal/ngày, Protein 122g, Fat 50g, Carb 141g"
+      }
+    ],
+    "notes": {
+      "safety": "Không ăn dưới 1200 kcal (nữ) và 1400 kcal (nam) nếu không có giám sát.",
+      "monitoring": "Theo dõi cân nặng, năng lượng, hiệu suất tập mỗi 2–4 tuần.",
+      "tip": "Cập nhật TDEE nếu tăng/giảm cân >3kg."
+    }
+  }
+}

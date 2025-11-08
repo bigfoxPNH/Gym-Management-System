@@ -1,0 +1,268 @@
+{
+  "bmi_reference": {
+    "description": "Bảng chuẩn đánh giá chỉ số khối cơ thể (BMI) theo giới tính và độ tuổi. Dữ liệu mở rộng từ chuẩn WHO và khu vực châu Á.",
+    "unit": {
+      "weight": "kg",
+      "height": "m"
+    },
+    "formula": "BMI = cân_nặng / (chiều_cao * chiều_cao)",
+    "categories": [
+      {
+        "gioi_tinh": "Nam",
+        "nhom_tuoi": [
+          {
+            "do_tuoi": "18-29",
+            "ghi_chu": "Nam trẻ tuổi thường có tỉ lệ cơ cao hơn, ngưỡng BMI bình thường có thể cao hơn một chút.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 18.4,
+                "mo_ta": "Gầy, ít cơ, dễ mệt, nguy cơ suy dinh dưỡng.",
+                "khuyen_nghi": "Ăn tăng 500 kcal/ngày, bổ sung protein, tập tạ cơ bản để phát triển cơ bắp."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 18.5,
+                "bmi_max": 23.4,
+                "mo_ta": "Cơ thể cân đối, sức khỏe ổn định.",
+                "khuyen_nghi": "Duy trì 3–4 buổi tập/tuần, ăn uống đủ chất, ngủ 7–8 tiếng/ngày."
+              },
+              {
+                "muc": "Thừa cân nhẹ",
+                "bmi_min": 23.5,
+                "bmi_max": 25,
+                "mo_ta": "Có mỡ nhẹ vùng bụng, cơ thể nặng nề hơn.",
+                "khuyen_nghi": "Tăng cardio 3 buổi/tuần, giảm tinh bột xấu, tăng rau xanh."
+              },
+              {
+                "muc": "Béo phì độ 1",
+                "bmi_min": 25.1,
+                "bmi_max": 29.9,
+                "mo_ta": "Béo vùng eo, giảm sức bền, dễ mệt khi vận động.",
+                "khuyen_nghi": "Giảm 400–500 kcal/ngày, tập HIIT hoặc chạy bộ xen kẽ tạ."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 30,
+                "bmi_max": 39.9,
+                "mo_ta": "Tích mỡ toàn thân, nguy cơ gan nhiễm mỡ, tiểu đường type 2.",
+                "khuyen_nghi": "Ăn kiểm soát nghiêm ngặt, tập nhẹ nhàng, đi bộ nhanh hoặc đạp xe."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
+                "bmi_max": 60,
+                "mo_ta": "Béo nghiêm trọng, ảnh hưởng tim mạch, khớp và hô hấp.",
+                "khuyen_nghi": "Cần bác sĩ dinh dưỡng hỗ trợ, tập phục hồi, thay đổi thói quen sống."
+              }
+            ]
+          },
+          {
+            "do_tuoi": "30-39",
+            "ghi_chu": "Ở tuổi này, chuyển hóa bắt đầu chậm, dễ tích mỡ vùng bụng.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 18.4,
+                "mo_ta": "Gầy, dễ mệt, nguy cơ giảm cơ do stress.",
+                "khuyen_nghi": "Ăn tăng nhẹ, ngủ đúng giờ, tập tăng cơ tối thiểu 3 buổi/tuần."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 18.5,
+                "bmi_max": 23.9,
+                "mo_ta": "Thân hình cân đối, sức khỏe tốt.",
+                "khuyen_nghi": "Duy trì luyện tập, giảm đồ ngọt, kiểm soát stress."
+              },
+              {
+                "muc": "Thừa cân",
+                "bmi_min": 24,
+                "bmi_max": 26.9,
+                "mo_ta": "Mỡ bụng bắt đầu tăng, cơ giảm dần.",
+                "khuyen_nghi": "Tăng cardio, ăn nhiều rau, uống nước 2.5L/ngày."
+              },
+              {
+                "muc": "Béo phì độ 1",
+                "bmi_min": 27,
+                "bmi_max": 29.9,
+                "mo_ta": "Béo vùng eo, dễ cao huyết áp, mỡ máu.",
+                "khuyen_nghi": "Tập xen kẽ aerobic + tạ, giảm tinh bột, tăng protein nạc."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 30,
+                "bmi_max": 39.9,
+                "mo_ta": "Thừa cân nhiều, giảm dẻo dai, nguy cơ bệnh chuyển hóa.",
+                "khuyen_nghi": "Ăn deficit 600 kcal, kết hợp đi bộ nhanh và bơi lội nhẹ."
+              }
+            ]
+          },
+          {
+            "do_tuoi": "40+",
+            "ghi_chu": "Tốc độ trao đổi chất giảm mạnh, cần điều chỉnh ngưỡng BMI hợp lý.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 19.0,
+                "mo_ta": "Cơ teo, sức bền giảm, dễ loãng xương.",
+                "khuyen_nghi": "Bổ sung canxi, vitamin D, tập kháng lực nhẹ."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 19.1,
+                "bmi_max": 24.9,
+                "mo_ta": "Cân đối với nam trung niên.",
+                "khuyen_nghi": "Ăn nhạt, ít mỡ, duy trì vận động nhẹ mỗi ngày."
+              },
+              {
+                "muc": "Thừa cân",
+                "bmi_min": 25,
+                "bmi_max": 29.9,
+                "mo_ta": "Nguy cơ cao huyết áp, tiểu đường, gout.",
+                "khuyen_nghi": "Kiểm tra sức khỏe định kỳ, tập nhẹ, tránh bia rượu."
+              },
+              {
+                "muc": "Béo phì",
+                "bmi_min": 30,
+                "bmi_max": 60,
+                "mo_ta": "Béo toàn thân, dễ mệt, ảnh hưởng tim mạch.",
+                "khuyen_nghi": "Ăn uống kiểm soát, đi bộ hằng ngày, theo dõi bác sĩ."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "gioi_tinh": "Nữ",
+        "nhom_tuoi": [
+          {
+            "do_tuoi": "18-29",
+            "ghi_chu": "Phụ nữ trẻ dễ thay đổi cân nặng do hormone và sinh hoạt.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 17.9,
+                "mo_ta": "Gầy, thiếu năng lượng, dễ rối loạn kinh nguyệt.",
+                "khuyen_nghi": "Tăng khẩu phần carb & protein, ngủ đủ giấc, tập nhẹ."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 18,
+                "bmi_max": 22.9,
+                "mo_ta": "Cân đối, vóc dáng đẹp, sức khỏe ổn định.",
+                "khuyen_nghi": "Duy trì tập yoga, pilates hoặc gym nhẹ 3–4 buổi/tuần."
+              },
+              {
+                "muc": "Thừa cân nhẹ",
+                "bmi_min": 23,
+                "bmi_max": 24.9,
+                "mo_ta": "Có mỡ vùng hông – đùi nhẹ.",
+                "khuyen_nghi": "Giảm đồ ngọt, tăng cardio, tập plank và squat."
+              },
+              {
+                "muc": "Béo phì độ 1",
+                "bmi_min": 25,
+                "bmi_max": 29.9,
+                "mo_ta": "Béo rõ ở eo, đùi, mặt.",
+                "khuyen_nghi": "Tập nhẹ 30 phút/ngày, ăn nhiều rau, tránh đồ chiên."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 30,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo rõ, dễ mệt, ảnh hưởng tim mạch.",
+                "khuyen_nghi": "Tập HIIT thấp, uống đủ nước, giảm calo hợp lý."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
+                "bmi_max": 60,
+                "mo_ta": "Béo nghiêm trọng, nguy cơ cao bệnh mạn tính.",
+                "khuyen_nghi": "Theo bác sĩ dinh dưỡng, kết hợp tập nhẹ và kiểm soát ăn nghiêm ngặt."
+              }
+            ]
+          },
+          {
+            "do_tuoi": "30-39",
+            "ghi_chu": "Sau 30 tuổi, nội tiết tố giảm, cơ thể dễ tích mỡ vùng eo.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 18,
+                "mo_ta": "Cơ thể thiếu dinh dưỡng, da nhăn, sức yếu.",
+                "khuyen_nghi": "Ăn đủ đạm, bổ sung vitamin, tập nhẹ tăng cơ."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 18.1,
+                "bmi_max": 23,
+                "mo_ta": "Cân đối, đẹp, khỏe.",
+                "khuyen_nghi": "Duy trì chế độ ăn lành mạnh, tập 3–4 buổi/tuần."
+              },
+              {
+                "muc": "Thừa cân",
+                "bmi_min": 23.1,
+                "bmi_max": 26.9,
+                "mo_ta": "Tích mỡ ở hông, bụng, đùi.",
+                "khuyen_nghi": "Giảm calo, tập cardio xen yoga."
+              },
+              {
+                "muc": "Béo phì độ 1",
+                "bmi_min": 27,
+                "bmi_max": 29.9,
+                "mo_ta": "Béo rõ vùng eo, giảm linh hoạt.",
+                "khuyen_nghi": "Ăn ít tinh bột, tăng protein, tập nhẹ mỗi ngày."
+              },
+              {
+                "muc": "Béo phì độ 2+",
+                "bmi_min": 30,
+                "bmi_max": 60,
+                "mo_ta": "Béo toàn thân, khó vận động.",
+                "khuyen_nghi": "Tham khảo bác sĩ, kiểm soát ăn và luyện tập nhẹ nhàng."
+              }
+            ]
+          },
+          {
+            "do_tuoi": "40+",
+            "ghi_chu": "Phụ nữ sau 40 tuổi, hormone giảm, dễ béo và mất cơ.",
+            "nguong": [
+              {
+                "muc": "Thiếu cân",
+                "bmi_min": 0,
+                "bmi_max": 19,
+                "mo_ta": "Cơ teo, da khô, mệt mỏi.",
+                "khuyen_nghi": "Bổ sung canxi, collagen, ăn đủ đạm."
+              },
+              {
+                "muc": "Bình thường",
+                "bmi_min": 19.1,
+                "bmi_max": 24.9,
+                "mo_ta": "Cân đối, phù hợp lứa tuổi.",
+                "khuyen_nghi": "Ăn ít dầu mỡ, tập yoga hoặc đi bộ hàng ngày."
+              },
+              {
+                "muc": "Thừa cân",
+                "bmi_min": 25,
+                "bmi_max": 29.9,
+                "mo_ta": "Mỡ bụng tăng, dễ tăng huyết áp.",
+                "khuyen_nghi": "Kiểm soát calo, giảm muối, tăng rau xanh."
+              },
+              {
+                "muc": "Béo phì",
+                "bmi_min": 30,
+                "bmi_max": 60,
+                "mo_ta": "Béo toàn thân, ảnh hưởng sức khỏe tim mạch.",
+                "khuyen_nghi": "Ăn uống khoa học, tập phục hồi, tái kiểm tra định kỳ."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

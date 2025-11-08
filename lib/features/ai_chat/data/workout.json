@@ -1,0 +1,1025 @@
+{
+  "workout_schedules": {
+    "meta": {
+      "title": "Lịch tập phổ biến cho Gym Pro",
+      "description": "Bộ dữ liệu lịch tập chuẩn, chi tiết, dùng cho chatbot, app hoặc import làm template. Bao gồm các chương trình theo mục tiêu (tăng cơ, giảm mỡ, sức mạnh, cân bằng), kèm mô tả, lịch tuần mẫu, warm-up, cooldown, tiến độ (progression) và cơ sở dữ liệu động tác.",
+      "version": "1.0",
+      "author": "Gym Pro",
+      "date_created": "2025-11-07"
+    },
+    "programs": [
+      {
+        "id": "P001",
+        "ten": "Full-Body Beginner (3 buổi/tuần)",
+        "muc_tieu": "Tăng cơ & làm quen với tập tạ - an toàn cho người mới",
+        "do_kho": "Beginner",
+        "thoi_luong_tuan": 3,
+        "thoi_gian_chuong_trinh": "12 tuần",
+        "mo_ta": "Chương trình toàn thân dành cho người mới bắt đầu hoặc quay lại sau gián đoạn. Mỗi buổi tập tập trung vào các động tác toàn thân, ưu tiên kỹ thuật và tăng dần tải trọng.",
+        "structure_week_sample": [
+          {
+            "ngay": "Buổi A",
+            "loai": "Full body - Buổi A",
+            "warmup": [
+              "5-8 phút cardio nhẹ (xe đạp/đi bộ nhanh)",
+              "mobility: hông/ vai/ cổ 3 phút",
+              "xà đơn dead hang 30s x 2"
+            ],
+            "exercises": [
+              {
+                "ten": "ngồi xổm với tạ đòn (barbell hoặc goblet)",
+                "nhom_co_chinh": "Đùi trước, mông",
+                "dung_cu": "Barbell hoặc kettlebell/dumbbell",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90,
+                "tempo": "2-0-1",
+                "chu_y": "Giữ lưng thẳng, đầu gối không quá mũi chân",
+                "progression": "tăng tạ 2.5-5%/tuần hoặc +1 rep mỗi buổi"
+              },
+              {
+                "ten": "đẩy ngực nằm với tạ đòn (barbell) hoặc Push-up nâng dốc",
+                "nhom_co_chinh": "Ngực, vai trước, tay sau",
+                "dung_cu": "Barbell or bodyweight",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90,
+                "tempo": "2-0-1",
+                "chu_y": "Kẹp vai xuống, không khóa khuỷu tay quá mạnh",
+                "progression": "tăng tạ hoặc chuyển từ push-up->bench press"
+              },
+              {
+                "ten": "Bent-over Row (dumbbell hoặc barbell)",
+                "nhom_co_chinh": "Lưng giữa, xô",
+                "dung_cu": "Barbell/Dumbbell",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90,
+                "tempo": "2-0-1",
+                "chu_y": "Kéo bằng lưng, không chỉ tay",
+                "progression": "tăng tạ hoặc reps"
+              },
+              {
+                "ten": "deadlift kiểu RDL (gập hông) (RDL)",
+                "nhom_co_chinh": "Lưng dưới, hams, mông",
+                "dung_cu": "Barbell/Dumbbell",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90,
+                "tempo": "2-0-2",
+                "chu_y": "Hông lùi ra sau, giữ cột sống trung tính"
+              },
+              {
+                "ten": "Plank",
+                "nhom_co_chinh": "Core",
+                "dung_cu": "Bodyweight",
+                "sets": 3,
+                "reps": "30-60s",
+                "rest_s": 60,
+                "tempo": "",
+                "chu_y": "Giữ thân thẳng, không võng lưng"
+              }
+            ],
+            "cooldown": [
+              "3-5 phút đi bộ nhẹ",
+              "stretch động cơ lớn 6-8 phút"
+            ]
+          },
+          {
+            "ngay": "Buổi B",
+            "loai": "Full body - Buổi B",
+            "warmup": [
+              "5 phút cardio nhẹ",
+              "mobility vai/hông"
+            ],
+            "exercises": [
+              {
+                "ten": "kéo đòn nâng từ sàn (sumo hoặc conventional)",
+                "nhom_co_chinh": "Lưng dưới, hams, mông",
+                "dung_cu": "Barbell",
+                "sets": 3,
+                "reps": "5-6",
+                "rest_s": 120,
+                "tempo": "2-0-1",
+                "chu_y": "Kéo từ chân, giữ lưng thẳng",
+                "progression": "tăng tạ tuần tự, ưu tiên kỹ thuật"
+              },
+              {
+                "ten": "đẩy tạ đòn qua đầu (barbell/dumbbell)",
+                "nhom_co_chinh": "Vai",
+                "dung_cu": "Barbell/Dumbbell",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "kéo xà hoặc Lat Pulldown",
+                "nhom_co_chinh": "Xô",
+                "dung_cu": "Bodyweight hoặc máy",
+                "sets": 3,
+                "reps": "6-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "Walking bước lunge tiếns",
+                "nhom_co_chinh": "Đùi trước, mông",
+                "dung_cu": "Bodyweight/Dumbbell",
+                "sets": 3,
+                "reps": "10 bước mỗi bên",
+                "rest_s": 90
+              },
+              {
+                "ten": "Side Plank",
+                "nhom_co_chinh": "Core xiên",
+                "dung_cu": "Bodyweight",
+                "sets": 3,
+                "reps": "30s mỗi bên",
+                "rest_s": 45
+              }
+            ],
+            "cooldown": [
+              "stretch 6 phút"
+            ]
+          },
+          {
+            "ngay": "Buổi C",
+            "loai": "Full body - Buổi C (cường độ vừa)",
+            "warmup": [
+              "5-8 phút cardio + mobility"
+            ],
+            "exercises": [
+              {
+                "ten": "đạp chân máy leg press hoặc Goblet Squat",
+                "nhom_co_chinh": "Đùi trước",
+                "dung_cu": "Máy/KB",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "đẩy ngực dốc với tạ đơn",
+                "nhom_co_chinh": "Ngực trên",
+                "dung_cu": "Dumbbell",
+                "sets": 3,
+                "reps": "8-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "One-arm Dumbbell Row",
+                "nhom_co_chinh": "Lưng giữa",
+                "dung_cu": "Dumbbell",
+                "sets": 3,
+                "reps": "8-12 mỗi bên",
+                "rest_s": 90
+              },
+              {
+                "ten": "đẩy hông với tạ đòn (barbell)",
+                "nhom_co_chinh": "Mông",
+                "dung_cu": "Barbell",
+                "sets": 3,
+                "reps": "8-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "Hanging Leg Raise",
+                "nhom_co_chinh": "Core dưới",
+                "dung_cu": "Bodyweight",
+                "sets": 3,
+                "reps": "10-15",
+                "rest_s": 60
+              }
+            ],
+            "cooldown": [
+              "foam roll 5 phút + stretch"
+            ]
+          }
+        ],
+        "weekly_progression": "Tuần 1-4: kỹ thuật & volume; Tuần 5-8: tăng tạ 5-10%; Tuần 9-12: tối ưu hóa reps/sets hoặc deload cuối tuần 12",
+        "notes": "Dành cho người mới; nghỉ 48h giữa các buổi full-body nếu cảm thấy mệt."
+      },
+      {
+        "id": "P002",
+        "ten": "Upper / Lower Split (4 buổi/tuần)",
+        "muc_tieu": "Tăng cơ & sức bền - phân chia Upper/Lower",
+        "do_kho": "Intermediate",
+        "thoi_luong_tuan": 4,
+        "thoi_gian_chuong_trinh": "12 tuần",
+        "mo_ta": "Mỗi tuần 2 buổi Upper (ngực/lưng/ vai/ tay) và 2 buổi Lower (đùi/ mông/ hams). Thích hợp người đã có nền tảng.",
+        "structure_week_sample": [
+          {
+            "ngay": "Upper A",
+            "warmup": [
+              "5-10 phút cardio nhẹ",
+              "mobility vai/ cổ"
+            ],
+            "exercises": [
+              {
+                "ten": "đẩy ngực nằm với tạ đòn",
+                "sets": 4,
+                "reps": "6-8",
+                "rest_s": 120
+              },
+              {
+                "ten": "Bent-over Row",
+                "sets": 4,
+                "reps": "6-8",
+                "rest_s": 120
+              },
+              {
+                "ten": "đẩy ngực dốc với tạ đơn",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "kéo xà / Lat Pulldown",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "Face Pull",
+                "sets": 3,
+                "reps": "12-15",
+                "rest_s": 60
+              },
+              {
+                "ten": "Barbell Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_s": 60
+              }
+            ],
+            "cooldown": [
+              "stretch 5 phút"
+            ]
+          },
+          {
+            "ngay": "Lower A",
+            "exercises": [
+              {
+                "ten": "ngồi xổm tạ đòn sau lưng",
+                "sets": 4,
+                "reps": "6-8",
+                "rest_s": 120
+              },
+              {
+                "ten": "deadlift kiểu RDL (gập hông)",
+                "sets": 3,
+                "reps": "8-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "đạp chân máy leg press",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "Calf Raise",
+                "sets": 4,
+                "reps": "12-15",
+                "rest_s": 45
+              },
+              {
+                "ten": "Ab Wheel or Plank",
+                "sets": 3,
+                "reps": "10-20 / 30-60s",
+                "rest_s": 60
+              }
+            ]
+          },
+          {
+            "ngay": "Upper B",
+            "exercises": [
+              {
+                "ten": "đẩy tạ đòn qua đầu",
+                "sets": 4,
+                "reps": "6-8",
+                "rest_s": 120
+              },
+              {
+                "ten": "One-arm Dumbbell Row",
+                "sets": 4,
+                "reps": "8-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "Dips or Triceps Pushdown",
+                "sets": 3,
+                "reps": "8-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "Lateral Raise",
+                "sets": 3,
+                "reps": "12-15",
+                "rest_s": 45
+              },
+              {
+                "ten": "Hammer Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_s": 60
+              }
+            ]
+          },
+          {
+            "ngay": "Lower B",
+            "exercises": [
+              {
+                "ten": "ngồi xổm tạ đòn trước ngực or Bulgarian Split Squat",
+                "sets": 4,
+                "reps": "6-10",
+                "rest_s": 90
+              },
+              {
+                "ten": "Glute Bridge / đẩy hông với tạ đòn",
+                "sets": 4,
+                "reps": "8-12",
+                "rest_s": 90
+              },
+              {
+                "ten": "Leg Curl",
+                "sets": 3,
+                "reps": "10-12",
+                "rest_s": 60
+              },
+              {
+                "ten": "Farmer Carry",
+                "sets": 3,
+                "reps": "30-60s",
+                "rest_s": 60
+              }
+            ]
+          }
+        ],
+        "weekly_progression": "Tăng tạ hoặc tăng reps, deload mỗi 4–6 tuần.",
+        "notes": "Phù hợp người đã tập 6–12 tháng."
+      },
+      {
+        "id": "P003",
+        "ten": "Push / Pull / Legs (PPL) - 6 buổi/tuần",
+        "muc_tieu": "Tối ưu hóa tăng cơ, phân tách cao",
+        "do_kho": "Advanced/Intermediate",
+        "thoi_luong_tuan": 6,
+        "thoi_gian_chuong_trinh": "8-12 tuần",
+        "mo_ta": "Chương trình 6 buổi, mỗi nhóm tập 2 lần/tuần. Cần phục hồi tốt và dinh dưỡng đủ.",
+        "structure_week_sample": [
+          {
+            "ngay": "Push 1",
+            "exercises": [
+              {
+                "ten": "đẩy ngực nằm với tạ đòn",
+                "sets": 5,
+                "reps": "5-8"
+              },
+              {
+                "ten": "Incline DB Press",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "đẩy tạ đòn qua đầu",
+                "sets": 4,
+                "reps": "6-8"
+              },
+              {
+                "ten": "Triceps Extension",
+                "sets": 3,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Pull 1",
+            "exercises": [
+              {
+                "ten": "kéo đòn nâng từ sàn (light)",
+                "sets": 4,
+                "reps": "4-6"
+              },
+              {
+                "ten": "kéo xà",
+                "sets": 4,
+                "reps": "6-10"
+              },
+              {
+                "ten": "Seated Cable Row",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Biceps Curl",
+                "sets": 3,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Legs 1",
+            "exercises": [
+              {
+                "ten": "ngồi xổm tạ đòn sau lưng",
+                "sets": 5,
+                "reps": "5-8"
+              },
+              {
+                "ten": "deadlift kiểu RDL (gập hông)",
+                "sets": 4,
+                "reps": "8-10"
+              },
+              {
+                "ten": "Leg Extension",
+                "sets": 3,
+                "reps": "12-15"
+              },
+              {
+                "ten": "Calf Raise",
+                "sets": 4,
+                "reps": "12-20"
+              }
+            ]
+          },
+          {
+            "ngay": "Push 2",
+            "exercises": [
+              {
+                "ten": "Dumbbell đẩy ngực nằm với tạ đòn",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Incline Fly",
+                "sets": 3,
+                "reps": "10-12"
+              },
+              {
+                "ten": "Lateral Raise",
+                "sets": 4,
+                "reps": "12-15"
+              }
+            ]
+          },
+          {
+            "ngay": "Pull 2",
+            "exercises": [
+              {
+                "ten": "Chest Supported Row",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Face Pull",
+                "sets": 3,
+                "reps": "12-15"
+              },
+              {
+                "ten": "Hammer Curl",
+                "sets": 3,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Legs 2",
+            "exercises": [
+              {
+                "ten": "bước lunge tiếns",
+                "sets": 4,
+                "reps": "10-12 mỗi bên"
+              },
+              {
+                "ten": "đẩy hông với tạ đòn",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Leg Curl",
+                "sets": 3,
+                "reps": "10-15"
+              }
+            ]
+          }
+        ],
+        "weekly_progression": "Chia làm 3 tuần tăng tải, tuần 4 deload.",
+        "notes": "Yêu cầu dinh dưỡng đủ và giấc ngủ tốt; không phù hợp cho người bận rộn."
+      },
+      {
+        "id": "P004",
+        "ten": "Strength Focus (3 buổi/tuần)",
+        "muc_tieu": "Tăng sức mạnh - low rep heavy",
+        "do_kho": "Intermediate/Advanced",
+        "thoi_luong_tuan": 3,
+        "thoi_gian_chuong_trinh": "12 tuần",
+        "mo_ta": "Tập theo nguyên tắc nâng tạ nặng, low-rep, ưu tiên 3 bài compound chính: Squat, Bench, Deadlift/Press. Kèm accessory phục hồi.",
+        "structure_week_sample": [
+          {
+            "ngay": "Ngày 1 - Squat day",
+            "exercises": [
+              {
+                "ten": "ngồi xổm tạ đòn sau lưng (work up sets)",
+                "sets": 5,
+                "reps": "3-5",
+                "rest_s": 180
+              },
+              {
+                "ten": "Paused Squat or ngồi xổm tạ đòn trước ngực",
+                "sets": 3,
+                "reps": "3-5"
+              },
+              {
+                "ten": "Leg Curl",
+                "sets": 3,
+                "reps": "8-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Ngày 2 - Bench press day",
+            "exercises": [
+              {
+                "ten": "đẩy ngực nằm với tạ đòn (5x3)",
+                "sets": 5,
+                "reps": "3",
+                "rest_s": 180
+              },
+              {
+                "ten": "Close-grip Bench",
+                "sets": 3,
+                "reps": "4-6"
+              },
+              {
+                "ten": "Row Variation",
+                "sets": 4,
+                "reps": "6-8"
+              }
+            ]
+          },
+          {
+            "ngay": "Ngày 3 - Deadlift/Overhead",
+            "exercises": [
+              {
+                "ten": "kéo đòn nâng từ sàn (5x3)",
+                "sets": 5,
+                "reps": "3",
+                "rest_s": 180
+              },
+              {
+                "ten": "đẩy tạ đòn qua đầu (4x5)",
+                "sets": 4,
+                "reps": "5"
+              },
+              {
+                "ten": "Core heavy (Farmer carry)",
+                "sets": 3,
+                "reps": "40-60s"
+              }
+            ]
+          }
+        ],
+        "progression": "Linear hoặc undulating: tăng 2.5-5 kg cho bài squat/bench/deadlift mỗi tuần nếu form ổn.",
+        "notes": "Cần giám sát kỹ thuật; ngủ & dinh dưỡng ưu tiên."
+      },
+      {
+        "id": "P005",
+        "ten": "Fat Loss - Strength + HIIT (5 buổi/tuần)",
+        "muc_tieu": "Giảm mỡ, giữ cơ",
+        "do_kho": "Intermediate",
+        "thoi_luong_tuan": 5,
+        "thoi_gian_chuong_trinh": "8-12 tuần",
+        "mo_ta": "Kết hợp 3 buổi strength full-body + 2 buổi HIIT/cardio. Hạn chế volume cơ bắp quá lớn để giữ recovery.",
+        "structure_week_sample": [
+          {
+            "ngay": "Strength 1",
+            "exercises": [
+              {
+                "ten": "Goblet ngồi xổm với tạ đòn",
+                "sets": 3,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Push-up",
+                "sets": 3,
+                "reps": "AMRAP 8-15"
+              },
+              {
+                "ten": "Inverted Row or DB Row",
+                "sets": 3,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Plank",
+                "sets": 3,
+                "reps": "45-60s"
+              }
+            ]
+          },
+          {
+            "ngay": "HIIT 1",
+            "exercises": [
+              {
+                "ten": "Tabata: 20s max effort / 10s rest x 8 rounds",
+                "giai_thich": "nhảy dây, burpees hoặc bike sprint"
+              }
+            ]
+          },
+          {
+            "ngay": "Strength 2",
+            "exercises": [
+              {
+                "ten": "kéo đòn nâng từ sàn light",
+                "sets": 3,
+                "reps": "5-8"
+              },
+              {
+                "ten": "đẩy tạ đòn qua đầu",
+                "sets": 3,
+                "reps": "8-10"
+              },
+              {
+                "ten": "Farmer Carry",
+                "sets": 3,
+                "reps": "30-60s"
+              }
+            ]
+          },
+          {
+            "ngay": "HIIT 2",
+            "exercises": [
+              {
+                "ten": "Circuit 4 động tác x 4 vòng (kettlebell swing, mountain climber, jump squat, plank jacks)",
+                "work_rest": "40s work / 20s rest"
+              }
+            ]
+          },
+          {
+            "ngay": "Strength 3",
+            "exercises": [
+              {
+                "ten": "bước lunge tiến",
+                "sets": 3,
+                "reps": "10-12 mỗi bên"
+              },
+              {
+                "ten": "kéo xà",
+                "sets": 3,
+                "reps": "6-10"
+              },
+              {
+                "ten": "đẩy hông với tạ đòn",
+                "sets": 3,
+                "reps": "8-12"
+              }
+            ]
+          }
+        ],
+        "nutrition_note": "TDEE - 300~700 kcal deficit, protein cao (2.0 g/kg) để bảo toàn cơ.",
+        "notes": "Ưu tiên sleep 7-8h; theo dõi tiến độ 2 tuần/lần."
+      },
+      {
+        "id": "P006",
+        "ten": "Hypertrophy Special (5 buổi/tuần)",
+        "muc_tieu": "Tập trung tăng cơ mặt rộng (hypertrophy)",
+        "do_kho": "Intermediate/Advanced",
+        "thoi_luong_tuan": 5,
+        "thoi_gian_chuong_trinh": "10-16 tuần",
+        "mo_ta": "Volume cao, rep 8-15, nhiều kỹ thuật (drop set, rest-pause), phù hợp người muốn tối đa hóa cơ bắp.",
+        "structure_week_sample": [
+          {
+            "ngay": "Push (Chest focus)",
+            "exercises": [
+              {
+                "ten": "đẩy ngực phẳng với tạ đơn",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "đẩy ngực dốc với tạ đơn",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Cable Fly",
+                "sets": 3,
+                "reps": "12-15"
+              },
+              {
+                "ten": "Triceps Rope Pushdown",
+                "sets": 3,
+                "reps": "10-15"
+              }
+            ]
+          },
+          {
+            "ngay": "Pull (Back focus)",
+            "exercises": [
+              {
+                "ten": "Pendlay Row",
+                "sets": 4,
+                "reps": "6-10"
+              },
+              {
+                "ten": "Lat Pulldown",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Seated Cable Row",
+                "sets": 3,
+                "reps": "10-12"
+              },
+              {
+                "ten": "EZ Bar Curl",
+                "sets": 3,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Legs (Quad focus)",
+            "exercises": [
+              {
+                "ten": "đạp chân máy leg press",
+                "sets": 4,
+                "reps": "10-15"
+              },
+              {
+                "ten": "Walking bước lunge tiến",
+                "sets": 3,
+                "reps": "12-15 mỗi bên"
+              },
+              {
+                "ten": "Leg Extension (drop set last set)",
+                "sets": 4,
+                "reps": "12-15"
+              }
+            ]
+          },
+          {
+            "ngay": "Push 2 (Shoulder focus)",
+            "exercises": [
+              {
+                "ten": "Seated DB Press",
+                "sets": 4,
+                "reps": "8-12"
+              },
+              {
+                "ten": "Lateral Raise (rest-pause)",
+                "sets": 4,
+                "reps": "12-15"
+              },
+              {
+                "ten": "Rear Delt Fly",
+                "sets": 3,
+                "reps": "12-15"
+              }
+            ]
+          },
+          {
+            "ngay": "Pull 2 (Accessory + Core)",
+            "exercises": [
+              {
+                "ten": "Single-leg deadlift kiểu RDL (gập hông)",
+                "sets": 3,
+                "reps": "10-12 mỗi bên"
+              },
+              {
+                "ten": "Face Pull",
+                "sets": 3,
+                "reps": "12-15"
+              },
+              {
+                "ten": "Hanging Knee Raise",
+                "sets": 3,
+                "reps": "12-15"
+              }
+            ]
+          }
+        ],
+        "progression": "Tăng volume hoặc intensify bằng kỹ thuật nâng cao.",
+        "notes": "Cần calories dư + protein 1.6-2.2 g/kg."
+      },
+      {
+        "id": "P007",
+        "ten": "General Fitness / Maintenance (3-4 buổi/tuần)",
+        "muc_tieu": "Sức khoẻ tổng quát, duy trì vóc dáng",
+        "do_kho": "All levels",
+        "thoi_luong_tuan": "3-4",
+        "thoi_gian_chuong_trinh": "Liên tục",
+        "mo_ta": "Lịch linh hoạt dành cho người bận, kết hợp strength, mobility, cardio.",
+        "structure_week_sample": [
+          {
+            "ngay": "Day 1 - Strength",
+            "exercises": [
+              {
+                "ten": "Goblet ngồi xổm với tạ đòn",
+                "sets": 3,
+                "reps": "10-12"
+              },
+              {
+                "ten": "Push-up",
+                "sets": 3,
+                "reps": "10-15"
+              },
+              {
+                "ten": "Bent-over Row",
+                "sets": 3,
+                "reps": "10-12"
+              }
+            ]
+          },
+          {
+            "ngay": "Day 2 - Cardio + Mobility",
+            "exercises": [
+              {
+                "ten": "Cardio moderate 30-45 phút (chạy/xe đạp/elliptical)",
+                "note": ""
+              },
+              {
+                "ten": "Full body mobility 15 phút",
+                "note": ""
+              }
+            ]
+          },
+          {
+            "ngay": "Day 3 - Hybrid",
+            "exercises": [
+              {
+                "ten": "Circuit: 4 động tác x 4 vòng (squat, push-up, kettlebell swing, plank)",
+                "work_rest": "45s/15s"
+              }
+            ]
+          }
+        ],
+        "notes": "Dễ tuỳ biến theo lịch cá nhân; phù hợp để duy trì sức khoẻ."
+      }
+    ],
+    "exercises_db": {
+      "Squat": {
+        "mota": "Compound lower body, tác động chính lên đùi trước và mông.",
+        "equipment": [
+          "Barbell",
+          "Dumbbell",
+          "Kettlebell",
+          "Bodyweight"
+        ],
+        "tips": "Giữ lưng thẳng, đầu gối theo hướng mũi chân, hít vào khi hạ."
+      },
+      "Bench Press": {
+        "mota": "Compound ngực, vai trước, tay sau.",
+        "equipment": [
+          "Barbell",
+          "Dumbbell"
+        ],
+        "tips": "Xẹp vai xuống, chân bám sàn, đẩy kiểm soát."
+      },
+      "Deadlift": {
+        "mota": "Compound posterior chain: lưng dưới, hams, mông.",
+        "equipment": [
+          "Barbell"
+        ],
+        "tips": "Bắt đầu từ chân, giữ lưng trung tính, không kéo bằng lưng trên."
+      },
+      "Overhead Press": {
+        "mota": "Compound cho vai, một phần ngực, tay sau.",
+        "equipment": [
+          "Barbell",
+          "Dumbbell"
+        ],
+        "tips": "Siết core, đẩy thẳng, tránh bùng lưng."
+      },
+      "Pull-up": {
+        "mota": "Compound cho xô và lưng giữa, sử dụng trọng lượng cơ thể.",
+        "equipment": [
+          "Bodyweight",
+          "Assisted machine"
+        ],
+        "tips": "Kéo bằng lưng, tránh dùng đà quá nhiều."
+      },
+      "Hip Thrust": {
+        "mota": "Tập trọng tâm vào mông, cải thiện hip extension.",
+        "equipment": [
+          "Barbell",
+          "Bodyweight"
+        ],
+        "tips": "Siết mông lên trên, kiểm soát phần hông."
+      },
+      "Romanian Deadlift": {
+        "mota": "Tập hams & lưng dưới với biên độ gập hông.",
+        "equipment": [
+          "Barbell",
+          "Dumbbell"
+        ],
+        "tips": "Hông lùi, gối hơi cong, giữ thanh sát chân."
+      },
+      "Lunge": {
+        "mota": "Tốt cho cân bằng, phát triển đùi và mông.",
+        "equipment": [
+          "Bodyweight",
+          "Dumbbell"
+        ],
+        "tips": "Đầu gối trước không vượt quá mũi chân, thân thẳng."
+      },
+      "Plank": {
+        "mota": "Isometric core hold.",
+        "equipment": [
+          "Bodyweight"
+        ],
+        "tips": "Giữ thân thẳng, không võng lưng."
+      },
+      "Farmer Carry": {
+        "mota": "Core và grip strength, carry distance or time.",
+        "equipment": [
+          "Dumbbell",
+          "Kettlebell"
+        ],
+        "tips": "Giữ vai thẳng, đi nhanh và ổn định."
+      },
+      "Kettlebell Swing": {
+        "mota": "Power hip hinge, cardio và posterior chain.",
+        "equipment": [
+          "Kettlebell"
+        ],
+        "tips": "Đẩy hông mạnh, không kéo bằng tay."
+      },
+      "Burpee": {
+        "mota": "Full-body cardio + plyometric movement.",
+        "equipment": [
+          "Bodyweight"
+        ],
+        "tips": "Giữ nhịp, hạ thấp kiểm soát."
+      },
+      "Mountain Climber": {
+        "mota": "Core + cardio hiit movement.",
+        "equipment": [
+          "Bodyweight"
+        ],
+        "tips": "Giữ chân gần sàn, nhanh nhưng kiểm soát."
+      },
+      "Calf Raise": {
+        "mota": "Tác động vào bắp chân (gastrocnemius/soleus).",
+        "equipment": [
+          "Machine",
+          "Dumbbell"
+        ],
+        "tips": "Full ROM: nâng cao rồi hạ chậm."
+      },
+      "Face Pull": {
+        "mota": "Tốt cho vai sau và sửa tư thế vai",
+        "equipment": [
+          "Cable"
+        ],
+        "tips": "Kéo về mặt, khuỷu tay cao hơn vai."
+      }
+    },
+    "templates_and_api_schema": {
+      "program_object_schema": {
+        "id": "string",
+        "ten": "string",
+        "muc_tieu": "string",
+        "do_kho": "string",
+        "thoi_luong_tuan": "number or string",
+        "thoi_gian_chuong_trinh": "string",
+        "mo_ta": "string",
+        "structure_week_sample": "array of day objects",
+        "weekly_progression": "string",
+        "notes": "string"
+      },
+      "exercise_object_schema": {
+        "ten": "string",
+        "nhom_co_chinh": "string",
+        "dung_cu": "array",
+        "sets": "number",
+        "reps": "string or number",
+        "rest_s": "number",
+        "tempo": "string",
+        "chu_y": "string",
+        "progression": "string"
+      },
+      "usage_notes": "API/Chatbot có thể lấy chương trình theo mục tiêu, sau đó map exercise names -> exercise_db để hiện tooltip/kỹ thuật."
+    },
+    "recommendations_general": {
+      "warmup_standard": [
+        "10 phút cardio nhẹ",
+        "Dynamic stretching cho khớp chính",
+        "Activation: glute bridges, band pull apart 2x15"
+      ],
+      "cooldown_standard": [
+        "5-10 phút cardio nhẹ",
+        "Stretch tĩnh 8-10 phút",
+        "Foam rolling nhóm cơ lớn"
+      ],
+      "safety": [
+        "Luôn ưu tiên kỹ thuật hơn tạ nặng",
+        "Nghe cơ thể: nếu đau bất thường -> dừng và kiểm tra",
+        "Nếu bệnh nền: tham khảo bác sĩ trước khi bắt đầu chương trình cường độ cao"
+      ],
+      "progression_guidelines": [
+        "Tăng 2.5-5% khối lượng nếu hoàn thành target reps với kỹ thuật tốt trong 2 buổi liên tiếp",
+        "Hoặc tăng 1-2 reps mỗi set cho cùng khối lượng trước khi tăng tạ",
+        "Deload 1 tuần sau mỗi 4–8 tuần tùy mức độ mệt mỏi"
+      ]
+    }
+  }
+}

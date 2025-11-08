@@ -102,6 +102,14 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    # AI Chat Data
+    - lib/features/ai_chat/data/bmi.json
+    - lib/features/ai_chat/data/bmr.json
+    - lib/features/ai_chat/data/tdee.json
+    - lib/features/ai_chat/data/exercises.json
+    - lib/features/ai_chat/data/nutrition.json
+    - lib/features/ai_chat/data/membership_cards.json
+    - lib/features/ai_chat/data/workout.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

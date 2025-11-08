@@ -1,0 +1,116 @@
+{
+  "bmr_reference": {
+    "description": "Chỉ số BMR (Basal Metabolic Rate) – năng lượng tối thiểu cơ thể cần để duy trì hoạt động sống trong trạng thái nghỉ ngơi (thở, tim đập, tiêu hóa nhẹ, duy trì thân nhiệt).",
+    "unit": {
+      "energy": "kcal/ngày",
+      "weight": "kg",
+      "height": "cm",
+      "age": "năm"
+    },
+    "formula": {
+      "note": "Sử dụng công thức Mifflin-St Jeor – công thức BMR hiện đại và chính xác hơn Harris-Benedict.",
+      "male": "BMR = 10 × cân_nặng + 6.25 × chiều_cao - 5 × tuổi + 5",
+      "female": "BMR = 10 × cân_nặng + 6.25 × chiều_cao - 5 × tuổi - 161"
+    },
+    "factors_affecting": [
+      "Tuổi (càng lớn, BMR càng giảm)",
+      "Giới tính (nam cao hơn nữ do có nhiều cơ bắp hơn)",
+      "Tỉ lệ cơ và mỡ cơ thể",
+      "Mức độ hormone (thyroid, testosterone, estrogen)",
+      "Di truyền và thói quen sinh hoạt (ngủ, ăn, stress)"
+    ],
+    "categories": [
+      {
+        "gioi_tinh": "Nam",
+        "nhom_tuoi": [
+          {
+            "do_tuoi": "18-29",
+            "ghi_chu": "Nam trẻ có BMR cao nhất, nhờ tỉ lệ cơ bắp lớn và hormone mạnh.",
+            "average_range_kcal": "1600 - 1900",
+            "mo_ta": "Cơ thể tiêu hao năng lượng mạnh ngay cả khi nghỉ. Phù hợp cho giai đoạn tăng cơ hoặc vận động nhiều.",
+            "khuyen_nghi": "Nên ăn đủ 1.2–1.4 lần BMR để duy trì, tập nặng có thể lên 1.6–1.8 lần BMR."
+          },
+          {
+            "do_tuoi": "30-39",
+            "average_range_kcal": "1500 - 1800",
+            "mo_ta": "BMR giảm nhẹ do giảm khối lượng cơ và hormone testosterone.",
+            "khuyen_nghi": "Tăng cường tập tạ, ăn giàu protein (1.6–2g/kg cân nặng) để giữ cơ."
+          },
+          {
+            "do_tuoi": "40-49",
+            "average_range_kcal": "1400 - 1700",
+            "mo_ta": "Chuyển hóa chậm, mỡ bụng dễ tích tụ.",
+            "khuyen_nghi": "Ăn ít tinh bột, tăng chất xơ, duy trì tập luyện tối thiểu 150 phút/tuần."
+          },
+          {
+            "do_tuoi": "50+",
+            "average_range_kcal": "1300 - 1600",
+            "mo_ta": "Giảm cơ rõ, nguy cơ bệnh chuyển hóa tăng.",
+            "khuyen_nghi": "Ăn vừa phải, bổ sung canxi và vitamin D, tập nhẹ nhàng (đi bộ, kháng lực thấp)."
+          }
+        ]
+      },
+      {
+        "gioi_tinh": "Nữ",
+        "nhom_tuoi": [
+          {
+            "do_tuoi": "18-29",
+            "average_range_kcal": "1350 - 1600",
+            "mo_ta": "BMR ở nữ thấp hơn nam do khối cơ ít hơn, nhưng vẫn cao nếu duy trì vận động.",
+            "khuyen_nghi": "Ăn đủ đạm, ngủ đủ, tránh giảm cân quá nhanh (giảm <300 kcal/ngày so với BMR)."
+          },
+          {
+            "do_tuoi": "30-39",
+            "average_range_kcal": "1300 - 1550",
+            "mo_ta": "Giảm chuyển hóa do hormone estrogen thay đổi và ít vận động hơn.",
+            "khuyen_nghi": "Tập cardio nhẹ, yoga, kết hợp kháng lực để duy trì cơ."
+          },
+          {
+            "do_tuoi": "40-49",
+            "average_range_kcal": "1200 - 1450",
+            "mo_ta": "BMR tiếp tục giảm, mỡ bụng dễ tích tụ.",
+            "khuyen_nghi": "Kiểm soát calo, giảm đường, ăn chia nhỏ bữa, vận động thường xuyên."
+          },
+          {
+            "do_tuoi": "50+",
+            "average_range_kcal": "1100 - 1400",
+            "mo_ta": "BMR thấp, cơ thể chuyển hóa chậm, dễ béo dù ăn ít.",
+            "khuyen_nghi": "Ăn ít dầu mỡ, tập nhẹ hằng ngày, ngủ đủ để duy trì hormone cân bằng."
+          }
+        ]
+      }
+    ],
+    "activity_level": [
+      {
+        "muc_do": "Rất ít vận động",
+        "he_so": 1.2,
+        "mo_ta": "Công việc bàn giấy, hầu như không tập thể dục.",
+        "goi_y": "Nên thêm 15-20 phút đi bộ mỗi ngày để cải thiện tuần hoàn."
+      },
+      {
+        "muc_do": "Vận động nhẹ",
+        "he_so": 1.375,
+        "mo_ta": "Tập thể dục 1–3 lần/tuần.",
+        "goi_y": "Phù hợp người mới bắt đầu, chỉ cần duy trì đều là đủ."
+      },
+      {
+        "muc_do": "Vận động vừa",
+        "he_so": 1.55,
+        "mo_ta": "Tập 3–5 lần/tuần hoặc lao động vừa.",
+        "goi_y": "Duy trì chế độ ăn cân đối, tỉ lệ protein ~25% tổng năng lượng."
+      },
+      {
+        "muc_do": "Vận động nặng",
+        "he_so": 1.725,
+        "mo_ta": "Tập 6–7 buổi/tuần hoặc làm việc thể lực cao.",
+        "goi_y": "Cần nạp thêm carb và nước đầy đủ để phục hồi cơ thể."
+      },
+      {
+        "muc_do": "Cường độ cao (vận động viên)",
+        "he_so": 1.9,
+        "mo_ta": "Luyện tập, thi đấu cường độ cao hoặc lao động cực nặng.",
+        "goi_y": "Nên theo dõi chuyên gia dinh dưỡng, cân chỉnh macro chuẩn."
+      }
+    ]
+  }
+}

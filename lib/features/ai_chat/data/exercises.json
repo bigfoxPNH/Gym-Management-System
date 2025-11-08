@@ -1,0 +1,311 @@
+{
+  "baiTap": [
+    {
+      "tenBaiTap": "Đẩy ngực ngang (Bench Press)",
+      "nhomCoChinh": "Ngực giữa (Middle Chest)",
+      "nhomCoPhu": ["Tay sau (Triceps)", "Vai trước (Anterior Deltoid)"],
+      "doKho": "Khó",
+      "dungCu": "Thanh tạ (Barbell) và ghế phẳng",
+      "doiTuong": ["Người đã có kinh nghiệm", "Người muốn tăng cơ ngực"],
+      "mucTieu": ["Phát triển cơ ngực toàn diện", "Tăng sức mạnh thân trên"],
+      "cachTap": "Nằm trên ghế, nắm thanh tạ rộng hơn vai, hạ thanh xuống giữa ngực rồi đẩy lên mạnh mẽ.",
+      "moTa": "Bài tập nền tảng nhất cho cơ ngực, giúp tăng khối lượng và sức mạnh phần thân trên."
+    },
+    {
+      "tenBaiTap": "Đẩy ngực dốc lên (Incline Bench Press)",
+      "nhomCoChinh": "Ngực trên (Upper Chest)",
+      "nhomCoPhu": ["Vai trước", "Tay sau"],
+      "doKho": "Trung bình",
+      "dungCu": "Thanh tạ hoặc tạ tay, ghế nghiêng 30–45°",
+      "doiTuong": ["Người muốn làm đầy phần ngực trên"],
+      "mucTieu": ["Tăng cơ vùng ngực trên", "Cải thiện cân đối cơ thể"],
+      "cachTap": "Nằm ghế nghiêng, đẩy tạ từ ngực lên cao, không khóa khuỷu tay.",
+      "moTa": "Tập trung vào phần ngực trên, giúp tạo khối cơ đầy đặn hơn cho ngực."
+    },
+    {
+      "tenBaiTap": "Ép ngực với tạ tay (Dumbbell Chest Fly)",
+      "nhomCoChinh": "Ngực trong (Inner Chest)",
+      "nhomCoPhu": ["Vai trước"],
+      "doKho": "Trung bình",
+      "dungCu": "Tạ tay và ghế phẳng",
+      "doiTuong": ["Người muốn cơ ngực tách nét"],
+      "mucTieu": ["Tăng độ căng và tách nét cơ ngực"],
+      "cachTap": "Giữ hai tạ cao ngang vai, mở rộng ra hai bên rồi ép lại ở giữa.",
+      "moTa": "Tăng độ săn chắc và độ mở của cơ ngực, giúp ngực rõ nét hơn."
+    },
+
+    {
+      "tenBaiTap": "Kéo xà đơn (Pull-up)",
+      "nhomCoChinh": "Cơ xô (Latissimus Dorsi)",
+      "nhomCoPhu": ["Tay trước", "Cơ core"],
+      "doKho": "Khó",
+      "dungCu": "Xà đơn",
+      "doiTuong": ["Người tập trung cải thiện lưng"],
+      "mucTieu": ["Tăng cơ xô", "Cải thiện dáng chữ V"],
+      "cachTap": "Nắm xà rộng hơn vai, kéo người lên cho đến khi cằm vượt xà rồi hạ xuống từ từ.",
+      "moTa": "Phát triển cơ xô và cải thiện sức mạnh phần thân trên."
+    },
+    {
+      "tenBaiTap": "Deadlift (Kéo tạ từ sàn)",
+      "nhomCoChinh": "Lưng dưới (Lower Back)",
+      "nhomCoPhu": ["Đùi sau", "Cơ mông", "Core"],
+      "doKho": "Khó",
+      "dungCu": "Thanh tạ hoặc tạ đòn",
+      "doiTuong": ["Người trung cấp trở lên"],
+      "mucTieu": ["Tăng sức mạnh toàn thân", "Phát triển lưng và chân"],
+      "cachTap": "Giữ lưng thẳng, hạ người nắm tạ, đẩy hông và đứng thẳng kéo tạ lên.",
+      "moTa": "Bài tập toàn thân mạnh mẽ giúp tăng sức mạnh và thể lực tổng thể."
+    },
+    {
+      "tenBaiTap": "Kéo cáp ngang (Seated Cable Row)",
+      "nhomCoChinh": "Lưng giữa (Middle Back)",
+      "nhomCoPhu": ["Tay trước", "Vai sau"],
+      "doKho": "Trung bình",
+      "dungCu": "Máy kéo cáp",
+      "doiTuong": ["Người muốn cải thiện dáng lưng"],
+      "mucTieu": ["Tăng cơ lưng giữa", "Cải thiện tư thế ngồi thẳng"],
+      "cachTap": "Kéo tay cầm về gần bụng, siết cơ lưng, sau đó thả chậm.",
+      "moTa": "Giúp phát triển lưng giữa, tăng chiều sâu và sức mạnh kéo."
+    },
+
+    {
+      "tenBaiTap": "Đẩy vai (Shoulder Press)",
+      "nhomCoChinh": "Vai trước và giữa",
+      "nhomCoPhu": ["Tay sau", "Core"],
+      "doKho": "Trung bình",
+      "dungCu": "Tạ tay hoặc máy đẩy vai",
+      "doiTuong": ["Người muốn vai to và tròn"],
+      "mucTieu": ["Phát triển toàn bộ vai", "Tăng sức mạnh đẩy"],
+      "cachTap": "Ngồi ghế, đẩy tạ từ ngang vai lên cao, không khóa khuỷu tay.",
+      "moTa": "Bài tập chính giúp vai phát triển cân đối và đầy đặn."
+    },
+    {
+      "tenBaiTap": "Nâng tạ ngang (Lateral Raise)",
+      "nhomCoChinh": "Vai giữa (Medial Deltoid)",
+      "nhomCoPhu": ["Vai trước", "Core"],
+      "doKho": "Dễ",
+      "dungCu": "Tạ tay nhẹ",
+      "doiTuong": ["Người mới tập", "Phụ nữ muốn vai thon"],
+      "mucTieu": ["Tạo dáng vai ngang và rộng"],
+      "cachTap": "Giữ tạ hai bên, nâng lên ngang vai rồi hạ xuống chậm.",
+      "moTa": "Tập trung vào vai giữa, giúp vai mở rộng và cân đối."
+    },
+    {
+      "tenBaiTap": "Cúi người dang tạ (Rear Delt Fly)",
+      "nhomCoChinh": "Vai sau (Posterior Deltoid)",
+      "nhomCoPhu": ["Lưng trên"],
+      "doKho": "Trung bình",
+      "dungCu": "Tạ tay",
+      "doiTuong": ["Người muốn vai tròn đầy đủ ba phần"],
+      "mucTieu": ["Phát triển vai sau", "Cải thiện tư thế"],
+      "cachTap": "Cúi người, dang tạ sang hai bên, siết vai sau rồi hạ xuống.",
+      "moTa": "Bài tập giúp phần vai sau rõ nét, tạo khối vai tròn."
+    },
+
+    {
+      "tenBaiTap": "Barbell Curl (Cuốn tạ đòn)",
+      "nhomCoChinh": "Tay trước (Biceps)",
+      "nhomCoPhu": ["Cẳng tay"],
+      "doKho": "Trung bình",
+      "dungCu": "Thanh tạ đòn",
+      "doiTuong": ["Nam giới muốn tăng cơ tay"],
+      "mucTieu": ["Tăng kích thước tay trước"],
+      "cachTap": "Đứng thẳng, gập tay nâng tạ lên ngực rồi hạ chậm.",
+      "moTa": "Bài tập cơ bản nhất giúp phát triển cơ tay trước to và khỏe."
+    },
+    {
+      "tenBaiTap": "Dumbbell Curl (Cuốn tạ tay)",
+      "nhomCoChinh": "Biceps",
+      "nhomCoPhu": ["Cẳng tay"],
+      "doKho": "Dễ",
+      "dungCu": "Tạ tay",
+      "doiTuong": ["Người mới bắt đầu"],
+      "mucTieu": ["Tăng sức mạnh tay trước"],
+      "cachTap": "Cầm tạ hai bên người, gập tay luân phiên từng bên.",
+      "moTa": "Giúp phát triển cơ bắp tay trước tự nhiên, phù hợp người mới tập."
+    },
+    {
+      "tenBaiTap": "Concentration Curl (Cuốn tay tập trung)",
+      "nhomCoChinh": "Tay trước",
+      "nhomCoPhu": ["Cẳng tay"],
+      "doKho": "Trung bình",
+      "dungCu": "Tạ tay",
+      "doiTuong": ["Người muốn cô lập nhóm cơ tay"],
+      "mucTieu": ["Tăng độ nét tay trước"],
+      "cachTap": "Ngồi ghế, khuỷu tay tì vào đùi, cuốn tạ lên chậm rãi.",
+      "moTa": "Tác động sâu và cô lập hoàn toàn cơ tay trước."
+    },
+
+    {
+      "tenBaiTap": "Triceps Pushdown (Kéo cáp tay sau)",
+      "nhomCoChinh": "Tay sau (Triceps)",
+      "nhomCoPhu": ["Vai sau"],
+      "doKho": "Trung bình",
+      "dungCu": "Máy cáp",
+      "doiTuong": ["Người muốn săn chắc tay sau"],
+      "mucTieu": ["Tăng cơ tay sau"],
+      "cachTap": "Kéo thanh cáp từ ngực xuống đùi, giữ 1 giây rồi thả chậm.",
+      "moTa": "Tập trung vào cơ tay sau, giúp bắp tay săn và gọn."
+    },
+    {
+      "tenBaiTap": "Skull Crusher (Nằm đẩy tạ tay sau)",
+      "nhomCoChinh": "Triceps",
+      "nhomCoPhu": ["Vai"],
+      "doKho": "Khó",
+      "dungCu": "Thanh tạ EZ hoặc tạ tay",
+      "doiTuong": ["Người tập trung tăng cơ tay sau"],
+      "mucTieu": ["Phát triển tay sau toàn diện"],
+      "cachTap": "Nằm ghế, hạ tạ gần trán rồi đẩy lên, giữ khuỷu tay cố định.",
+      "moTa": "Bài tập tăng khối lượng và sức mạnh tay sau cực hiệu quả."
+    },
+
+    {
+      "tenBaiTap": "Wrist Curl (Cuốn cổ tay)",
+      "nhomCoChinh": "Cẳng tay trước",
+      "nhomCoPhu": ["Biceps"],
+      "doKho": "Dễ",
+      "dungCu": "Thanh tạ hoặc tạ tay",
+      "doiTuong": ["Người muốn cổ tay khỏe"],
+      "mucTieu": ["Tăng sức mạnh và kích thước cẳng tay"],
+      "cachTap": "Ngồi ghế, đặt cẳng tay lên đùi, gập cổ tay nâng tạ lên rồi hạ xuống.",
+      "moTa": "Giúp cổ tay và cẳng tay khỏe, hỗ trợ bài tập kéo và đẩy."
+    },
+    {
+      "tenBaiTap": "Farmer’s Carry (Đi bộ mang tạ)",
+      "nhomCoChinh": "Cẳng tay và core",
+      "nhomCoPhu": ["Vai", "Tay trước"],
+      "doKho": "Trung bình",
+      "dungCu": "Tạ tay hoặc tạ chuông",
+      "doiTuong": ["Người muốn cải thiện grip (sức nắm)"],
+      "mucTieu": ["Tăng sức cầm nắm và ổn định cơ thể"],
+      "cachTap": "Cầm tạ nặng hai bên người, đi bộ chậm trong 30 giây.",
+      "moTa": "Bài tập toàn thân đơn giản giúp tăng sức bền và cải thiện core."
+    },
+
+    {
+      "tenBaiTap": "Crunch (Gập bụng)",
+      "nhomCoChinh": "Cơ bụng trên",
+      "nhomCoPhu": ["Cơ xiên trong"],
+      "doKho": "Dễ",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người mới tập", "Người muốn giảm mỡ bụng"],
+      "mucTieu": ["Săn chắc cơ bụng trên"],
+      "cachTap": "Nằm ngửa, gập thân lên 45°, siết bụng khi lên.",
+      "moTa": "Bài tập bụng cơ bản, dễ thực hiện tại nhà."
+    },
+    {
+      "tenBaiTap": "Leg Raise (Nâng chân)",
+      "nhomCoChinh": "Cơ bụng dưới",
+      "nhomCoPhu": ["Core", "Háng"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ hoặc thanh xà",
+      "doiTuong": ["Người muốn giảm mỡ bụng dưới"],
+      "mucTieu": ["Tăng sức mạnh bụng dưới"],
+      "cachTap": "Nằm hoặc treo người, nâng chân thẳng lên rồi hạ chậm.",
+      "moTa": "Hiệu quả cao cho vùng bụng dưới – nơi khó giảm mỡ nhất."
+    },
+    {
+      "tenBaiTap": "Plank (Giữ tấm ván)",
+      "nhomCoChinh": "Cơ bụng giữa",
+      "nhomCoPhu": ["Vai", "Lưng dưới"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người muốn tăng sức bền core"],
+      "mucTieu": ["Cải thiện thăng bằng và ổn định thân trên"],
+      "cachTap": "Chống khuỷu tay, giữ người thẳng 30–60 giây.",
+      "moTa": "Tăng sức bền cơ core, giảm mỡ và ổn định cơ thể."
+    },
+
+    {
+      "tenBaiTap": "Hip Thrust (Đẩy hông)",
+      "nhomCoChinh": "Cơ mông",
+      "nhomCoPhu": ["Đùi sau", "Core"],
+      "doKho": "Trung bình",
+      "dungCu": "Thanh tạ và ghế",
+      "doiTuong": ["Phụ nữ muốn tăng mông", "Người tập thể hình"],
+      "mucTieu": ["Tăng cơ mông, cải thiện dáng đứng"],
+      "cachTap": "Tựa vai lên ghế, đẩy hông lên cao rồi hạ xuống chậm.",
+      "moTa": "Bài tập số 1 giúp nâng và làm săn mông."
+    },
+    {
+      "tenBaiTap": "Glute Kickback (Đá chân sau)",
+      "nhomCoChinh": "Mông",
+      "nhomCoPhu": ["Đùi sau"],
+      "doKho": "Dễ",
+      "dungCu": "Máy hoặc dây kháng lực",
+      "doiTuong": ["Phụ nữ muốn mông tròn săn"],
+      "mucTieu": ["Kích hoạt cơ mông"],
+      "cachTap": "Đá chân ra sau cao nhất có thể, siết mông rồi hạ xuống.",
+      "moTa": "Giúp đánh thức cơ mông, cải thiện đường cong cơ thể."
+    },
+
+    {
+      "tenBaiTap": "Squat (Ngồi xổm)",
+      "nhomCoChinh": "Đùi trước",
+      "nhomCoPhu": ["Mông", "Core"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ hoặc tạ đòn",
+      "doiTuong": ["Người muốn chân khỏe và săn chắc"],
+      "mucTieu": ["Phát triển cơ đùi", "Đốt mỡ toàn thân"],
+      "cachTap": "Hạ người xuống như ngồi ghế, giữ lưng thẳng, đẩy hông lên.",
+      "moTa": "Bài tập nền tảng toàn thân giúp đốt năng lượng cực cao."
+    },
+    {
+      "tenBaiTap": "Leg Extension (Duỗi chân)",
+      "nhomCoChinh": "Đùi trước",
+      "nhomCoPhu": ["Đùi trong"],
+      "doKho": "Dễ",
+      "dungCu": "Máy duỗi chân",
+      "doiTuong": ["Người mới tập chân"],
+      "mucTieu": ["Làm rõ cơ đùi trước"],
+      "cachTap": "Ngồi máy, duỗi chân thẳng ra rồi hạ xuống chậm.",
+      "moTa": "Cô lập cơ đùi trước, giúp chân săn chắc rõ nét."
+    },
+
+    {
+      "tenBaiTap": "Leg Curl (Gập chân)",
+      "nhomCoChinh": "Đùi sau",
+      "nhomCoPhu": ["Mông"],
+      "doKho": "Dễ",
+      "dungCu": "Máy gập chân",
+      "doiTuong": ["Người muốn làm săn đùi"],
+      "mucTieu": ["Tăng sức mạnh đùi sau"],
+      "cachTap": "Gập chân về phía mông, giữ 1 giây rồi thả chậm.",
+      "moTa": "Giúp phát triển cơ đùi sau và cân đối phần chân."
+    },
+    {
+      "tenBaiTap": "Romanian Deadlift",
+      "nhomCoChinh": "Đùi sau",
+      "nhomCoPhu": ["Mông", "Lưng dưới"],
+      "doKho": "Khó",
+      "dungCu": "Thanh tạ đòn",
+      "doiTuong": ["Người trung cấp trở lên"],
+      "mucTieu": ["Tăng sức mạnh và độ dày đùi sau"],
+      "cachTap": "Giữ lưng thẳng, hạ tạ đến giữa ống chân rồi đẩy hông lên.",
+      "moTa": "Tăng cơ đùi sau và cải thiện độ dẻo lưng dưới."
+    },
+
+    {
+      "tenBaiTap": "Standing Calf Raise (Nhón chân)",
+      "nhomCoChinh": "Bắp chân (Gastrocnemius)",
+      "nhomCoPhu": ["Core"],
+      "doKho": "Dễ",
+      "dungCu": "Không hoặc có thể dùng máy",
+      "doiTuong": ["Người muốn bắp chân to và săn"],
+      "mucTieu": ["Phát triển cơ bắp chân"],
+      "cachTap": "Đứng thẳng, nhón chân lên cao rồi hạ chậm xuống.",
+      "moTa": "Bài tập cơ bản nhất giúp cơ bắp chân to và khỏe."
+    },
+    {
+      "tenBaiTap": "Seated Calf Raise (Nhón chân ngồi)",
+      "nhomCoChinh": "Cơ soleus (bắp chân dưới)",
+      "nhomCoPhu": [],
+      "doKho": "Dễ",
+      "dungCu": "Máy calf raise hoặc tạ đặt trên đùi",
+      "doiTuong": ["Người muốn cải thiện độ dày bắp chân"],
+      "mucTieu": ["Phát triển bắp chân dưới"],
+      "cachTap": "Ngồi ghế, đặt tạ lên đùi, nhón chân lên rồi hạ xuống chậm.",
+      "moTa": "Giúp phát triển phần dưới bắp chân, tạo form tròn đều."
+    }
+  ]
+}
