@@ -191,6 +191,7 @@ class _AIChatViewState extends State<AIChatView>
       }
 
       return ListView.builder(
+        controller: controller.scrollController,
         padding: const EdgeInsets.all(16),
         itemCount: controller.messages.length,
         itemBuilder: (context, index) {

@@ -17,6 +17,9 @@ class AIChatController extends GetxController {
   late final BodyMetricsCalculator _calculator;
   late final AIEngine _aiEngine;
 
+  // ScrollController để tự động scroll đến tin nhắn mới
+  final ScrollController scrollController = ScrollController();
+
   List<ChatMessage> get messages => _messages;
   bool get isTyping => _isTyping.value;
   bool get isChatOpen => _isChatOpen.value;
@@ -30,6 +33,29 @@ class AIChatController extends GetxController {
   void onInit() {
     super.onInit();
     _initializeAI();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
+  /// Scroll để tin nhắn mới nhất hiển thị ở gần đầu màn hình
+  void scrollToBottom() {
+    // Đợi cho đến khi ScrollController có clients và đã render xong
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        final position = scrollController.position;
+        // Scroll đến gần cuối, trừ đi 150px để tin nhắn mới hiển thị ở phía trên
+        final targetScroll = position.maxScrollExtent - 150;
+        scrollController.animateTo(
+          targetScroll > 0 ? targetScroll : position.maxScrollExtent,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
   }
 
   /// Khởi tạo AI Engine
@@ -69,6 +95,7 @@ Bạn cần giúp gì?
         timestamp: DateTime.now(),
       ),
     );
+    // Không auto scroll khi hiện welcome message
   }
 
   void _addErrorMessage() {
@@ -88,6 +115,7 @@ Bạn cần giúp gì?
 
   void openChat() {
     _isChatOpen.value = true;
+    // Không auto scroll khi mở chat
   }
 
   void closeChat() {
@@ -105,6 +133,9 @@ Bạn cần giúp gì?
       timestamp: DateTime.now(),
     );
     _messages.add(userMessage);
+
+    // Scroll đến tin nhắn user vừa gửi
+    scrollToBottom();
 
     // Hiển thị typing indicator
     _isTyping.value = true;
@@ -126,6 +157,7 @@ Bạn cần giúp gì?
         timestamp: DateTime.now(),
       );
       _messages.add(aiMessage);
+      // Không scroll khi AI trả lời, giữ nguyên vị trí user đang xem
     } catch (e) {
       _isTyping.value = false;
 
@@ -137,6 +169,7 @@ Bạn cần giúp gì?
         timestamp: DateTime.now(),
       );
       _messages.add(errorMessage);
+      // Không scroll khi có lỗi, giữ nguyên vị trí
     }
   }
 
