@@ -10,6 +10,11 @@ class AIEngine {
   // Lưu context của cuộc hội thoại
   final Map<String, dynamic> _conversationContext = {};
 
+  // Trạng thái cuộc hội thoại - đang chờ thông tin gì
+  String?
+  _waitingFor; // 'weight', 'height', 'age', 'gender', 'activity', 'metric_type'
+  String? _pendingCalculation; // 'bmi', 'bmr', 'tdee'
+
   AIEngine(this._dataService, this._calculator);
 
   /// Xử lý tin nhắn và tạo phản hồi
@@ -20,22 +25,29 @@ class AIEngine {
 
     final normalizedMsg = _normalizeText(userMessage);
 
-    // Phân tích intent (ý định) của người dùng
-    final intent = _detectIntent(normalizedMsg);
-
     // Debug logging
     print('🤖 AI Engine Debug:');
     print('   User msg: $userMessage');
-    print('   Intent: $intent');
+    print('   Waiting for: $_waitingFor');
+    print('   Pending calc: $_pendingCalculation');
     print('   Context: $_conversationContext');
+
+    // Nếu đang chờ thông tin từ người dùng, xử lý response
+    if (_waitingFor != null && _pendingCalculation != null) {
+      return _handlePendingInformationResponse(userMessage, normalizedMsg);
+    }
+
+    // Phân tích intent (ý định) của người dùng
+    final intent = _detectIntent(normalizedMsg);
+    print('   Intent: $intent');
 
     switch (intent) {
       case 'calculate_bmi':
-        return _handleBMICalculation(normalizedMsg);
+        return _handleBMICalculation(userMessage, normalizedMsg);
       case 'calculate_bmr':
-        return _handleBMRCalculation(normalizedMsg);
+        return _handleBMRCalculation(userMessage, normalizedMsg);
       case 'calculate_tdee':
-        return _handleTDEECalculation(normalizedMsg);
+        return _handleTDEECalculation(userMessage, normalizedMsg);
       case 'ask_exercise':
         return _handleExerciseQuery(normalizedMsg);
       case 'ask_nutrition':
@@ -48,6 +60,8 @@ class AIEngine {
         return _handleGreeting();
       case 'help':
         return _showHelp();
+      case 'general_health':
+        return _handleGeneralHealthQuery(userMessage, normalizedMsg);
       default:
         return _handleGeneralQuery(normalizedMsg);
     }
@@ -98,21 +112,45 @@ class AIEngine {
       return 'help';
     }
 
+    // General health check query - người dùng hỏi chung chung về sức khỏe
+    if (_containsAny(normalizedMsg, [
+          'chi so co the',
+          'suc khoe',
+          'co the',
+          'on khong',
+          'xem giup',
+          'kiem tra',
+        ]) &&
+        (_containsAny(normalizedMsg, ['kg', 'cm']) ||
+            _containsAny(normalizedMsg, ['nang', 'cao', 'can']))) {
+      return 'general_health';
+    }
+
     // BMI calculation
-    if (_containsAny(normalizedMsg, ['bmi', 'chi so khoi', 'can nang']) &&
-        _containsAny(normalizedMsg, ['tinh', 'tinh toan', 'la bao nhieu'])) {
+    if (_containsAny(normalizedMsg, ['bmi', 'chi so khoi', 'can nang']) ||
+        (_containsAny(normalizedMsg, ['tinh', 'tinh toan']) &&
+            _containsAny(normalizedMsg, ['kg', 'cm']))) {
       return 'calculate_bmi';
     }
 
     // BMR calculation
-    if (_containsAny(normalizedMsg, ['bmr', 'basal', 'co ban', 'nghi ngoi']) &&
-        _containsAny(normalizedMsg, ['tinh', 'tinh toan', 'la bao nhieu'])) {
+    if (_containsAny(normalizedMsg, [
+      'bmr',
+      'basal',
+      'co ban',
+      'nghi ngoi',
+      'luong co so',
+    ])) {
       return 'calculate_bmr';
     }
 
     // TDEE calculation
-    if (_containsAny(normalizedMsg, ['tdee', 'tieu hao', 'nang luong']) &&
-        _containsAny(normalizedMsg, ['tinh', 'tinh toan', 'la bao nhieu'])) {
+    if (_containsAny(normalizedMsg, [
+      'tdee',
+      'tieu hao',
+      'nang luong',
+      'tong nang luong',
+    ])) {
       return 'calculate_tdee';
     }
 
@@ -191,53 +229,404 @@ class AIEngine {
     return keywords.any((keyword) => text.contains(keyword));
   }
 
-  /// Xử lý tính BMI
-  String _handleBMICalculation(String msg) {
-    // Trích xuất cân nặng và chiều cao thông minh
-    final weightHeight = _extractWeightAndHeight(msg);
+  /// Xử lý khi người dùng hỏi chung về sức khỏe
+  String _handleGeneralHealthQuery(String originalMsg, String normalizedMsg) {
+    // Parse thông tin từ tin nhắn
+    final weightHeight = _extractWeightAndHeight(normalizedMsg);
+    final age = _extractAge(normalizedMsg);
 
-    if (weightHeight['weight'] != null && weightHeight['height'] != null) {
-      double weight = weightHeight['weight']!;
-      double height = weightHeight['height']!;
+    // Lưu thông tin vào context
+    if (weightHeight['weight'] != null) {
+      _conversationContext['weight'] = weightHeight['weight'];
+    }
+    if (weightHeight['height'] != null) {
+      _conversationContext['height'] = weightHeight['height'];
+    }
+    if (age != null) {
+      _conversationContext['age'] = age;
+    }
 
-      // Nếu chiều cao > 3, giả sử đơn vị là cm, convert sang m
-      if (height > 3) {
-        height = height / 100; // Convert cm to m
+    // Detect gender
+    if (_containsAny(normalizedMsg, ['nu', 'chi', 'co', 'female', 'woman'])) {
+      _conversationContext['gender'] = 'nữ';
+    } else if (_containsAny(normalizedMsg, ['nam', 'male', 'man', 'anh'])) {
+      _conversationContext['gender'] = 'nam';
+    }
+
+    return '''
+👋 Để tôi giúp bạn kiểm tra sức khỏe nhé!
+
+📊 Với thông tin cân nặng và chiều cao, tôi có thể tính cho bạn:
+
+🔹 **BMI** - Chỉ số khối cơ thể (đánh giá gầy/chuẩn/thừa cân)
+🔹 **BMR** - Lượng calo cơ bản cơ thể cần khi nghỉ ngơi
+🔹 **TDEE** - Tổng lượng calo hàng ngày dựa trên hoạt động
+
+💡 Bạn muốn tôi tính chỉ số nào? Hoặc nếu muốn tôi tính cả 3 chỉ số thì hãy nói **"tính cả 3"** nhé! 😊
+
+${_getSuggestedInfoText()}
+''';
+  }
+
+  /// Xử lý response khi đang chờ thông tin từ người dùng
+  String _handlePendingInformationResponse(
+    String originalMsg,
+    String normalizedMsg,
+  ) {
+    print('   Processing pending response for: $_waitingFor');
+
+    // Parse TẤT CẢ thông tin từ response (không chỉ cái đang chờ)
+    final weightHeight = _extractWeightAndHeight(normalizedMsg);
+    final age = _extractAge(normalizedMsg);
+
+    // Detect gender
+    if (_containsAny(normalizedMsg, [
+      'nu',
+      'chi',
+      'co',
+      'female',
+      'woman',
+      'girl',
+    ])) {
+      _conversationContext['gender'] = 'nữ';
+    } else if (_containsAny(normalizedMsg, [
+      'nam',
+      'male',
+      'man',
+      'boy',
+      'anh',
+    ])) {
+      _conversationContext['gender'] = 'nam';
+    }
+
+    // Detect activity
+    if (_containsAny(normalizedMsg, [
+      'it van dong',
+      'khong tap',
+      'sedentary',
+      'ngoi nhieu',
+    ])) {
+      _conversationContext['activity'] = 'sedentary';
+    } else if (_containsAny(normalizedMsg, [
+      'tap nhe',
+      'van dong nhe',
+      'light',
+      '1-3 buoi',
+    ])) {
+      _conversationContext['activity'] = 'light';
+    } else if (_containsAny(normalizedMsg, [
+      'tap vua',
+      'van dong vua',
+      'moderate',
+      '3-5 buoi',
+      'trung binh',
+    ])) {
+      _conversationContext['activity'] = 'moderate';
+    } else if (_containsAny(normalizedMsg, [
+      'tap nang',
+      'van dong nang',
+      'very active',
+      '6-7 buoi',
+      'nhieu',
+    ])) {
+      _conversationContext['activity'] = 'very_active';
+    } else if (_containsAny(normalizedMsg, [
+      'rat nang',
+      'cuc nang',
+      'extra',
+      'vdv',
+    ])) {
+      _conversationContext['activity'] = 'extra_active';
+    }
+
+    // Cập nhật thông tin CHỈ KHI đang chờ thông tin đó
+    // Điều này tránh việc parse nhầm (ví dụ: "166cm" bị parse thành age = 166)
+    if (_waitingFor == 'weight' && weightHeight['weight'] != null) {
+      _conversationContext['weight'] = weightHeight['weight'];
+      print('   Updated weight: ${weightHeight['weight']}');
+    } else if (_waitingFor == 'height' && weightHeight['height'] != null) {
+      _conversationContext['height'] = weightHeight['height'];
+      print('   Updated height: ${weightHeight['height']}');
+    } else if (_waitingFor == 'age' && age != null) {
+      _conversationContext['age'] = age;
+      print('   Updated age: $age');
+    } else if (_waitingFor == null) {
+      // Nếu không đang chờ gì, lưu tất cả thông tin parse được
+      if (weightHeight['weight'] != null) {
+        _conversationContext['weight'] = weightHeight['weight'];
+        print('   Updated weight: ${weightHeight['weight']}');
       }
-
-      // Lưu vào context để dùng cho tính toán sau
-      _conversationContext['weight'] = weight;
-      _conversationContext['height'] = height;
-
-      final bmi = _calculator.calculateBMI(weight: weight, height: height);
-
-      // Lấy thông tin giới tính và tuổi từ context nếu có
-      String gender = _conversationContext['gender'] ?? 'nam';
-      int age = _conversationContext['age'] ?? 25;
-
-      // Detect gender from message nếu có
-      if (_containsAny(msg, ['nu', 'chi', 'co', 'female', 'woman', 'girl'])) {
-        gender = 'nữ';
-        _conversationContext['gender'] = gender;
-      } else if (_containsAny(msg, ['nam', 'male', 'man', 'boy', 'anh'])) {
-        gender = 'nam';
-        _conversationContext['gender'] = gender;
+      if (weightHeight['height'] != null) {
+        _conversationContext['height'] = weightHeight['height'];
+        print('   Updated height: ${weightHeight['height']}');
       }
-
-      // Extract age if present
-      final ageFromMsg = _extractAge(msg);
-      if (ageFromMsg != null) {
-        age = ageFromMsg;
+      if (age != null) {
         _conversationContext['age'] = age;
+        print('   Updated age: $age');
       }
+    }
 
-      final analysis = _calculator.analyzeBMI(
-        bmi: bmi,
-        gender: gender,
-        age: age,
-      );
+    // Clear waiting state nếu nhận được thông tin cần
+    if (_waitingFor == 'weight' && weightHeight['weight'] != null) {
+      _waitingFor = null;
+    } else if (_waitingFor == 'height' && weightHeight['height'] != null) {
+      _waitingFor = null;
+    } else if (_waitingFor == 'age' && age != null) {
+      _waitingFor = null;
+    } else if (_waitingFor == 'gender' &&
+        _conversationContext.containsKey('gender')) {
+      _waitingFor = null;
+    } else if (_waitingFor == 'activity' &&
+        _conversationContext.containsKey('activity')) {
+      _waitingFor = null;
+    } else if (_waitingFor == 'activity') {
+      if (_containsAny(normalizedMsg, [
+        'it',
+        'khong tap',
+        'sedentary',
+        'ngoi',
+      ])) {
+        _conversationContext['activity'] = 'sedentary';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['nhe', 'light', '1-3'])) {
+        _conversationContext['activity'] = 'light';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, [
+        'vua',
+        'moderate',
+        '3-5',
+        'trung binh',
+      ])) {
+        _conversationContext['activity'] = 'moderate';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['nang', 'cao', 'very', '6-7'])) {
+        _conversationContext['activity'] = 'very_active';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['rat nang', 'extra', 'vdv'])) {
+        _conversationContext['activity'] = 'extra_active';
+        _waitingFor = null;
+      }
+    } else if (_waitingFor == 'metric_type') {
+      // Người dùng chọn chỉ số muốn tính
+      if (_containsAny(normalizedMsg, ['bmi'])) {
+        _pendingCalculation = 'bmi';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['bmr'])) {
+        _pendingCalculation = 'bmr';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['tdee'])) {
+        _pendingCalculation = 'tdee';
+        _waitingFor = null;
+      } else if (_containsAny(normalizedMsg, ['ca 3', 'tat ca', 'all'])) {
+        return _calculateAllMetrics();
+      }
+    }
 
-      return '''
+    // Thử tính toán nếu đủ thông tin
+    if (_pendingCalculation != null && _waitingFor == null) {
+      return _tryCalculatePendingMetric();
+    }
+
+    // Nếu vẫn chưa có thông tin cần thiết, tiếp tục hỏi
+    return _askForMissingInformation();
+  }
+
+  /// Lấy text gợi ý thông tin còn thiếu
+  String _getSuggestedInfoText() {
+    List<String> missing = [];
+
+    if (!_conversationContext.containsKey('weight')) {
+      missing.add('📏 Cân nặng (kg)');
+    }
+    if (!_conversationContext.containsKey('height')) {
+      missing.add('📐 Chiều cao (cm)');
+    }
+
+    if (missing.isEmpty) {
+      return '';
+    }
+
+    return '\n📝 Tôi thấy bạn chưa cho biết:\n${missing.join('\n')}';
+  }
+
+  /// Hỏi thông tin còn thiếu
+  String _askForMissingInformation() {
+    if (_pendingCalculation == null) {
+      return _showHelp();
+    }
+
+    // Check BMI requirements
+    if (_pendingCalculation == 'bmi') {
+      if (!_conversationContext.containsKey('weight')) {
+        _waitingFor = 'weight';
+        return '📏 Bạn nặng bao nhiêu kg vậy? 😊';
+      }
+      if (!_conversationContext.containsKey('height')) {
+        _waitingFor = 'height';
+        return '📐 Bạn cao bao nhiêu cm? 😊';
+      }
+    }
+
+    // Check BMR requirements
+    if (_pendingCalculation == 'bmr') {
+      if (!_conversationContext.containsKey('weight')) {
+        _waitingFor = 'weight';
+        return '📏 Bạn nặng bao nhiêu kg vậy? 😊';
+      }
+      if (!_conversationContext.containsKey('height')) {
+        _waitingFor = 'height';
+        return '📐 Bạn cao bao nhiêu cm? 😊';
+      }
+      if (!_conversationContext.containsKey('age')) {
+        _waitingFor = 'age';
+        return '🎂 Bạn có thể cho tôi biết tuổi của bạn không? 😊';
+      }
+      if (!_conversationContext.containsKey('gender')) {
+        _waitingFor = 'gender';
+        return '👤 Bạn là nam hay nữ để tôi tính chính xác hơn? 😊';
+      }
+    }
+
+    // Check TDEE requirements
+    if (_pendingCalculation == 'tdee') {
+      if (!_conversationContext.containsKey('weight')) {
+        _waitingFor = 'weight';
+        return '📏 Bạn nặng bao nhiêu kg vậy? 😊';
+      }
+      if (!_conversationContext.containsKey('height')) {
+        _waitingFor = 'height';
+        return '📐 Bạn cao bao nhiêu cm? 😊';
+      }
+      if (!_conversationContext.containsKey('age')) {
+        _waitingFor = 'age';
+        return '🎂 Bạn có thể cho tôi biết tuổi của bạn không? 😊';
+      }
+      if (!_conversationContext.containsKey('gender')) {
+        _waitingFor = 'gender';
+        return '👤 Bạn là nam hay nữ để tôi tính chính xác hơn? 😊';
+      }
+      if (!_conversationContext.containsKey('activity')) {
+        _waitingFor = 'activity';
+        return '''
+🏃 Bạn có thường xuyên vận động không?
+
+Chọn một trong các mức sau:
+• **Ít vận động** - ngồi văn phòng, ít vận động
+• **Nhẹ** - tập 1-3 buổi/tuần
+• **Trung bình** - tập 3-5 buổi/tuần  
+• **Nhiều** - tập 6-7 buổi/tuần
+• **Rất nhiều** - vận động viên chuyên nghiệp
+
+Hãy cho tôi biết mức độ của bạn nhé! 😊
+''';
+      }
+    }
+
+    return _showHelp();
+  }
+
+  /// Thử tính toán chỉ số đang pending
+  String _tryCalculatePendingMetric() {
+    // Các hàm _calculate*WithContext() sẽ tự reset state khi tính xong
+    // hoặc giữ nguyên state nếu còn thiếu thông tin
+    if (_pendingCalculation == 'bmi') {
+      return _calculateBMIWithContext();
+    } else if (_pendingCalculation == 'bmr') {
+      return _calculateBMRWithContext();
+    } else if (_pendingCalculation == 'tdee') {
+      return _calculateTDEEWithContext();
+    }
+
+    return _showHelp();
+  }
+
+  /// Tính cả 3 chỉ số
+  String _calculateAllMetrics() {
+    final bmi = _calculateBMIWithContext();
+    final bmr = _calculateBMRWithContext();
+    final tdee = _calculateTDEEWithContext();
+
+    _pendingCalculation = null;
+    _waitingFor = null;
+
+    return '''
+$bmi
+
+---
+
+$bmr
+
+---
+
+$tdee
+
+Chúc bạn có một cơ thể khỏe mạnh! 💪😊
+''';
+  }
+
+  /// Xử lý tính BMI với khả năng hỏi lại
+  String _handleBMICalculation(String originalMsg, String normalizedMsg) {
+    // Parse thông tin từ tin nhắn
+    final weightHeight = _extractWeightAndHeight(normalizedMsg);
+    final age = _extractAge(normalizedMsg);
+
+    // Cập nhật context
+    if (weightHeight['weight'] != null) {
+      _conversationContext['weight'] = weightHeight['weight'];
+    }
+    if (weightHeight['height'] != null) {
+      _conversationContext['height'] = weightHeight['height'];
+    }
+    if (age != null) {
+      _conversationContext['age'] = age;
+    }
+
+    // Detect gender
+    if (_containsAny(normalizedMsg, ['nu', 'chi', 'co', 'female', 'woman'])) {
+      _conversationContext['gender'] = 'nữ';
+    } else if (_containsAny(normalizedMsg, ['nam', 'male', 'man', 'anh'])) {
+      _conversationContext['gender'] = 'nam';
+    }
+
+    // Kiểm tra đủ thông tin chưa
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height')) {
+      _pendingCalculation = 'bmi';
+      return _askForMissingInformation();
+    }
+
+    return _calculateBMIWithContext();
+  }
+
+  /// Tính BMI với context đã có
+  String _calculateBMIWithContext() {
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height')) {
+      // Chưa đủ thông tin, set pending và hỏi lại
+      _pendingCalculation = 'bmi';
+      return _askForMissingInformation();
+    }
+
+    double weight = _conversationContext['weight'];
+    double height = _conversationContext['height'];
+
+    // Convert height to m if needed
+    if (height > 3) {
+      height = height / 100;
+    }
+
+    final bmi = _calculator.calculateBMI(weight: weight, height: height);
+
+    String gender = _conversationContext['gender'] ?? 'nam';
+    int age = _conversationContext['age'] ?? 25;
+
+    final analysis = _calculator.analyzeBMI(bmi: bmi, gender: gender, age: age);
+
+    // Đã tính xong → Reset pending state
+    _pendingCalculation = null;
+    _waitingFor = null;
+
+    return '''
 📊 **KẾT QUẢ TÍNH BMI**
 
 🔢 Chỉ số BMI của bạn: **${bmi.toStringAsFixed(1)}**
@@ -248,68 +637,82 @@ class AIEngine {
 
 ✅ Khuyến nghị: ${analysis['recommendation']}
 
-📌 Lưu ý: ${analysis['note'] ?? ''}
-
+${analysis['note'] != null ? '📌 Lưu ý: ${analysis['note']}\n' : ''}
 Bạn cần tư vấn thêm về chế độ tập luyện hoặc dinh dưỡng không? 😊
-''';
-    }
-
-    // Nếu không đủ thông tin, hỏi lại
-    return '''
-Để tính BMI, tôi cần biết:
-📏 Cân nặng (kg)
-📐 Chiều cao (cm)
-
-Ví dụ: "Tính BMI cho tôi, tôi nặng 70kg cao 175cm"
-
-Bạn có thể cho tôi biết cân nặng và chiều cao của bạn không? 😊
 ''';
   }
 
-  /// Xử lý tính BMR
-  String _handleBMRCalculation(String msg) {
-    // Trích xuất thông tin thông minh
-    final weightHeight = _extractWeightAndHeight(msg);
-    final age = _extractAge(msg);
+  /// Xử lý tính BMR với khả năng hỏi lại
+  String _handleBMRCalculation(String originalMsg, String normalizedMsg) {
+    // Parse thông tin từ tin nhắn
+    final weightHeight = _extractWeightAndHeight(normalizedMsg);
+    final age = _extractAge(normalizedMsg);
 
-    // Cần: cân nặng, chiều cao, tuổi
-    if (weightHeight['weight'] != null &&
-        weightHeight['height'] != null &&
-        age != null) {
-      double weight = weightHeight['weight']!;
-      double height = weightHeight['height']!;
-
-      // Convert height to cm if needed
-      if (height < 3) {
-        height = height * 100;
-      }
-
-      // Detect gender from message
-      String gender = 'nam';
-      if (_containsAny(msg, ['nu', 'chi', 'co', 'female', 'woman', 'girl'])) {
-        gender = 'nữ';
-      }
-
-      // Save to context
-      _conversationContext['gender'] = gender;
+    // Cập nhật context
+    if (weightHeight['weight'] != null) {
+      _conversationContext['weight'] = weightHeight['weight'];
+    }
+    if (weightHeight['height'] != null) {
+      _conversationContext['height'] = weightHeight['height'];
+    }
+    if (age != null) {
       _conversationContext['age'] = age;
-      _conversationContext['weight'] = weight;
-      _conversationContext['height'] = height;
+    }
 
-      final bmr = _calculator.calculateBMR(
-        weight: weight,
-        height: height,
-        age: age,
-        gender: gender,
-      );
+    // Detect gender
+    if (_containsAny(normalizedMsg, ['nu', 'chi', 'co', 'female', 'woman'])) {
+      _conversationContext['gender'] = 'nữ';
+    } else if (_containsAny(normalizedMsg, ['nam', 'male', 'man', 'anh'])) {
+      _conversationContext['gender'] = 'nam';
+    }
 
-      final analysis = _calculator.analyzeBMR(
-        bmr: bmr,
-        gender: gender,
-        age: age,
-      );
+    // Kiểm tra đủ thông tin chưa
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height') ||
+        !_conversationContext.containsKey('age') ||
+        !_conversationContext.containsKey('gender')) {
+      _pendingCalculation = 'bmr';
+      return _askForMissingInformation();
+    }
 
-      return '''
+    return _calculateBMRWithContext();
+  }
+
+  /// Tính BMR với context đã có
+  String _calculateBMRWithContext() {
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height') ||
+        !_conversationContext.containsKey('age') ||
+        !_conversationContext.containsKey('gender')) {
+      // Chưa đủ thông tin, set pending và hỏi lại
+      _pendingCalculation = 'bmr';
+      return _askForMissingInformation();
+    }
+
+    double weight = _conversationContext['weight'];
+    double height = _conversationContext['height'];
+    int age = _conversationContext['age'];
+    String gender = _conversationContext['gender'];
+
+    // Convert height to cm if needed
+    if (height < 3) {
+      height = height * 100;
+    }
+
+    final bmr = _calculator.calculateBMR(
+      weight: weight,
+      height: height,
+      age: age,
+      gender: gender,
+    );
+
+    final analysis = _calculator.analyzeBMR(bmr: bmr, gender: gender, age: age);
+
+    // Đã tính xong → Reset pending state
+    _pendingCalculation = null;
+    _waitingFor = null;
+
+    return '''
 🔥 **KẾT QUẢ TÍNH BMR**
 
 ⚡ Chỉ số BMR của bạn: **${bmr.toStringAsFixed(0)} kcal/ngày**
@@ -324,124 +727,133 @@ Bạn có thể cho tôi biết cân nặng và chiều cao của bạn không? 
 
 Bạn có muốn tính **TDEE** (tổng năng lượng tiêu hao hàng ngày) dựa trên mức độ vận động không? 😊
 ''';
-    }
-
-    return '''
-Để tính BMR, tôi cần:
-📏 Cân nặng (kg)
-📐 Chiều cao (cm)
-🎂 Tuổi
-⚧ Giới tính (nam/nữ)
-
-Ví dụ: "Tính BMR cho nam 25 tuổi, nặng 70kg, cao 175cm"
-
-Hãy cho tôi biết thông tin của bạn nhé! 😊
-''';
   }
 
-  /// Xử lý tính TDEE
-  String _handleTDEECalculation(String msg) {
-    // Thử parse thông tin mới từ tin nhắn trước
-    final weightHeight = _extractWeightAndHeight(msg);
-    final ageFromMsg = _extractAge(msg);
+  /// Xử lý tính TDEE với khả năng hỏi lại
+  String _handleTDEECalculation(String originalMsg, String normalizedMsg) {
+    // Parse thông tin từ tin nhắn
+    final weightHeight = _extractWeightAndHeight(normalizedMsg);
+    final age = _extractAge(normalizedMsg);
 
-    // Detect gender from message
-    String gender = 'nam';
-    if (_containsAny(msg, ['nu', 'chi', 'co', 'female', 'woman', 'girl'])) {
-      gender = 'nữ';
+    // Cập nhật context
+    if (weightHeight['weight'] != null) {
+      _conversationContext['weight'] = weightHeight['weight'];
     }
-
-    // Nếu có thông tin đầy đủ trong tin nhắn mới, dùng thông tin đó
-    double? weight = weightHeight['weight'];
-    double? height = weightHeight['height'];
-    int? age;
-
-    if (weight != null && height != null) {
-      // Save to context
-      _conversationContext['weight'] = weight;
-      _conversationContext['height'] = height;
-      _conversationContext['gender'] = gender;
-    } else if (_conversationContext.containsKey('weight') &&
-        _conversationContext.containsKey('height')) {
-      // Nếu không có trong tin nhắn, dùng từ context
-      weight = _conversationContext['weight'];
-      height = _conversationContext['height'];
-      gender = _conversationContext['gender'] ?? 'nam';
+    if (weightHeight['height'] != null) {
+      _conversationContext['height'] = weightHeight['height'];
     }
-
-    if (ageFromMsg != null) {
-      age = ageFromMsg;
+    if (age != null) {
       _conversationContext['age'] = age;
-    } else if (_conversationContext.containsKey('age')) {
-      age = _conversationContext['age'];
     }
 
-    // Kiểm tra có đủ thông tin không
-    if (weight != null && height != null && age != null) {
-      final bmr = _calculator.calculateBMR(
-        weight: weight,
-        height: height,
-        age: age,
-        gender: gender,
-      );
+    // Detect gender
+    if (_containsAny(normalizedMsg, ['nu', 'chi', 'co', 'female', 'woman'])) {
+      _conversationContext['gender'] = 'nữ';
+    } else if (_containsAny(normalizedMsg, ['nam', 'male', 'man', 'anh'])) {
+      _conversationContext['gender'] = 'nam';
+    }
 
-      // Detect activity level - Cần chặt chẽ hơn để tránh nhầm với "nặng 60kg"
-      String activityLevel = 'moderate';
-      final normalizedMsg = _normalizeText(msg);
+    // Detect activity level
+    if (_containsAny(normalizedMsg, [
+      'it van dong',
+      'khong tap',
+      'sedentary',
+      'ngoi nhieu',
+    ])) {
+      _conversationContext['activity'] = 'sedentary';
+    } else if (_containsAny(normalizedMsg, [
+      'tap nhe',
+      'van dong nhe',
+      'light',
+      '1-3 buoi',
+    ])) {
+      _conversationContext['activity'] = 'light';
+    } else if (_containsAny(normalizedMsg, [
+      'tap vua',
+      'van dong vua',
+      'moderate',
+      '3-5 buoi',
+      'trung binh',
+    ])) {
+      _conversationContext['activity'] = 'moderate';
+    } else if (_containsAny(normalizedMsg, [
+      'tap nang',
+      'van dong nang',
+      'very active',
+      '6-7 buoi',
+      'nhieu',
+    ])) {
+      _conversationContext['activity'] = 'very_active';
+    } else if (_containsAny(normalizedMsg, [
+      'rat nang',
+      'cuc nang',
+      'extra',
+      'vdv',
+    ])) {
+      _conversationContext['activity'] = 'extra_active';
+    }
 
-      if (_containsAny(normalizedMsg, [
-        'it van dong',
-        'khong tap',
-        'sedentary',
-        'ngoi nhieu',
-        'ngoi van phong',
-      ])) {
-        activityLevel = 'sedentary';
-      } else if (_containsAny(normalizedMsg, [
-        'tap nhe',
-        'van dong nhe',
-        'light',
-        '1-3 buoi',
-      ])) {
-        activityLevel = 'light';
-      } else if (_containsAny(normalizedMsg, [
-        'tap vua',
-        'van dong vua',
-        'moderate',
-        '3-5 buoi',
-      ])) {
-        activityLevel = 'moderate';
-      } else if (_containsAny(normalizedMsg, [
-        'tap nang',
-        'van dong nang',
-        'very active',
-        '6-7 buoi',
-      ])) {
-        activityLevel = 'very_active';
-      } else if (_containsAny(normalizedMsg, [
-        'rat nang',
-        'cuc nang',
-        'extra',
-        'vdv',
-        'van dong vien',
-      ])) {
-        activityLevel = 'extra_active';
-      }
+    // Kiểm tra đủ thông tin chưa
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height') ||
+        !_conversationContext.containsKey('age') ||
+        !_conversationContext.containsKey('gender') ||
+        !_conversationContext.containsKey('activity')) {
+      _pendingCalculation = 'tdee';
+      return _askForMissingInformation();
+    }
 
-      final tdee = _calculator.calculateTDEE(
-        bmr: bmr,
-        activityLevel: activityLevel,
-      );
+    return _calculateTDEEWithContext();
+  }
 
-      final activityLabels = {
-        'sedentary': 'Rất ít vận động (1.2x BMR)',
-        'light': 'Vận động nhẹ 1-3 buổi/tuần (1.375x BMR)',
-        'moderate': 'Vận động vừa 3-5 buổi/tuần (1.55x BMR)',
-        'very_active': 'Vận động nặng 6-7 buổi/tuần (1.725x BMR)',
-        'extra_active': 'Cường độ cao - VĐV (1.9x BMR)',
-      };
+  /// Tính TDEE với context đã có
+  String _calculateTDEEWithContext() {
+    if (!_conversationContext.containsKey('weight') ||
+        !_conversationContext.containsKey('height') ||
+        !_conversationContext.containsKey('age') ||
+        !_conversationContext.containsKey('gender') ||
+        !_conversationContext.containsKey('activity')) {
+      // Chưa đủ thông tin, set pending và hỏi lại
+      _pendingCalculation = 'tdee';
+      return _askForMissingInformation();
+    }
 
-      return '''
+    double weight = _conversationContext['weight'];
+    double height = _conversationContext['height'];
+    int age = _conversationContext['age'];
+    String gender = _conversationContext['gender'];
+    String activityLevel = _conversationContext['activity'];
+
+    // Convert height to cm if needed
+    if (height < 3) {
+      height = height * 100;
+    }
+
+    final bmr = _calculator.calculateBMR(
+      weight: weight,
+      height: height,
+      age: age,
+      gender: gender,
+    );
+
+    final tdee = _calculator.calculateTDEE(
+      bmr: bmr,
+      activityLevel: activityLevel,
+    );
+
+    final activityLabels = {
+      'sedentary': 'Rất ít vận động (1.2x BMR)',
+      'light': 'Vận động nhẹ 1-3 buổi/tuần (1.375x BMR)',
+      'moderate': 'Vận động vừa 3-5 buổi/tuần (1.55x BMR)',
+      'very_active': 'Vận động nặng 6-7 buổi/tuần (1.725x BMR)',
+      'extra_active': 'Cường độ cao - VĐV (1.9x BMR)',
+    };
+
+    // Đã tính xong → Reset pending state
+    _pendingCalculation = null;
+    _waitingFor = null;
+
+    return '''
 🔥 **KẾT QUẢ TÍNH TDEE**
 
 📋 **Thông tin:**
@@ -463,22 +875,6 @@ Hãy cho tôi biết thông tin của bạn nhé! 😊
 🎯 **Tăng cơ:** ${(tdee + 300).toStringAsFixed(0)} kcal/ngày (+300 kcal)
 
 Bạn muốn tư vấn về thực đơn cụ thể không? 😊
-''';
-    }
-
-    return '''
-Để tính TDEE, tôi cần biết:
-1️⃣ Thông tin cơ bản (cân nặng, chiều cao, tuổi, giới tính)
-2️⃣ Mức độ vận động:
-   - Ít vận động (ngồi nhiều)
-   - Nhẹ (1-3 buổi/tuần)
-   - Vừa (3-5 buổi/tuần)
-   - Nặng (6-7 buổi/tuần)
-   - Rất nặng (VĐV)
-
-Ví dụ: "Tính TDEE cho nam 21 tuổi, cao 170cm, nặng 60kg, tập vừa"
-
-Hãy cho tôi biết thông tin nhé! 😊
 ''';
   }
 

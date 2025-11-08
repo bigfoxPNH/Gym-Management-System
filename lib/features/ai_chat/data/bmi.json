@@ -31,29 +31,36 @@
               {
                 "muc": "Thừa cân nhẹ",
                 "bmi_min": 23.5,
-                "bmi_max": 25,
+                "bmi_max": 24.9,
                 "mo_ta": "Có mỡ nhẹ vùng bụng, cơ thể nặng nề hơn.",
                 "khuyen_nghi": "Tăng cardio 3 buổi/tuần, giảm tinh bột xấu, tăng rau xanh."
               },
               {
-                "muc": "Béo phì độ 1",
-                "bmi_min": 25.1,
+                "muc": "Thừa cân",
+                "bmi_min": 25.0,
                 "bmi_max": 29.9,
-                "mo_ta": "Béo vùng eo, giảm sức bền, dễ mệt khi vận động.",
+                "mo_ta": "Thừa cân rõ ràng, béo vùng eo, giảm sức bền, dễ mệt khi vận động.",
                 "khuyen_nghi": "Giảm 400–500 kcal/ngày, tập HIIT hoặc chạy bộ xen kẽ tạ."
               },
               {
-                "muc": "Béo phì độ 2",
+                "muc": "Béo phì độ 1",
                 "bmi_min": 30,
-                "bmi_max": 39.9,
-                "mo_ta": "Tích mỡ toàn thân, nguy cơ gan nhiễm mỡ, tiểu đường type 2.",
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, tích mỡ toàn thân, nguy cơ gan nhiễm mỡ, tiểu đường type 2.",
                 "khuyen_nghi": "Ăn kiểm soát nghiêm ngặt, tập nhẹ nhàng, đi bộ nhanh hoặc đạp xe."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 35,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo phì nặng, nguy cơ cao bệnh tim mạch, khớp và chuyển hóa.",
+                "khuyen_nghi": "Cần theo dõi y tế chặt chẽ, tập phục hồi nhẹ, chế độ ăn kiểm soát."
               },
               {
                 "muc": "Béo phì độ 3",
                 "bmi_min": 40,
                 "bmi_max": 60,
-                "mo_ta": "Béo nghiêm trọng, ảnh hưởng tim mạch, khớp và hô hấp.",
+                "mo_ta": "Béo phì nghiêm trọng, ảnh hưởng tim mạch, khớp và hô hấp.",
                 "khuyen_nghi": "Cần bác sĩ dinh dưỡng hỗ trợ, tập phục hồi, thay đổi thói quen sống."
               }
             ]
@@ -79,23 +86,30 @@
               {
                 "muc": "Thừa cân",
                 "bmi_min": 24,
-                "bmi_max": 26.9,
-                "mo_ta": "Mỡ bụng bắt đầu tăng, cơ giảm dần.",
-                "khuyen_nghi": "Tăng cardio, ăn nhiều rau, uống nước 2.5L/ngày."
+                "bmi_max": 29.9,
+                "mo_ta": "Mỡ bụng tăng, cơ giảm dần, béo vùng eo, dễ cao huyết áp, mỡ máu.",
+                "khuyen_nghi": "Tập xen kẽ aerobic + tạ, giảm tinh bột, tăng protein nạc, uống nước 2.5L/ngày."
               },
               {
                 "muc": "Béo phì độ 1",
-                "bmi_min": 27,
-                "bmi_max": 29.9,
-                "mo_ta": "Béo vùng eo, dễ cao huyết áp, mỡ máu.",
-                "khuyen_nghi": "Tập xen kẽ aerobic + tạ, giảm tinh bột, tăng protein nạc."
+                "bmi_min": 30,
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, giảm dẻo dai, nguy cơ cao bệnh chuyển hóa, gan nhiễm mỡ.",
+                "khuyen_nghi": "Ăn deficit 600 kcal, kết hợp đi bộ nhanh và bơi lội nhẹ."
               },
               {
                 "muc": "Béo phì độ 2",
-                "bmi_min": 30,
+                "bmi_min": 35,
                 "bmi_max": 39.9,
-                "mo_ta": "Thừa cân nhiều, giảm dẻo dai, nguy cơ bệnh chuyển hóa.",
-                "khuyen_nghi": "Ăn deficit 600 kcal, kết hợp đi bộ nhanh và bơi lội nhẹ."
+                "mo_ta": "Béo phì nặng, nguy cơ cao bệnh tim mạch và tiểu đường.",
+                "khuyen_nghi": "Cần theo dõi y tế, tập phục hồi nhẹ nhàng, kiểm soát ăn uống nghiêm ngặt."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
+                "bmi_max": 60,
+                "mo_ta": "Béo phì nghiêm trọng, cần can thiệp y tế.",
+                "khuyen_nghi": "Theo dõi bác sĩ chuyên khoa, tập phục hồi, thay đổi lối sống toàn diện."
               }
             ]
           },
@@ -121,15 +135,29 @@
                 "muc": "Thừa cân",
                 "bmi_min": 25,
                 "bmi_max": 29.9,
-                "mo_ta": "Nguy cơ cao huyết áp, tiểu đường, gout.",
+                "mo_ta": "Thừa cân, nguy cơ cao huyết áp, tiểu đường, gout.",
                 "khuyen_nghi": "Kiểm tra sức khỏe định kỳ, tập nhẹ, tránh bia rượu."
               },
               {
-                "muc": "Béo phì",
+                "muc": "Béo phì độ 1",
                 "bmi_min": 30,
-                "bmi_max": 60,
-                "mo_ta": "Béo toàn thân, dễ mệt, ảnh hưởng tim mạch.",
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, dễ mệt, ảnh hưởng tim mạch và khớp.",
                 "khuyen_nghi": "Ăn uống kiểm soát, đi bộ hằng ngày, theo dõi bác sĩ."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 35,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo phì nặng, nguy cơ cao bệnh mạn tính.",
+                "khuyen_nghi": "Cần can thiệp y tế, kiểm soát ăn nghiêm ngặt, tập phục hồi."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
+                "bmi_max": 60,
+                "mo_ta": "Béo phì nghiêm trọng, cần điều trị chuyên sâu.",
+                "khuyen_nghi": "Theo dõi bác sĩ chuyên khoa, có thể cần can thiệp phẫu thuật."
               }
             ]
           }
@@ -164,24 +192,31 @@
                 "khuyen_nghi": "Giảm đồ ngọt, tăng cardio, tập plank và squat."
               },
               {
-                "muc": "Béo phì độ 1",
+                "muc": "Thừa cân",
                 "bmi_min": 25,
                 "bmi_max": 29.9,
-                "mo_ta": "Béo rõ ở eo, đùi, mặt.",
+                "mo_ta": "Thừa cân, béo rõ ở eo, đùi, mặt.",
                 "khuyen_nghi": "Tập nhẹ 30 phút/ngày, ăn nhiều rau, tránh đồ chiên."
               },
               {
-                "muc": "Béo phì độ 2",
+                "muc": "Béo phì độ 1",
                 "bmi_min": 30,
-                "bmi_max": 39.9,
-                "mo_ta": "Béo rõ, dễ mệt, ảnh hưởng tim mạch.",
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, dễ mệt, ảnh hưởng tim mạch.",
                 "khuyen_nghi": "Tập HIIT thấp, uống đủ nước, giảm calo hợp lý."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 35,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo phì nặng, nguy cơ cao bệnh mạn tính.",
+                "khuyen_nghi": "Cần theo dõi y tế, tập phục hồi, kiểm soát ăn nghiêm ngặt."
               },
               {
                 "muc": "Béo phì độ 3",
                 "bmi_min": 40,
                 "bmi_max": 60,
-                "mo_ta": "Béo nghiêm trọng, nguy cơ cao bệnh mạn tính.",
+                "mo_ta": "Béo phì nghiêm trọng, cần can thiệp chuyên sâu.",
                 "khuyen_nghi": "Theo bác sĩ dinh dưỡng, kết hợp tập nhẹ và kiểm soát ăn nghiêm ngặt."
               }
             ]
@@ -207,23 +242,30 @@
               {
                 "muc": "Thừa cân",
                 "bmi_min": 23.1,
-                "bmi_max": 26.9,
-                "mo_ta": "Tích mỡ ở hông, bụng, đùi.",
-                "khuyen_nghi": "Giảm calo, tập cardio xen yoga."
+                "bmi_max": 29.9,
+                "mo_ta": "Thừa cân, tích mỡ ở hông, bụng, đùi, giảm linh hoạt.",
+                "khuyen_nghi": "Giảm calo, tập cardio xen yoga, ăn ít tinh bột, tăng protein."
               },
               {
                 "muc": "Béo phì độ 1",
-                "bmi_min": 27,
-                "bmi_max": 29.9,
-                "mo_ta": "Béo rõ vùng eo, giảm linh hoạt.",
-                "khuyen_nghi": "Ăn ít tinh bột, tăng protein, tập nhẹ mỗi ngày."
+                "bmi_min": 30,
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, khó vận động, nguy cơ bệnh chuyển hóa.",
+                "khuyen_nghi": "Tham khảo bác sĩ, kiểm soát ăn và luyện tập nhẹ nhàng."
               },
               {
-                "muc": "Béo phì độ 2+",
-                "bmi_min": 30,
+                "muc": "Béo phì độ 2",
+                "bmi_min": 35,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo phì nặng, cần can thiệp y tế.",
+                "khuyen_nghi": "Theo dõi bác sĩ chuyên khoa, tập phục hồi, kiểm soát nghiêm ngặt."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
                 "bmi_max": 60,
-                "mo_ta": "Béo toàn thân, khó vận động.",
-                "khuyen_nghi": "Tham khảo bác sĩ, kiểm soát ăn và luyện tập nhẹ nhàng."
+                "mo_ta": "Béo phì nghiêm trọng, rất khó vận động.",
+                "khuyen_nghi": "Cần điều trị chuyên sâu, có thể cân nhắc phẫu thuật giảm béo."
               }
             ]
           },
@@ -249,15 +291,29 @@
                 "muc": "Thừa cân",
                 "bmi_min": 25,
                 "bmi_max": 29.9,
-                "mo_ta": "Mỡ bụng tăng, dễ tăng huyết áp.",
+                "mo_ta": "Thừa cân, mỡ bụng tăng, dễ tăng huyết áp.",
                 "khuyen_nghi": "Kiểm soát calo, giảm muối, tăng rau xanh."
               },
               {
-                "muc": "Béo phì",
+                "muc": "Béo phì độ 1",
                 "bmi_min": 30,
-                "bmi_max": 60,
-                "mo_ta": "Béo toàn thân, ảnh hưởng sức khỏe tim mạch.",
+                "bmi_max": 34.9,
+                "mo_ta": "Béo phì, ảnh hưởng sức khỏe tim mạch và khớp.",
                 "khuyen_nghi": "Ăn uống khoa học, tập phục hồi, tái kiểm tra định kỳ."
+              },
+              {
+                "muc": "Béo phì độ 2",
+                "bmi_min": 35,
+                "bmi_max": 39.9,
+                "mo_ta": "Béo phì nặng, nguy cơ cao bệnh tim mạch.",
+                "khuyen_nghi": "Cần can thiệp y tế, theo dõi chặt chẽ, tập phục hồi nhẹ."
+              },
+              {
+                "muc": "Béo phì độ 3",
+                "bmi_min": 40,
+                "bmi_max": 60,
+                "mo_ta": "Béo phì nghiêm trọng, cần điều trị chuyên sâu.",
+                "khuyen_nghi": "Theo dõi bác sĩ chuyên khoa, có thể cần phẫu thuật giảm béo."
               }
             ]
           }

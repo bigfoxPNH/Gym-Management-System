@@ -88,11 +88,31 @@ class BodyMetricsCalculator {
 
     // Tìm ngưỡng BMI
     final thresholds = selectedGroup!['nguong'] as List;
+
+    // Tìm ngưỡng phù hợp - ưu tiên ngưỡng có khoảng chứa BMI
     for (var threshold in thresholds) {
       final minBmi = (threshold['bmi_min'] as num).toDouble();
       final maxBmi = (threshold['bmi_max'] as num).toDouble();
 
+      // Kiểm tra nằm trong khoảng (bao gồm cả biên)
       if (bmi >= minBmi && bmi <= maxBmi) {
+        return {
+          'category': threshold['muc'],
+          'description': threshold['mo_ta'],
+          'recommendation': threshold['khuyen_nghi'],
+          'note': selectedGroup['ghi_chu'] ?? '',
+        };
+      }
+    }
+
+    // Nếu không tìm thấy chính xác, tìm ngưỡng gần nhất (xử lý khoảng trống)
+    for (int i = 0; i < thresholds.length - 1; i++) {
+      final currentMax = (thresholds[i]['bmi_max'] as num).toDouble();
+      final nextMin = (thresholds[i + 1]['bmi_min'] as num).toDouble();
+
+      // Nếu BMI rơi vào khoảng trống giữa 2 ngưỡng, chọn ngưỡng tiếp theo
+      if (bmi > currentMax && bmi < nextMin) {
+        final threshold = thresholds[i + 1];
         return {
           'category': threshold['muc'],
           'description': threshold['mo_ta'],
