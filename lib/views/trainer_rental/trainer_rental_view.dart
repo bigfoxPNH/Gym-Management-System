@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/trainer_rental_controller.dart';
 import '../../models/trainer.dart';
 import 'trainer_rental_detail_view.dart';
@@ -248,23 +249,54 @@ class TrainerRentalView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
 
-                        // Rating
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.star,
-                              size: 16,
-                              color: Colors.amber[700],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} (${trainer.soLuotDanhGia} đánh giá)',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
+                        // Rating - Real-time từ reviews
+                        StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('trainer_reviews')
+                              .where('trainerId', isEqualTo: trainer.id)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            double avgRating = 0.0;
+                            int reviewCount = 0;
+
+                            if (snapshot.hasData &&
+                                snapshot.data!.docs.isNotEmpty) {
+                              reviewCount = snapshot.data!.docs.length;
+                              final totalRating = snapshot.data!.docs.fold<int>(
+                                0,
+                                (sum, doc) =>
+                                    sum +
+                                    ((doc.data()
+                                                as Map<
+                                                  String,
+                                                  dynamic
+                                                >)['rating']
+                                            as int? ??
+                                        0),
+                              );
+                              avgRating = totalRating / reviewCount;
+                            }
+
+                            return Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 16,
+                                  color: Colors.amber[700],
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  reviewCount > 0
+                                      ? '${avgRating.toStringAsFixed(1)} ($reviewCount đánh giá)'
+                                      : 'Chưa có đánh giá',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 8),
 

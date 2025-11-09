@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controllers/trainer_management_controller.dart';
 import '../../models/trainer.dart';
 import '../../models/trainer_assignment.dart';
@@ -124,29 +125,55 @@ class TrainerDetailView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              // Rating
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...List.generate(5, (index) {
-                    return Icon(
-                      index < trainer.danhGiaTrungBinh.floor()
-                          ? Icons.star
-                          : Icons.star_border,
-                      color: Colors.amber,
-                      size: 24,
+              // Rating - Real-time từ reviews
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('trainer_reviews')
+                    .where('trainerId', isEqualTo: trainer.id)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  double avgRating = 0.0;
+                  int reviewCount = 0;
+
+                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                    reviewCount = snapshot.data!.docs.length;
+                    final totalRating = snapshot.data!.docs.fold<int>(
+                      0,
+                      (sum, doc) =>
+                          sum +
+                          ((doc.data() as Map<String, dynamic>)['rating']
+                                  as int? ??
+                              0),
                     );
-                  }),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} (${trainer.soLuotDanhGia} đánh giá)',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+                    avgRating = totalRating / reviewCount;
+                  }
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ...List.generate(5, (index) {
+                        return Icon(
+                          index < avgRating.floor()
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 24,
+                        );
+                      }),
+                      const SizedBox(width: 8),
+                      Text(
+                        reviewCount > 0
+                            ? '${avgRating.toStringAsFixed(1)} ($reviewCount đánh giá)'
+                            : 'Chưa có đánh giá',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 12),
 

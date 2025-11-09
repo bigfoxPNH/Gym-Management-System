@@ -115,10 +115,9 @@ service cloud.firestore {
     
     // Trainer Reviews collection (đánh giá PT)
     match /trainer_reviews/{reviewId} {
-      // Cho phép signed-in users đọc reviews
-      // (Trainer sẽ filter by trainerId ở client-side)
-      allow read: if isSignedIn();
-      // Member có thể tạo review
+      // Cho phép PUBLIC đọc reviews (để hiển thị trên trainer profile)
+      allow read: if true;
+      // Member có thể tạo review (phải đăng nhập)
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       // Chỉ author hoặc admin mới update/delete
       allow update, delete: if isSignedIn() && (

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/trainer.dart';
 import '../../models/trainer_review.dart';
 import '../../models/certificate.dart';
@@ -71,16 +72,38 @@ class UserTrainerDetailView extends StatelessWidget {
                 ),
               ],
             ),
-            child: CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.grey[300],
-              backgroundImage: trainer.anhDaiDien != null
-                  ? NetworkImage(trainer.anhDaiDien!)
-                  : null,
-              child: trainer.anhDaiDien == null
-                  ? Icon(Icons.person, size: 60, color: Colors.grey[600])
-                  : null,
-            ),
+            child: trainer.anhDaiDien != null
+                ? ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: trainer.anhDaiDien!,
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.grey[300],
+                        child: const CircularProgressIndicator(),
+                      ),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.grey[300],
+                        child: Icon(
+                          Icons.person,
+                          size: 60,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  )
+                : CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.grey[300],
+                    child: Icon(
+                      Icons.person,
+                      size: 60,
+                      color: Colors.grey[600],
+                    ),
+                  ),
           ),
           const SizedBox(height: 16),
 
@@ -95,25 +118,50 @@ class UserTrainerDetailView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Rating
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ...List.generate(5, (index) {
-                return Icon(
-                  index < trainer.danhGiaTrungBinh.floor()
-                      ? Icons.star
-                      : Icons.star_border,
-                  color: Colors.amber,
-                  size: 24,
+          // Rating - Real-time từ reviews
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('trainer_reviews')
+                .where('trainerId', isEqualTo: trainer.id)
+                .snapshots(),
+            builder: (context, snapshot) {
+              double avgRating = 0.0;
+              int reviewCount = 0;
+
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                reviewCount = snapshot.data!.docs.length;
+                final totalRating = snapshot.data!.docs.fold<int>(
+                  0,
+                  (sum, doc) =>
+                      sum +
+                      ((doc.data() as Map<String, dynamic>)['rating'] as int? ??
+                          0),
                 );
-              }),
-              const SizedBox(width: 8),
-              Text(
-                '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} (${trainer.soLuotDanhGia} đánh giá)',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ],
+                avgRating = totalRating / reviewCount;
+              }
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ...List.generate(5, (index) {
+                    return Icon(
+                      index < avgRating.floor()
+                          ? Icons.star
+                          : Icons.star_border,
+                      color: Colors.amber,
+                      size: 24,
+                    );
+                  }),
+                  const SizedBox(width: 8),
+                  Text(
+                    reviewCount > 0
+                        ? '${avgRating.toStringAsFixed(1)} ($reviewCount đánh giá)'
+                        : 'Chưa có đánh giá',
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -158,12 +206,6 @@ class UserTrainerDetailView extends StatelessWidget {
             Icons.fitness_center,
             'Trình độ PT',
             _getPTLevelText(trainer.trinhDoPT),
-          ),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            Icons.star_outline,
-            'Đánh giá',
-            '${trainer.danhGiaTrungBinh.toStringAsFixed(1)} sao (${trainer.soLuotDanhGia} lượt)',
           ),
         ],
       ),
@@ -310,16 +352,17 @@ class UserTrainerDetailView extends StatelessWidget {
               child: cert.anhUrl != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        cert.anhUrl!,
+                      child: CachedNetworkImage(
+                        imageUrl: cert.anhUrl!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey[600],
-                            size: 30,
-                          );
-                        },
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey[600],
+                          size: 30,
+                        ),
                       ),
                     )
                   : Icon(
@@ -424,47 +467,35 @@ class UserTrainerDetailView extends StatelessWidget {
                   onTap: () => _showFullImage(cert.anhUrl!),
                   child: Container(
                     constraints: const BoxConstraints(maxHeight: 300),
-                    child: Image.network(
-                      cert.anhUrl!,
+                    child: CachedNetworkImage(
+                      imageUrl: cert.anhUrl!,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 200,
-                          color: Colors.grey[200],
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.broken_image,
-                                  size: 48,
-                                  color: Colors.grey[400],
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Không thể tải ảnh',
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
+                      placeholder: (context, url) => Container(
+                        height: 200,
+                        color: Colors.grey[100],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 200,
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.broken_image,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Không thể tải ảnh',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          height: 200,
-                          color: Colors.grey[100],
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          ),
-                        );
-                      },
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -542,28 +573,27 @@ class UserTrainerDetailView extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.network(
-                  imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.broken_image,
-                            size: 64,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Không thể tải ảnh',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  placeholder: (context, url) => const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.broken_image, size: 64, color: Colors.white),
+                        SizedBox(height: 16),
+                        Text(
+                          'Không thể tải ảnh',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -774,12 +804,6 @@ class UserTrainerDetailView extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  int _getExperienceYears(DateTime startDate) {
-    final now = DateTime.now();
-    final diff = now.difference(startDate);
-    return (diff.inDays / 365).floor();
   }
 
   String _getPTLevelText(String level) {
