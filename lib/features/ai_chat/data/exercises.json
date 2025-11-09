@@ -306,6 +306,121 @@
       "mucTieu": ["Phát triển bắp chân dưới"],
       "cachTap": "Ngồi ghế, đặt tạ lên đùi, nhón chân lên rồi hạ xuống chậm.",
       "moTa": "Giúp phát triển phần dưới bắp chân, tạo form tròn đều."
+    },
+
+    {
+      "tenBaiTap": "Burpees",
+      "nhomCoChinh": "Toàn thân (Full Body)",
+      "nhomCoPhu": ["Ngực", "Chân", "Core", "Tim mạch"],
+      "doKho": "Khó",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người muốn giảm cân nhanh", "Người tập HIIT"],
+      "mucTieu": ["Đốt mỡ hiệu quả", "Tăng sức bền tim mạch", "Giảm cân"],
+      "cachTap": "Đứng thẳng, hạ người xuống tư thế chống đẩy, nhảy chân về sau, chống đẩy 1 cái, nhảy chân lại gần tay, rồi nhảy bật cao lên.",
+      "moTa": "Bài tập cardio đốt cháy calo cực mạnh, kết hợp sức mạnh và thể lực. Đốt 10-15 calo/phút."
+    },
+    {
+      "tenBaiTap": "Jumping Jacks (Bật nhảy tại chỗ)",
+      "nhomCoChinh": "Tim mạch (Cardio)",
+      "nhomCoPhu": ["Chân", "Vai", "Core"],
+      "doKho": "Dễ",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người mới bắt đầu", "Người muốn khởi động"],
+      "mucTieu": ["Khởi động cơ thể", "Đốt calo", "Cải thiện tim mạch"],
+      "cachTap": "Đứng thẳng, nhảy tách chân ra và vỗ tay lên cao, rồi nhảy khép chân lại và hạ tay xuống.",
+      "moTa": "Bài tập cardio đơn giản nhất, tốt cho khởi động hoặc giảm cân. Đốt 8-10 calo/phút."
+    },
+    {
+      "tenBaiTap": "Mountain Climbers (Leo núi)",
+      "nhomCoChinh": "Core và Tim mạch",
+      "nhomCoPhu": ["Vai", "Chân"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người muốn giảm mỡ bụng", "Người tập cardio"],
+      "mucTieu": ["Đốt mỡ bụng", "Tăng sức bền", "Giảm cân"],
+      "cachTap": "Tư thế chống đẩy, luân phiên đưa đầu gối về phía ngực nhanh như đang chạy tại chỗ.",
+      "moTa": "Bài tập kết hợp cardio và core, đốt calo cao trong thời gian ngắn. Đốt 10-12 calo/phút."
+    },
+    {
+      "tenBaiTap": "Jump Rope (Nhảy dây)",
+      "nhomCoChinh": "Tim mạch (Cardio)",
+      "nhomCoPhu": ["Bắp chân", "Cẳng tay", "Vai"],
+      "doKho": "Trung bình",
+      "dungCu": "Dây nhảy",
+      "doiTuong": ["Người muốn giảm cân", "Người tập cardio"],
+      "mucTieu": [
+        "Đốt calo cao",
+        "Cải thiện phối hợp vận động",
+        "Giảm cân nhanh"
+      ],
+      "cachTap": "Cầm dây nhảy, quay tay và nhảy qua dây theo nhịp đều.",
+      "moTa": "Một trong những bài cardio đốt calo cao nhất. Có thể đốt 12-16 calo/phút, rất tốt cho giảm cân."
+    },
+    {
+      "tenBaiTap": "High Knees (Chạy nâng cao đầu gối)",
+      "nhomCoChinh": "Tim mạch và Chân",
+      "nhomCoPhu": ["Core", "Đùi trước"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ",
+      "doiTuong": ["Người muốn đốt mỡ", "Người tập cardio"],
+      "mucTieu": ["Đốt calo", "Tăng nhịp tim", "Giảm cân"],
+      "cachTap": "Chạy tại chỗ, nâng đầu gối cao ngang hông, vung tay theo nhịp chạy.",
+      "moTa": "Bài cardio cường độ cao giúp đốt mỡ hiệu quả. Đốt 10-12 calo/phút."
+    },
+    {
+      "tenBaiTap": "Box Jumps (Nhảy lên hộp)",
+      "nhomCoChinh": "Chân và Sức bật",
+      "nhomCoPhu": ["Mông", "Core"],
+      "doKho": "Khó",
+      "dungCu": "Hộp hoặc bục cao 30-60cm",
+      "doiTuong": ["Người muốn tăng sức bật", "Vận động viên"],
+      "mucTieu": ["Tăng sức mạnh chân", "Phát triển sức bật", "Đốt calo"],
+      "cachTap": "Đứng trước hộp, nhảy bật lên đáp chân lên hộp, rồi nhảy xuống hoặc bước xuống.",
+      "moTa": "Bài tập plyometric mạnh mẽ, phát triển sức bật và đốt calo cao. Đốt 10-14 calo/phút."
+    },
+    {
+      "tenBaiTap": "Cycling (Đạp xe)",
+      "nhomCoChinh": "Tim mạch và Chân",
+      "nhomCoPhu": ["Đùi trước", "Đùi sau", "Mông"],
+      "doKho": "Dễ đến Trung bình",
+      "dungCu": "Xe đạp hoặc xe đạp tập",
+      "doiTuong": ["Mọi đối tượng", "Người muốn cardio nhẹ nhàng"],
+      "mucTieu": ["Đốt mỡ an toàn", "Tăng sức bền", "Bảo vệ khớp"],
+      "cachTap": "Đạp xe với nhịp độ đều đặn, điều chỉnh tốc độ theo sức bền.",
+      "moTa": "Bài cardio nhẹ nhàng với khớp, phù hợp mọi lứa tuổi. Đốt 8-12 calo/phút tùy cường độ."
+    },
+    {
+      "tenBaiTap": "Running (Chạy bộ)",
+      "nhomCoChinh": "Tim mạch và Chân",
+      "nhomCoPhu": ["Core", "Mông"],
+      "doKho": "Trung bình",
+      "dungCu": "Không cần dụng cụ hoặc máy chạy bộ",
+      "doiTuong": ["Người muốn giảm cân", "Người tập cardio"],
+      "mucTieu": ["Đốt mỡ hiệu quả", "Tăng sức bền tim mạch", "Giảm stress"],
+      "cachTap": "Chạy với tốc độ vừa phải, giữ nhịp thở đều, duy trì 20-30 phút.",
+      "moTa": "Bài cardio kinh điển, dễ thực hiện mọi nơi. Đốt 10-16 calo/phút tùy tốc độ."
+    },
+    {
+      "tenBaiTap": "Swimming (Bơi lội)",
+      "nhomCoChinh": "Toàn thân và Tim mạch",
+      "nhomCoPhu": ["Lưng", "Vai", "Chân", "Ngực"],
+      "doKho": "Trung bình",
+      "dungCu": "Bể bơi",
+      "doiTuong": ["Người muốn cardio toàn diện", "Người có vấn đề về khớp"],
+      "mucTieu": ["Đốt calo cao", "Tăng cơ toàn thân", "An toàn với khớp"],
+      "cachTap": "Bơi các kiểu như tự do, ếch, ngửa... với tốc độ đều đặn.",
+      "moTa": "Bài cardio toàn diện nhất, không gây chấn thương khớp. Đốt 10-14 calo/phút."
+    },
+    {
+      "tenBaiTap": "Kettlebell Swings (Đung đưa tạ chuông)",
+      "nhomCoChinh": "Mông và Lưng dưới",
+      "nhomCoPhu": ["Đùi sau", "Vai", "Core"],
+      "doKho": "Trung bình",
+      "dungCu": "Kettlebell (tạ chuông)",
+      "doiTuong": ["Người muốn kết hợp sức mạnh và cardio"],
+      "mucTieu": ["Tăng sức mạnh mông", "Đốt mỡ", "Tăng sức bền"],
+      "cachTap": "Cầm tạ chuông hai tay, đẩy hông và đung đưa tạ từ giữa chân lên ngang vai.",
+      "moTa": "Bài tập kết hợp sức mạnh và cardio tuyệt vời. Đốt 10-15 calo/phút, tốt cho giảm mỡ và tăng cơ."
     }
   ]
 }

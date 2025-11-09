@@ -154,7 +154,7 @@ class AIEngine {
       return 'calculate_tdee';
     }
 
-    // Exercise queries
+    // Exercise queries - Mở rộng để bao gồm các mục tiêu tập luyện
     if (_containsAny(normalizedMsg, [
       'bai tap',
       'tap luyen',
@@ -170,6 +170,18 @@ class AIEngine {
       'chan',
       'bung',
       'mong',
+      'giam can', // mục tiêu giảm cân
+      'tang co', // mục tiêu tăng cơ
+      'cardio', // bài tập cardio
+      'suc manh', // tăng sức mạnh
+      'dot mo', // đốt mỡ
+      'phat trien', // phát triển cơ
+      'bap', // các nhóm cơ có chữ bắp
+      'squat',
+      'push',
+      'pull',
+      'deadlift',
+      'press',
     ])) {
       return 'ask_exercise';
     }
@@ -882,31 +894,88 @@ Bạn muốn tư vấn về thực đơn cụ thể không? 😊
   String _handleExerciseQuery(String msg) {
     final exercises = _dataService.exercisesData['baiTap'] as List? ?? [];
 
+    // Phát hiện số lượng bài tập người dùng muốn xem
+    int? requestedCount = _extractExerciseCount(msg);
+
     // Tìm kiếm bài tập theo từ khóa
     List<String> keywords = [];
 
-    // Nhóm cơ
-    if (_containsAny(msg, ['nguc', 'chest'])) keywords.add('ngực');
-    if (_containsAny(msg, ['lung', 'back', 'xo'])) keywords.add('lưng');
-    if (_containsAny(msg, ['vai', 'shoulder', 'deltoid'])) keywords.add('vai');
-    if (_containsAny(msg, ['tay truoc', 'bicep', 'tay'])) keywords.add('tay');
-    if (_containsAny(msg, ['chan', 'leg', 'dui'])) keywords.add('chân');
-    if (_containsAny(msg, ['bung', 'abs', 'core'])) keywords.add('bụng');
-    if (_containsAny(msg, ['mong', 'glute', 'glutes'])) keywords.add('mông');
+    // Mục tiêu tập luyện
+    List<String> goals = [];
+    if (_containsAny(msg, ['giam can', 'diet', 'burn fat', 'dot mo'])) {
+      goals.add('giảm cân');
+    }
+    if (_containsAny(msg, [
+      'tang co',
+      'build muscle',
+      'phat trien co',
+      'muscle gain',
+    ])) {
+      goals.add('tăng cơ');
+    }
+    if (_containsAny(msg, ['cardio', 'tim mach', 'the luc', 'endurance'])) {
+      goals.add('cardio');
+    }
+    if (_containsAny(msg, ['suc manh', 'strength', 'luc', 'power'])) {
+      goals.add('sức mạnh');
+    }
+
+    // Nhóm cơ chính xác hơn
+    if (_containsAny(msg, ['nguc', 'chest', 'pec'])) keywords.add('ngực');
+    if (_containsAny(msg, ['lung', 'back', 'xo', 'lat'])) keywords.add('lưng');
+    if (_containsAny(msg, ['vai', 'shoulder', 'deltoid', 'delt']))
+      keywords.add('vai');
+    if (_containsAny(msg, ['tay truoc', 'bicep', 'bap tay']))
+      keywords.add('bicep');
+    if (_containsAny(msg, ['tay sau', 'tricep'])) keywords.add('tricep');
+    if (_containsAny(msg, ['tay', 'arm']) &&
+        !_containsAny(msg, ['chan', 'leg'])) {
+      keywords.add('tay');
+    }
+    if (_containsAny(msg, ['chan', 'leg', 'dui', 'thigh', 'squat']))
+      keywords.add('chân');
+    if (_containsAny(msg, ['bung', 'abs', 'core', 'six pack']))
+      keywords.add('bụng');
+    if (_containsAny(msg, ['mong', 'glute', 'hip', 'butt']))
+      keywords.add('mông');
+    if (_containsAny(msg, ['bap chan', 'calf', 'calves']))
+      keywords.add('bắp chân');
+    if (_containsAny(msg, ['can tay', 'forearm'])) keywords.add('cẳng tay');
 
     // Độ khó
     String difficulty = '';
-    if (_containsAny(msg, ['de', 'moi', 'beginner'])) difficulty = 'Dễ';
-    if (_containsAny(msg, ['trung binh', 'intermediate'])) {
+    if (_containsAny(msg, ['de', 'moi', 'beginner', 'nguoi moi']))
+      difficulty = 'Dễ';
+    if (_containsAny(msg, ['trung binh', 'intermediate', 'vua'])) {
       difficulty = 'Trung bình';
     }
-    if (_containsAny(msg, ['kho', 'nang cao', 'advanced'])) difficulty = 'Khó';
+    if (_containsAny(msg, ['kho', 'nang cao', 'advanced', 'chuyen nghiep'])) {
+      difficulty = 'Khó';
+    }
+
+    // Dụng cụ
+    List<String> equipment = [];
+    if (_containsAny(msg, [
+      'khong dung cu',
+      'bodyweight',
+      'tai nha',
+      'no equipment',
+    ])) {
+      equipment.add('không');
+    }
+    if (_containsAny(msg, ['ta tay', 'dumbbell', 'ta']))
+      equipment.add('tạ tay');
+    if (_containsAny(msg, ['ta don', 'barbell', 'thanh ta']))
+      equipment.add('thanh tạ');
+    if (_containsAny(msg, ['may', 'machine'])) equipment.add('máy');
 
     List<Map<String, dynamic>> matchedExercises = [];
 
     for (var ex in exercises) {
       bool matches = false;
+      int matchScore = 0; // Điểm phù hợp - càng cao càng liên quan
 
+      // Kiểm tra nhóm cơ
       if (keywords.isNotEmpty) {
         for (var keyword in keywords) {
           final exName = _normalizeText(ex['tenBaiTap'] ?? '');
@@ -916,64 +985,202 @@ Bạn muốn tư vấn về thực đơn cụ thể không? 😊
           if (exName.contains(normalizedKeyword) ||
               exGroup.contains(normalizedKeyword)) {
             matches = true;
+            matchScore += 3; // Điểm cao cho khớp nhóm cơ
             break;
           }
         }
       }
 
-      if (difficulty.isNotEmpty && ex['doKho'] == difficulty) {
-        matches = true;
+      // Kiểm tra độ khó
+      if (difficulty.isNotEmpty) {
+        if (ex['doKho'] == difficulty) {
+          matches = keywords.isEmpty
+              ? true
+              : matches; // Nếu chưa match thì mới set true
+          matchScore += 2;
+        } else if (keywords.isNotEmpty && matches) {
+          matchScore -= 1; // Trừ điểm nếu không đúng độ khó
+        }
       }
 
-      if (keywords.isEmpty && difficulty.isEmpty) {
-        matches = true; // Hiển thị tất cả nếu không có keyword cụ thể
+      // Kiểm tra mục tiêu
+      if (goals.isNotEmpty) {
+        final exGoals =
+            (ex['mucTieu'] as List?)
+                ?.map((e) => _normalizeText(e.toString()))
+                .toList() ??
+            [];
+        final exDescription = _normalizeText(ex['moTa'] ?? '');
+
+        for (var goal in goals) {
+          final normalizedGoal = _normalizeText(goal);
+          if (exGoals.any((g) => g.contains(normalizedGoal)) ||
+              exDescription.contains(normalizedGoal)) {
+            matches = true;
+            matchScore += 2;
+            break;
+          }
+        }
+      }
+
+      // Kiểm tra dụng cụ
+      if (equipment.isNotEmpty) {
+        final exEquipment = _normalizeText(ex['dungCu'] ?? '');
+        for (var eq in equipment) {
+          final normalizedEq = _normalizeText(eq);
+          if (exEquipment.contains(normalizedEq) ||
+              (normalizedEq == 'khong' &&
+                  exEquipment.contains('khong can dung cu'))) {
+            matchScore += 1;
+            matches = true;
+            break;
+          }
+        }
+      }
+
+      // Nếu không có filter cụ thể, hiện tất cả
+      if (keywords.isEmpty &&
+          difficulty.isEmpty &&
+          goals.isEmpty &&
+          equipment.isEmpty) {
+        matches = true;
+        matchScore = 1;
       }
 
       if (matches) {
-        matchedExercises.add(ex as Map<String, dynamic>);
+        matchedExercises.add({
+          'exercise': ex as Map<String, dynamic>,
+          'score': matchScore,
+        });
       }
     }
+
+    // Sắp xếp theo điểm phù hợp
+    matchedExercises.sort(
+      (a, b) => (b['score'] as int).compareTo(a['score'] as int),
+    );
 
     if (matchedExercises.isEmpty) {
       return '''
 Xin lỗi, tôi không tìm thấy bài tập phù hợp với yêu cầu của bạn.
 
 💪 **Bạn có thể hỏi về:**
-- Bài tập ngực, lưng, vai, tay, chân, bụng, mông
-- Bài tập dễ, trung bình, khó
-- Ví dụ: "Gợi ý bài tập ngực cho người mới"
+- **Nhóm cơ:** ngực, lưng, vai, tay, chân, bụng, mông
+- **Độ khó:** dễ, trung bình, khó
+- **Mục tiêu:** giảm cân, tăng cơ, cardio, sức mạnh
+- **Số lượng:** 1 bài tập, 2 bài tập, 3 bài tập...
+
+📝 **Ví dụ câu hỏi:**
+- "Các bài tập chân"
+- "1 bài tập chân dễ"
+- "Chọn 2 bài tập ngực"
+- "Bài tập giảm cân"
+- "Bài tập tăng cơ vai"
 
 Hãy thử lại nhé! 😊
 ''';
     }
 
-    // Giới hạn 5 bài tập đầu tiên
-    final displayExercises = matchedExercises.take(5).toList();
+    // Xác định số lượng bài tập cần hiển thị
+    int displayCount;
+    if (requestedCount != null) {
+      // Người dùng yêu cầu số lượng cụ thể
+      displayCount = requestedCount;
+    } else if (_containsAny(msg, [
+      'cac bai tap',
+      'tat ca',
+      'all',
+      'goi y',
+      'nhieu',
+    ])) {
+      // Người dùng muốn xem nhiều bài
+      displayCount = 5;
+    } else if (keywords.isNotEmpty && difficulty.isEmpty && goals.isEmpty) {
+      // Chỉ hỏi về nhóm cơ → hiện nhiều bài
+      displayCount = 5;
+    } else {
+      // Mặc định hiển thị 3 bài
+      displayCount = 3;
+    }
 
-    String response = '💪 **GỢI Ý BÀI TẬP**\n\n';
+    final displayExercises = matchedExercises.take(displayCount).toList();
+
+    String response = '';
+
+    // Tiêu đề phù hợp
+    if (requestedCount == 1) {
+      response = '💪 **BÀI TẬP PHÙ HỢP**\n\n';
+    } else if (requestedCount != null && requestedCount > 1) {
+      response = '💪 **${requestedCount} BÀI TẬP PHÙ HỢP**\n\n';
+    } else if (keywords.isNotEmpty) {
+      response = '💪 **BÀI TẬP ${keywords.first.toUpperCase()}**\n\n';
+    } else if (goals.isNotEmpty) {
+      response = '💪 **BÀI TẬP ${goals.first.toUpperCase()}**\n\n';
+    } else {
+      response = '💪 **GỢI Ý BÀI TẬP**\n\n';
+    }
 
     for (var i = 0; i < displayExercises.length; i++) {
-      final ex = displayExercises[i];
+      final ex = displayExercises[i]['exercise'] as Map<String, dynamic>;
       response +=
           '''
 ${i + 1}. **${ex['tenBaiTap']}**
    📍 Nhóm cơ: ${ex['nhomCoChinh']}
-   🔧 Dụng cụ: ${ex['dungCu']}
+   ${(ex['nhomCoPhu'] as List?)?.isNotEmpty == true ? '➕ Nhóm cơ phụ: ${(ex['nhomCoPhu'] as List).join(', ')}\n   ' : ''}🔧 Dụng cụ: ${ex['dungCu']}
    📊 Độ khó: ${ex['doKho']}
-   💡 Cách tập: ${ex['cachTap']}
-   ✅ Lợi ích: ${ex['moTa']}
+   � Đối tượng: ${(ex['doiTuong'] as List?)?.join(', ') ?? 'Phù hợp mọi đối tượng'}
+   🎯 Mục tiêu: ${(ex['mucTieu'] as List?)?.join(', ') ?? 'Tăng cường thể lực'}
+   
+   �💡 **Cách tập:** ${ex['cachTap']}
+   
+   ✅ **Lợi ích:** ${ex['moTa']}
 
 ''';
     }
 
-    if (matchedExercises.length > 5) {
+    if (matchedExercises.length > displayCount) {
       response +=
-          '\n📌 Còn ${matchedExercises.length - 5} bài tập khác. Hỏi cụ thể hơn để xem thêm!\n';
+          '📌 Còn ${matchedExercises.length - displayCount} bài tập khác phù hợp. Hỏi cụ thể hơn để xem thêm!\n\n';
     }
 
-    response += '\nBạn muốn biết thêm về bài tập nào không? 😊';
+    response += '💬 Bạn muốn biết chi tiết hơn về bài tập nào không? 😊';
 
     return response;
+  }
+
+  /// Trích xuất số lượng bài tập từ câu hỏi
+  int? _extractExerciseCount(String msg) {
+    // Tìm số trong câu hỏi
+    final numbers = {
+      'mot': 1,
+      '1': 1,
+      'một': 1,
+      'hai': 2,
+      '2': 2,
+      'ba': 3,
+      '3': 3,
+      'bon': 4,
+      '4': 4,
+      'bốn': 4,
+      'nam': 5,
+      '5': 5,
+      'năm': 5,
+    };
+
+    for (var entry in numbers.entries) {
+      if (msg.contains(entry.key) &&
+          (_containsAny(msg, ['bai tap', 'bai', 'exercise']))) {
+        return entry.value;
+      }
+    }
+
+    // Tìm pattern "X bài"
+    final match = RegExp(r'(\d+)\s*bai').firstMatch(msg);
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '');
+    }
+
+    return null;
   }
 
   /// Xử lý câu hỏi về dinh dưỡng
