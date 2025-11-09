@@ -41,19 +41,23 @@ class AIChatController extends GetxController {
     super.onClose();
   }
 
-  /// Scroll để tin nhắn mới nhất hiển thị ở gần đầu màn hình
+  /// Scroll xuống tin nhắn mới nhất
   void scrollToBottom() {
     // Đợi cho đến khi ScrollController có clients và đã render xong
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (scrollController.hasClients) {
-        final position = scrollController.position;
-        // Scroll đến gần cuối, trừ đi 150px để tin nhắn mới hiển thị ở phía trên
-        final targetScroll = position.maxScrollExtent - 150;
-        scrollController.animateTo(
-          targetScroll > 0 ? targetScroll : position.maxScrollExtent,
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOutCubic,
-        );
+        // Delay nhỏ để đảm bảo UI đã render xong
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        if (scrollController.hasClients) {
+          final position = scrollController.position;
+          // Scroll hoàn toàn xuống cuối để tin nhắn mới hiển thị
+          scrollController.animateTo(
+            position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          );
+        }
       }
     });
   }
@@ -157,7 +161,8 @@ Bạn cần giúp gì?
         timestamp: DateTime.now(),
       );
       _messages.add(aiMessage);
-      // Không scroll khi AI trả lời, giữ nguyên vị trí user đang xem
+
+      // KHÔNG scroll khi AI trả lời - để user đọc ở vị trí hiện tại
     } catch (e) {
       _isTyping.value = false;
 
@@ -169,7 +174,8 @@ Bạn cần giúp gì?
         timestamp: DateTime.now(),
       );
       _messages.add(errorMessage);
-      // Không scroll khi có lỗi, giữ nguyên vị trí
+
+      // KHÔNG scroll khi có lỗi - để user đọc ở vị trí hiện tại
     }
   }
 
