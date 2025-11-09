@@ -15,6 +15,11 @@ class AIEngine {
   _waitingFor; // 'weight', 'height', 'age', 'gender', 'activity', 'metric_type'
   String? _pendingCalculation; // 'bmi', 'bmr', 'tdee'
 
+  // Lưu kết quả tìm kiếm để hiển thị thêm
+  List<Map<String, dynamic>> _lastSearchResults = [];
+  int _lastDisplayCount = 0;
+  String _lastSearchType = ''; // 'nutrition', 'exercise'
+
   AIEngine(this._dataService, this._calculator);
 
   /// Xử lý tin nhắn và tạo phản hồi
@@ -38,7 +43,7 @@ class AIEngine {
     }
 
     // Phân tích intent (ý định) của người dùng
-    final intent = _detectIntent(normalizedMsg);
+    final intent = _detectIntent(userMessage, normalizedMsg);
     print('   Intent: $intent');
 
     switch (intent) {
@@ -48,6 +53,8 @@ class AIEngine {
         return _handleBMRCalculation(userMessage, normalizedMsg);
       case 'calculate_tdee':
         return _handleTDEECalculation(userMessage, normalizedMsg);
+      case 'show_more':
+        return _handleShowMore();
       case 'ask_exercise':
         return _handleExerciseQuery(normalizedMsg);
       case 'ask_nutrition':
@@ -86,8 +93,51 @@ class AIEngine {
   }
 
   /// Phát hiện intent của người dùng
-  String _detectIntent(String normalizedMsg) {
-    // Greeting
+  String _detectIntent(String originalMsg, String normalizedMsg) {
+    print('   [Intent Detection Start]');
+    print('   - Original: "$originalMsg"');
+    print('   - Normalized: "$normalizedMsg"');
+
+    // Show more results - CHECK TRƯỚC để không bị greeting chặn
+    final lowerMsg = originalMsg.toLowerCase().trim();
+
+    print('   [Show More Check]');
+    print('   - Original: "$originalMsg"');
+    print('   - Normalized: "$normalizedMsg"');
+    print('   - Lower: "$lowerMsg"');
+
+    // Check "hiện thêm" hoặc "xem thêm" bằng cách check cả 2 từ
+    final hasHienThem =
+        (normalizedMsg.contains('hien') && normalizedMsg.contains('them')) ||
+        (lowerMsg.contains('hiện') && lowerMsg.contains('thêm'));
+    final hasXemThem =
+        (normalizedMsg.contains('xem') && normalizedMsg.contains('them')) ||
+        (lowerMsg.contains('xem') && lowerMsg.contains('thêm'));
+
+    // Nếu user chỉ gõ "thêm" hoặc "them" một mình - cũng hiểu là "hiện thêm"
+    final justThem =
+        (normalizedMsg.trim() == 'them' || lowerMsg.trim() == 'thêm');
+
+    print('   - hasHienThem: $hasHienThem');
+    print('   - hasXemThem: $hasXemThem');
+    print('   - justThem: $justThem');
+
+    if (hasHienThem ||
+        hasXemThem ||
+        justThem ||
+        normalizedMsg.contains('show more') ||
+        normalizedMsg.contains('tiep') ||
+        lowerMsg.contains('tiếp') ||
+        normalizedMsg.contains('nua') ||
+        lowerMsg.contains('nữa') ||
+        normalizedMsg.contains('con nua') ||
+        lowerMsg.contains('còn nữa') ||
+        normalizedMsg.trim() == 'more') {
+      print('   ✅ MATCHED show_more!');
+      return 'show_more';
+    }
+
+    // Greeting - Check SAU show_more để không bị conflict
     if (_containsAny(normalizedMsg, [
       'xin chao',
       'chao',
@@ -97,6 +147,7 @@ class AIEngine {
       'alo',
       'alô',
     ])) {
+      print('   ✅ MATCHED greeting');
       return 'greeting';
     }
 
@@ -186,7 +237,7 @@ class AIEngine {
       return 'ask_exercise';
     }
 
-    // Nutrition queries
+    // Nutrition queries - Mở rộng để bao gồm tìm kiếm theo giá
     if (_containsAny(normalizedMsg, [
       'thuc don',
       'an gi',
@@ -198,6 +249,17 @@ class AIEngine {
       'carb',
       'beo',
       'chat xo',
+      'gia re', // tìm theo giá
+      'binh dan',
+      'tiet kiem',
+      'dat',
+      'cao cap',
+      'trai cay', // loại món
+      'rau cu',
+      'thuc vat',
+      'dong vat',
+      'giu dang', // mục đích
+      'phu hop',
     ])) {
       return 'ask_nutrition';
     }
@@ -1081,6 +1143,10 @@ Hãy thử lại nhé! 😊
 ''';
     }
 
+    // Lưu kết quả để có thể hiển thị thêm sau
+    _lastSearchResults = matchedExercises;
+    _lastSearchType = 'exercise';
+
     // Xác định số lượng bài tập cần hiển thị
     int displayCount;
     if (requestedCount != null) {
@@ -1102,6 +1168,9 @@ Hãy thử lại nhé! 😊
       // Mặc định hiển thị 3 bài
       displayCount = 3;
     }
+
+    // Save display count for "show more"
+    _lastDisplayCount = displayCount;
 
     final displayExercises = matchedExercises.take(displayCount).toList();
 
@@ -1140,7 +1209,7 @@ ${i + 1}. **${ex['tenBaiTap']}**
 
     if (matchedExercises.length > displayCount) {
       response +=
-          '📌 Còn ${matchedExercises.length - displayCount} bài tập khác phù hợp. Hỏi cụ thể hơn để xem thêm!\n\n';
+          '📌 Còn ${matchedExercises.length - displayCount} bài tập khác phù hợp. Nói "hiện thêm" để xem tiếp!\n\n';
     }
 
     response += '💬 Bạn muốn biết chi tiết hơn về bài tập nào không? 😊';
@@ -1183,103 +1252,621 @@ ${i + 1}. **${ex['tenBaiTap']}**
     return null;
   }
 
+  /// Xử lý yêu cầu "hiện thêm" - hiển thị thêm kết quả từ tìm kiếm trước đó
+  String _handleShowMore() {
+    // Kiểm tra có kết quả trước đó không
+    if (_lastSearchResults.isEmpty) {
+      return '''
+❌ **CHƯA CÓ KẾT QUẢ TÌM KIẾM**
+
+Bạn chưa tìm kiếm gì cả. Hãy tìm kiếm món ăn hoặc bài tập trước khi dùng "hiện thêm" nhé! 😊
+
+💡 **Gợi ý:**
+- Tìm bài tập: "các bài tập chân", "bài tập ngực"
+- Tìm món ăn: "món ăn giảm cân", "thức ăn nhiều protein"
+''';
+    }
+
+    // Lấy các item tiếp theo
+    final remainingItems = _lastSearchResults.skip(_lastDisplayCount).toList();
+
+    if (remainingItems.isEmpty) {
+      return '''
+✅ **ĐÃ HIỂN THỊ HẾT**
+
+Bạn đã xem hết tất cả ${_lastSearchResults.length} kết quả phù hợp rồi! 😊
+
+💬 Hãy tìm kiếm với từ khóa khác để xem thêm nhé!
+''';
+    }
+
+    // Hiển thị tối đa 5 item tiếp theo
+    final nextBatch = remainingItems.take(5).toList();
+    final newDisplayCount = _lastDisplayCount + nextBatch.length;
+
+    String response = '';
+
+    // Hiển thị theo loại (bài tập hoặc món ăn)
+    if (_lastSearchType == 'exercise') {
+      response = '💪 **THÊM BÀI TẬP PHÙ HỢP**\n\n';
+
+      for (var i = 0; i < nextBatch.length; i++) {
+        final ex = nextBatch[i]['exercise'] as Map<String, dynamic>;
+        response +=
+            '''
+${_lastDisplayCount + i + 1}. **${ex['tenBaiTap']}**
+   📍 Nhóm cơ: ${ex['nhomCoChinh']}
+   ${(ex['nhomCoPhu'] as List?)?.isNotEmpty == true ? '➕ Nhóm cơ phụ: ${(ex['nhomCoPhu'] as List).join(', ')}\n   ' : ''}🔧 Dụng cụ: ${ex['dungCu']}
+   📊 Độ khó: ${ex['doKho']}
+   👤 Đối tượng: ${(ex['doiTuong'] as List?)?.join(', ') ?? 'Phù hợp mọi đối tượng'}
+   🎯 Mục tiêu: ${(ex['mucTieu'] as List?)?.join(', ') ?? 'Tăng cường thể lực'}
+   
+   💡 **Cách tập:** ${ex['cachTap']}
+   
+   ✅ **Lợi ích:** ${ex['moTa']}
+
+''';
+      }
+    } else if (_lastSearchType == 'nutrition') {
+      response = '🍽️ **THÊM MÓN ĂN PHÙ HỢP**\n\n';
+
+      for (var i = 0; i < nextBatch.length; i++) {
+        final food = nextBatch[i]['food'] as Map<String, dynamic>;
+        final score = nextBatch[i]['score'] as int;
+
+        response +=
+            '''
+${_lastDisplayCount + i + 1}. **${food['ten_mon']}** ${score >= 10
+                ? '⭐'
+                : score >= 7
+                ? '✨'
+                : ''}
+   💰 Giá: **${food['gia'] ?? 'N/A'}**
+   � Năng lượng: ${food['nang_luong_kcal']} kcal/100g
+   💪 Protein: ${food['dam_g']}g | 🍚 Carb: ${food['carb_g']}g | 🥑 Béo: ${food['beo_g']}g
+   🌾 Chất xơ: ${food['chat_xo_g'] ?? 0}g
+   ${food['phu_hop_voi'] != null ? '� Phù hợp: ${food['phu_hop_voi']}\n   ' : ''}✅ ${food['loi_ich']}
+
+''';
+      }
+    }
+
+    // Cập nhật số lượng đã hiển thị
+    _lastDisplayCount = newDisplayCount;
+
+    // Thông báo còn bao nhiêu item nữa
+    final remaining = _lastSearchResults.length - newDisplayCount;
+    if (remaining > 0) {
+      response +=
+          '📌 Còn $remaining kết quả khác. Nói "hiện thêm" để xem tiếp! 😊\n\n';
+    } else {
+      response +=
+          '✅ Đã hiển thị hết ${_lastSearchResults.length} kết quả phù hợp!\n\n';
+    }
+
+    response +=
+        '💬 Bạn muốn biết chi tiết hơn về ${_lastSearchType == 'exercise' ? 'bài tập' : 'món ăn'} nào không? 😊';
+
+    return response;
+  }
+
   /// Xử lý câu hỏi về dinh dưỡng
   String _handleNutritionQuery(String msg) {
     final nutrition = _dataService.nutritionData['nutrition'] as List? ?? [];
 
     List<Map<String, dynamic>> matchedFoods = [];
 
-    // Keywords for search
-    bool searchProtein = _containsAny(msg, ['protein', 'dam', 'thit', 'ca']);
-    bool searchCarb = _containsAny(msg, ['carb', 'tinh bot', 'com', 'mi']);
-    bool searchLowCal = _containsAny(msg, [
-      'giam can',
-      'it calo',
-      'low calorie',
+    // Phát hiện context - nếu có từ liên quan đồ ăn + giá thì tự hiểu
+    bool hasFoodContext = _containsAny(msg, [
+      'mon',
+      'mon an',
+      'do an',
+      'thuc pham',
+      'rau',
+      'cu',
+      'qua',
+      'trai cay',
+      'thit',
+      'ca',
+      'tom',
+      'ga',
+      'heo',
+      'bo',
+      'com',
+      'mi',
+      'bun',
+      'pho',
+      'trung',
+      'sua',
+      'dau',
+      'an',
+      'an gi',
+      'thuc don',
     ]);
-    bool searchHighCal = _containsAny(msg, [
-      'tang can',
+
+    // Tìm kiếm theo giá - linh hoạt hơn
+    String? priceFilter;
+    if (_containsAny(msg, ['re', 'gia re', 'tiet kiem', 'cheap', 'rẻ'])) {
+      priceFilter = 'rẻ';
+    } else if (_containsAny(msg, [
+      'binh dan',
+      'vua tui',
+      'affordable',
+      'phai chang',
+    ])) {
+      priceFilter = 'bình dân';
+    } else if (_containsAny(msg, [
+      'trung binh',
+      'gia trung binh',
+      'vua phai',
+    ])) {
+      priceFilter = 'trung bình';
+    } else if (_containsAny(msg, [
+      'dat',
+      'cao cap',
+      'expensive',
+      'tuong doi dat',
+      'gia cao',
+    ])) {
+      priceFilter = 'tương đối đắt';
+    }
+
+    // Tìm theo loại món - mở rộng
+    List<String> foodTypes = [];
+    if (_containsAny(msg, [
+      'thuc vat',
+      'rau',
+      'cu',
+      'chay',
+      'vegetarian',
+      'rau cu',
+    ])) {
+      if (!foodTypes.contains('Thực vật')) foodTypes.add('Thực vật');
+    }
+    if (_containsAny(msg, [
+      'dong vat',
+      'thit',
+      'ca',
+      'meat',
+      'animal',
+      'hai san',
+      'tom',
+      'ga',
+      'heo',
+      'bo',
+    ])) {
+      if (!foodTypes.contains('Động vật')) foodTypes.add('Động vật');
+    }
+    if (_containsAny(msg, ['trai cay', 'qua', 'fruit', 'hoa qua'])) {
+      if (!foodTypes.contains('Trái cây')) foodTypes.add('Trái cây');
+    }
+    if (_containsAny(msg, ['hon hop', 'ket hop', 'mix'])) {
+      if (!foodTypes.contains('Hỗn hợp')) foodTypes.add('Hỗn hợp');
+    }
+
+    // Tìm theo dinh dưỡng cụ thể - chi tiết hơn
+    bool highProtein = _containsAny(msg, [
+      'nhieu protein',
+      'giau protein',
+      'protein cao',
+      'nhieu dam',
+    ]);
+    bool lowProtein = _containsAny(msg, ['it protein', 'protein thap']);
+
+    bool highCarb = _containsAny(msg, [
+      'nhieu carb',
+      'giau carb',
+      'nhieu tinh bot',
+      'carb cao',
+    ]);
+    bool lowCarb = _containsAny(msg, [
+      'it carb',
+      'carb thap',
+      'low carb',
+      'it tinh bot',
+    ]);
+
+    bool highCal = _containsAny(msg, [
       'nhieu calo',
-      'high calorie',
+      'nhieu kcal',
+      'calo cao',
+      'tang can',
     ]);
+    bool lowCal = _containsAny(msg, [
+      'it calo',
+      'it kcal',
+      'calo thap',
+      'low cal',
+      'giam can',
+    ]);
+
+    bool highFiber = _containsAny(msg, [
+      'nhieu chat xo',
+      'giau chat xo',
+      'fiber',
+    ]);
+    bool lowFat = _containsAny(msg, [
+      'it beo',
+      'beo thap',
+      'low fat',
+      'khong beo',
+    ]);
+    bool highFat = _containsAny(msg, ['nhieu beo', 'giau beo']);
+
+    // Tìm theo mục đích - mở rộng
+    bool forWeightLoss = _containsAny(msg, [
+      'giam can',
+      'giu dang',
+      'diet',
+      'lose weight',
+      'clean',
+      'healthy',
+    ]);
+    bool forMuscleGain = _containsAny(msg, [
+      'tang co',
+      'muscle',
+      'phat trien co',
+      'build muscle',
+      'gym',
+    ]);
+    bool forEnergy = _containsAny(msg, [
+      'nang luong',
+      'energy',
+      'suc khoe',
+      'the luc',
+    ]);
+    bool forBulking = _containsAny(msg, [
+      'tang can',
+      'bulking',
+      'tang khoi luong',
+    ]);
+
+    // Phát hiện yêu cầu số lượng
+    int? requestedCount = _extractFoodCount(msg);
 
     for (var food in nutrition) {
       bool matches = false;
+      int matchScore = 0;
 
-      // Tìm theo tên món
       final foodName = _normalizeText(food['ten_mon'] ?? '');
-      if (foodName.contains(_normalizeText(msg))) {
+      final foodPrice = _normalizeText(food['gia'] ?? '');
+      final foodType = _normalizeText(food['loai'] ?? '');
+      final suitableFor = _normalizeText(food['phu_hop_voi'] ?? '');
+      final benefit = _normalizeText(food['loi_ich'] ?? '');
+
+      final calories = (food['nang_luong_kcal'] ?? 0) as num;
+      final protein = (food['dam_g'] ?? 0) as num;
+      final carb = (food['carb_g'] ?? 0) as num;
+      final fat = (food['beo_g'] ?? 0) as num;
+      final fiber = (food['chat_xo_g'] ?? 0) as num;
+
+      // Tìm theo tên món - ưu tiên cao nhất
+      if (foodName.contains(_normalizeText(msg)) && msg.length > 2) {
         matches = true;
+        matchScore += 10;
       }
 
-      // Tìm theo protein cao
-      if (searchProtein && (food['dam_g'] ?? 0) > 15) {
-        matches = true;
+      // Tìm theo giá
+      if (priceFilter != null) {
+        if (foodPrice == _normalizeText(priceFilter)) {
+          matches = true;
+          matchScore += 5;
+        } else {
+          // Nếu có filter giá mà không khớp thì trừ điểm
+          matchScore -= 2;
+        }
       }
 
-      // Tìm theo carb cao
-      if (searchCarb && (food['carb_g'] ?? 0) > 20) {
-        matches = true;
+      // Tìm theo loại - linh hoạt
+      if (foodTypes.isNotEmpty) {
+        bool typeMatches = false;
+        for (var type in foodTypes) {
+          if (foodType.contains(_normalizeText(type))) {
+            typeMatches = true;
+            matchScore += 3;
+            break;
+          }
+        }
+        if (typeMatches) {
+          matches = true;
+        } else if (priceFilter != null) {
+          // Nếu có filter loại mà không khớp, không loại bỏ nhưng giảm điểm
+          matchScore -= 1;
+        }
       }
 
-      // Tìm món ít calo
-      if (searchLowCal && (food['nang_luong_kcal'] ?? 0) < 100) {
+      // Tìm theo protein
+      if (highProtein) {
+        if (protein >= 20) {
+          matches = true;
+          matchScore += 4;
+        } else if (protein >= 15) {
+          matches = true;
+          matchScore += 3;
+        } else if (protein >= 10) {
+          matches = true;
+          matchScore += 1;
+        }
+      }
+      if (lowProtein && protein < 5) {
         matches = true;
+        matchScore += 3;
       }
 
-      // Tìm món nhiều calo
-      if (searchHighCal && (food['nang_luong_kcal'] ?? 0) > 200) {
+      // Tìm theo carb
+      if (highCarb) {
+        if (carb >= 40) {
+          matches = true;
+          matchScore += 4;
+        } else if (carb >= 25) {
+          matches = true;
+          matchScore += 3;
+        } else if (carb >= 15) {
+          matches = true;
+          matchScore += 1;
+        }
+      }
+      if (lowCarb && carb < 10) {
         matches = true;
+        matchScore += 3;
       }
 
-      if (matches) {
-        matchedFoods.add(food as Map<String, dynamic>);
+      // Tìm theo calo
+      if (highCal) {
+        if (calories >= 250) {
+          matches = true;
+          matchScore += 4;
+        } else if (calories >= 180) {
+          matches = true;
+          matchScore += 3;
+        } else if (calories >= 120) {
+          matches = true;
+          matchScore += 1;
+        }
+      }
+      if (lowCal) {
+        if (calories <= 50) {
+          matches = true;
+          matchScore += 4;
+        } else if (calories <= 80) {
+          matches = true;
+          matchScore += 3;
+        } else if (calories <= 100) {
+          matches = true;
+          matchScore += 1;
+        }
+      }
+
+      // Tìm theo chất xơ
+      if (highFiber && fiber >= 2) {
+        matches = true;
+        matchScore += 3;
+      }
+
+      // Tìm theo béo
+      if (lowFat && fat <= 3) {
+        matches = true;
+        matchScore += 3;
+      }
+      if (highFat && fat >= 10) {
+        matches = true;
+        matchScore += 3;
+      }
+
+      // Tìm theo mục đích
+      if (forWeightLoss) {
+        if (suitableFor.contains('giam can') ||
+            suitableFor.contains('giu dang')) {
+          matches = true;
+          matchScore += 4;
+        } else if (calories < 100 && fiber >= 2) {
+          matches = true;
+          matchScore += 3;
+        } else if (benefit.contains('giam can') ||
+            benefit.contains('thanh loc')) {
+          matches = true;
+          matchScore += 2;
+        }
+      }
+
+      if (forMuscleGain) {
+        if (suitableFor.contains('tang co')) {
+          matches = true;
+          matchScore += 4;
+        } else if (protein >= 15) {
+          matches = true;
+          matchScore += 3;
+        } else if (benefit.contains('tang co') ||
+            benefit.contains('phat trien co')) {
+          matches = true;
+          matchScore += 2;
+        }
+      }
+
+      if (forEnergy) {
+        if (suitableFor.contains('nang luong')) {
+          matches = true;
+          matchScore += 4;
+        } else if (calories >= 150 || carb >= 20) {
+          matches = true;
+          matchScore += 2;
+        }
+      }
+
+      if (forBulking) {
+        if (calories >= 200 && (protein >= 10 || carb >= 20)) {
+          matches = true;
+          matchScore += 4;
+        }
+      }
+
+      // Nếu chỉ có context về giá mà không có context đồ ăn, skip
+      if (priceFilter != null && !hasFoodContext && !matches) {
+        continue;
+      }
+
+      if (matches && matchScore > 0) {
+        matchedFoods.add({
+          'food': food as Map<String, dynamic>,
+          'score': matchScore,
+        });
       }
     }
+
+    // Sắp xếp theo điểm
+    matchedFoods.sort(
+      (a, b) => (b['score'] as int).compareTo(a['score'] as int),
+    );
 
     if (matchedFoods.isEmpty) {
       return '''
 🥗 **TƯ VẤN DINH DƯỠNG**
 
-Xin lỗi, tôi không tìm thấy món ăn phù hợp.
+Xin lỗi, tôi không tìm thấy món ăn phù hợp với yêu cầu của bạn.
 
-💡 **Bạn có thể hỏi:**
-- "Món ăn giàu protein"
-- "Món ăn ít calo cho người giảm cân"
-- "Thực đơn tăng cơ"
-- "Giá trị dinh dưỡng của cơm gạo lứt"
+💡 **Gợi ý câu hỏi:**
+
+📊 **Theo dinh dưỡng:**
+- "Món ăn nhiều protein" / "Món ăn ít calo"
+- "Món ăn nhiều carb" / "Món ăn ít béo"
+- "Món ăn giàu chất xơ"
+
+💰 **Theo giá:**
+- "Món ăn rẻ" / "Món ăn bình dân"
+- "Rau củ rẻ" / "Thịt bình dân"
+- "Trái cây giá rẻ"
+
+🎯 **Theo mục tiêu:**
+- "Món ăn giảm cân" / "Món ăn tăng cơ"
+- "Món ăn tăng cân" / "Món ăn healthy"
+
+🔥 **Kết hợp:**
+- "Món ăn rẻ nhiều protein"
+- "Món ăn bình dân giảm cân"
+- "Trái cây ít calo giá rẻ"
+- "Thịt nhiều protein bình dân"
+- "Rau rẻ giàu chất xơ"
 
 Hãy thử lại nhé! 😊
 ''';
     }
 
-    final displayFoods = matchedFoods.take(5).toList();
+    // Lưu kết quả để có thể hiển thị thêm sau
+    _lastSearchResults = matchedFoods;
+    _lastSearchType = 'nutrition';
 
-    String response = '🥗 **GỢI Ý DINH DƯỠNG**\n\n';
+    // Xác định số lượng hiển thị
+    int displayCount;
+    if (requestedCount != null) {
+      displayCount = requestedCount;
+    } else if (_containsAny(msg, ['tat ca', 'all', 'nhieu'])) {
+      displayCount = 10;
+    } else {
+      displayCount = 5;
+    }
+
+    _lastDisplayCount = displayCount;
+    final displayFoods = matchedFoods.take(displayCount).toList();
+
+    String response = '';
+
+    // Tạo tiêu đề thông minh dựa trên filter
+    List<String> filters = [];
+    if (priceFilter != null) filters.add('giá $priceFilter');
+    if (foodTypes.isNotEmpty) filters.add(foodTypes.join(', ').toLowerCase());
+    if (highProtein) filters.add('nhiều protein');
+    if (lowCal) filters.add('ít calo');
+    if (highCal) filters.add('nhiều calo');
+    if (highCarb) filters.add('nhiều carb');
+    if (lowCarb) filters.add('ít carb');
+    if (forWeightLoss) filters.add('giảm cân');
+    if (forMuscleGain) filters.add('tăng cơ');
+
+    if (filters.isNotEmpty) {
+      response = '🥗 **MÓN ĂN: ${filters.join(' • ').toUpperCase()}**\n\n';
+    } else {
+      response = '🥗 **GỢI Ý DINH DƯỠNG**\n\n';
+    }
+
+    response += '🔍 Tìm thấy **${matchedFoods.length}** món phù hợp\n\n';
 
     for (var i = 0; i < displayFoods.length; i++) {
-      final food = displayFoods[i];
+      final food = displayFoods[i]['food'] as Map<String, dynamic>;
+      final score = displayFoods[i]['score'] as int;
+
       response +=
           '''
-${i + 1}. **${food['ten_mon']}**
+${i + 1}. **${food['ten_mon']}** ${score >= 10
+              ? '⭐'
+              : score >= 7
+              ? '✨'
+              : ''}
+   💰 Giá: **${food['gia'] ?? 'N/A'}**
    📊 Năng lượng: ${food['nang_luong_kcal']} kcal/100g
-   💪 Protein: ${food['dam_g']}g
-   🍚 Carb: ${food['carb_g']}g
-   🥑 Béo: ${food['beo_g']}g
+   💪 Protein: ${food['dam_g']}g | 🍚 Carb: ${food['carb_g']}g | 🥑 Béo: ${food['beo_g']}g
    🌾 Chất xơ: ${food['chat_xo_g'] ?? 0}g
-   ✅ Lợi ích: ${food['loi_ich']}
+   ${food['phu_hop_voi'] != null ? '🎯 Phù hợp: ${food['phu_hop_voi']}\n   ' : ''}✅ ${food['loi_ich']}
 
 ''';
     }
 
-    if (matchedFoods.length > 5) {
+    if (matchedFoods.length > displayCount) {
       response +=
-          '\n📌 Còn ${matchedFoods.length - 5} món ăn khác. Hỏi cụ thể hơn để xem thêm!\n';
+          '📌 Còn **${matchedFoods.length - displayCount}** món khác. Hỏi cụ thể hơn hoặc nói "hiện thêm" để xem!\n\n';
     }
 
-    response += '\nBạn cần tư vấn thêm về chế độ ăn không? 😊';
+    // Gợi ý thêm
+    response += '''
+
+💡 **Tip:** Bạn có thể kết hợp nhiều điều kiện như:
+   • "Rẻ mà nhiều protein"
+   • "Trái cây ít calo"
+   • "Thịt bình dân tăng cơ"
+''';
 
     return response;
+  }
+
+  /// Trích xuất số lượng món ăn từ câu hỏi
+  int? _extractFoodCount(String msg) {
+    final numbers = {
+      'mot': 1,
+      '1': 1,
+      'một': 1,
+      'hai': 2,
+      '2': 2,
+      'ba': 3,
+      '3': 3,
+      'bon': 4,
+      '4': 4,
+      'bốn': 4,
+      'nam': 5,
+      '5': 5,
+      'năm': 5,
+      'sau': 6,
+      '6': 6,
+      'bay': 7,
+      '7': 7,
+      'bảy': 7,
+      'tam': 8,
+      '8': 8,
+      'tám': 8,
+      'chin': 9,
+      '9': 9,
+      'chín': 9,
+      'muoi': 10,
+      '10': 10,
+      'mười': 10,
+    };
+
+    for (var entry in numbers.entries) {
+      if (msg.contains(entry.key) &&
+          (_containsAny(msg, ['mon', 'mon an', 'loai', 'option']))) {
+        return entry.value;
+      }
+    }
+
+    return null;
   }
 
   /// Xử lý câu hỏi về thẻ tập
