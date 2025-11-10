@@ -61,8 +61,12 @@ class AIEngine {
         return _handleNutritionQuery(normalizedMsg);
       case 'ask_membership':
         return _handleMembershipQuery(normalizedMsg);
+      case 'ask_membership_detail':
+        return _handleMembershipDetailQuery(normalizedMsg);
       case 'ask_workout_schedule':
         return _handleWorkoutScheduleQuery(normalizedMsg);
+      case 'thank_you':
+        return _handleThankYou();
       case 'greeting':
         return _handleGreeting();
       case 'help':
@@ -137,7 +141,29 @@ class AIEngine {
       return 'show_more';
     }
 
-    // Greeting - Check SAU show_more để không bị conflict
+    // Thank you - Check TRƯỚC greeting để ưu tiên
+    if (_containsAny(normalizedMsg, [
+      'cam on',
+      'thank',
+      'thanks',
+      'thank you',
+      'thanks you',
+      'cam on ban',
+      'cam on nhieu',
+      'cam on ai',
+      'cam on chatbot',
+      'cam on gym pro',
+      'thank u',
+      'ty',
+      'tks',
+      'ok cam on',
+      'duoc roi cam on',
+      'tot qua cam on',
+    ])) {
+      return 'thank_you';
+    }
+
+    // Greeting - Check SAU show_more và thank_you để không bị conflict
     if (_containsAny(normalizedMsg, [
       'xin chao',
       'chao',
@@ -264,7 +290,25 @@ class AIEngine {
       return 'ask_nutrition';
     }
 
-    // Membership queries
+    // Membership detail query - Hỏi chi tiết về một gói cụ thể
+    if (_containsAny(normalizedMsg, [
+          'thong tin goi',
+          'chi tiet goi',
+          'thong tin the',
+          'chi tiet the',
+        ]) ||
+        (_containsAny(normalizedMsg, ['thong tin', 'chi tiet']) &&
+            _containsAny(normalizedMsg, [
+              'vip',
+              'premium',
+              'member',
+              'co ban',
+              'hoi vien',
+            ]))) {
+      return 'ask_membership_detail';
+    }
+
+    // Membership queries - Mở rộng để nhận diện nhiều ngữ cảnh hơn
     if (_containsAny(normalizedMsg, [
       'the tap',
       'goi tap',
@@ -272,8 +316,24 @@ class AIEngine {
       'hoi vien',
       'premium',
       'vip',
-      'gia',
+      'gia the',
       'bao nhieu tien',
+      'chi phi',
+      'ngay',
+      'thang',
+      'nam',
+      'tu van the',
+      'nen mua',
+      'chon the',
+      'gia re',
+      're nhat',
+      'tot nhat',
+      'phu hop',
+      'tap lau dai',
+      'tap ngan han',
+      'trai nghiem',
+      'moi bat dau',
+      'dau tien',
     ])) {
       return 'ask_membership';
     }
@@ -1329,6 +1389,42 @@ ${_lastDisplayCount + i + 1}. **${food['ten_mon']}** ${score >= 10
 
 ''';
       }
+    } else if (_lastSearchType == 'membership') {
+      response = '💳 **THÊM GÓI THẺ TẬP**\n\n';
+
+      for (var i = 0; i < nextBatch.length; i++) {
+        final card = nextBatch[i];
+        final price = card['gia'] as int;
+        final duration = card['thoiLuong'] as int;
+        final unit = card['donViThoiLuong'] as String;
+
+        // Tính giá theo ngày
+        int totalDays = duration;
+        if (unit == 'tháng') {
+          totalDays = duration * 30;
+        } else if (unit == 'năm') {
+          totalDays = duration * 365;
+        }
+        final pricePerDay = (price / totalDays).round();
+
+        response +=
+            '''
+${_lastDisplayCount + i + 1}. ✨ **${card['tenGoi']}** 
+   💰 Giá: ${_formatCurrency(price)} (≈ ${_formatCurrency(pricePerDay)}/ngày)
+   ⏱ Thời hạn: **$duration $unit**
+   📋 Loại: ${_getCardTypeBadge(card['loaiGoi'])}
+   
+   📝 ${card['moTa']}
+   
+   🎯 **Phù hợp cho:** ${card['phuHopCho']}
+   🏋️ **Mục tiêu:** ${card['mucTieuTapLuyen']}
+   
+   ✅ **Quyền lợi:**
+${(card['loiIch'] as List).map((e) => '      • $e').join('\n')}
+
+─────────────────────
+''';
+      }
     }
 
     // Cập nhật số lượng đã hiển thị
@@ -1344,8 +1440,14 @@ ${_lastDisplayCount + i + 1}. **${food['ten_mon']}** ${score >= 10
           '✅ Đã hiển thị hết ${_lastSearchResults.length} kết quả phù hợp!\n\n';
     }
 
-    response +=
-        '💬 Bạn muốn biết chi tiết hơn về ${_lastSearchType == 'exercise' ? 'bài tập' : 'món ăn'} nào không? 😊';
+    // Thông điệp khác nhau tùy loại
+    if (_lastSearchType == 'membership') {
+      response +=
+          '💬 Bạn muốn biết thêm về gói nào? Hỏi "thông tin gói [tên gói]" nhé! 😊';
+    } else {
+      response +=
+          '💬 Bạn muốn biết chi tiết hơn về ${_lastSearchType == 'exercise' ? 'bài tập' : 'món ăn'} nào không? 😊';
+    }
 
     return response;
   }
@@ -1873,57 +1975,495 @@ ${i + 1}. **${food['ten_mon']}** ${score >= 10
   String _handleMembershipQuery(String msg) {
     final cards = _dataService.membershipData['cards'] as List? ?? [];
 
+    if (cards.isEmpty) {
+      return '❌ Xin lỗi, hiện tại chưa có thông tin về các gói thẻ tập.';
+    }
+
+    List<Map<String, dynamic>> allCards = cards.cast<Map<String, dynamic>>();
     List<Map<String, dynamic>> matchedCards = [];
 
-    // Filter by type
+    // Phân tích ngữ cảnh để tư vấn phù hợp
+    String? recommendationType;
+    String reasonText = '';
+
+    // 1. Lọc theo loại thẻ (vip, premium, cơ bản)
     if (_containsAny(msg, ['vip'])) {
-      matchedCards = cards
-          .where((card) => (card as Map<String, dynamic>)['loaiGoi'] == 'vip')
-          .cast<Map<String, dynamic>>()
+      matchedCards = allCards
+          .where((card) => card['loaiGoi'] == 'vip')
           .toList();
-    } else if (_containsAny(msg, ['premium'])) {
-      matchedCards = cards
-          .where(
-            (card) => (card as Map<String, dynamic>)['loaiGoi'] == 'premium',
-          )
-          .cast<Map<String, dynamic>>()
+      recommendationType = 'VIP';
+      reasonText = 'Bạn đang tìm gói VIP - dịch vụ cao cấp nhất 🌟';
+    } else if (_containsAny(msg, ['premium', 'trung cap', 'nang cao'])) {
+      matchedCards = allCards
+          .where((card) => card['loaiGoi'] == 'premium')
           .toList();
-    } else if (_containsAny(msg, ['co ban', 'member', 'basic'])) {
-      matchedCards = cards
-          .where(
-            (card) => (card as Map<String, dynamic>)['loaiGoi'] == 'member',
-          )
-          .cast<Map<String, dynamic>>()
+      recommendationType = 'Premium';
+      reasonText =
+          'Bạn đang tìm gói Premium - cân bằng giữa giá và chất lượng 💪';
+    } else if (_containsAny(msg, [
+      'co ban',
+      'member',
+      'basic',
+      'gia re',
+      're nhat',
+      'tiet kiem',
+    ])) {
+      matchedCards = allCards
+          .where((card) => card['loaiGoi'] == 'member')
           .toList();
-    } else {
-      matchedCards = cards.cast<Map<String, dynamic>>();
+      recommendationType = 'Cơ bản';
+      reasonText =
+          'Bạn đang tìm gói cơ bản - phù hợp túi tiền, hiệu quả cao 💰';
     }
 
+    // 2. Lọc theo thời gian nếu có
+    if (_containsAny(msg, ['1 ngay', 'ngay', 'thu', 'trai nghiem'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where((card) => card['donViThoiLuong'] == 'ngày')
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = 'Ngắn hạn';
+        reasonText = 'Bạn muốn thử nghiệm hoặc tập ngắn hạn 🎯';
+      }
+    } else if (_containsAny(msg, ['1 tuan', 'tuan', '7 ngay'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where(
+            (card) =>
+                card['thoiLuong'] == 7 && card['donViThoiLuong'] == 'ngày',
+          )
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = '1 tuần';
+        reasonText = 'Bạn muốn tập trong 1 tuần 📅';
+      }
+    } else if (_containsAny(msg, ['1 thang', 'thang'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where(
+            (card) =>
+                card['thoiLuong'] == 1 && card['donViThoiLuong'] == 'tháng',
+          )
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = '1 tháng';
+        reasonText = 'Bạn muốn tập trong 1 tháng 📆';
+      }
+    } else if (_containsAny(msg, ['3 thang', 'quy'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where(
+            (card) =>
+                card['thoiLuong'] == 3 && card['donViThoiLuong'] == 'tháng',
+          )
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = '3 tháng';
+        reasonText = 'Bạn muốn cam kết tập 3 tháng 💪';
+      }
+    } else if (_containsAny(msg, ['6 thang', 'nua nam'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where(
+            (card) =>
+                card['thoiLuong'] == 6 && card['donViThoiLuong'] == 'tháng',
+          )
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = '6 tháng';
+        reasonText = 'Bạn muốn tập lâu dài 6 tháng 🎖';
+      }
+    } else if (_containsAny(msg, ['1 nam', 'nam', 'lau dai', '12 thang'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards = matchedCards
+          .where(
+            (card) => card['thoiLuong'] >= 1 && card['donViThoiLuong'] == 'năm',
+          )
+          .toList();
+      if (recommendationType == null) {
+        recommendationType = 'Dài hạn';
+        reasonText = 'Bạn muốn cam kết lâu dài 🏆';
+      }
+    }
+
+    // 3. Lọc theo ngân sách
+    if (_containsAny(msg, ['re nhat', 'gia re', 'tiet kiem', 'binh dan'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      matchedCards.sort((a, b) => (a['gia'] as int).compareTo(b['gia'] as int));
+      matchedCards = matchedCards.take(3).toList();
+      if (recommendationType == null) {
+        recommendationType = 'Tiết kiệm';
+        reasonText = 'Bạn đang tìm gói giá rẻ nhất 💰';
+      }
+    } else if (_containsAny(msg, ['tot nhat', 'uu dai', 'hieu qua'])) {
+      matchedCards = matchedCards.isEmpty ? allCards : matchedCards;
+      // Ưu tiên gói 3-6 tháng (tỷ lệ giá/ngày tốt nhất)
+      matchedCards = matchedCards
+          .where(
+            (card) =>
+                (card['thoiLuong'] == 3 || card['thoiLuong'] == 6) &&
+                card['donViThoiLuong'] == 'tháng',
+          )
+          .toList();
+      if (matchedCards.isEmpty) {
+        matchedCards = allCards;
+      }
+      if (recommendationType == null) {
+        recommendationType = 'Tốt nhất';
+        reasonText = 'Bạn đang tìm gói tập hiệu quả, ưu đãi nhất ⭐';
+      }
+    }
+
+    // 4. Nếu là người mới bắt đầu
+    if (_containsAny(msg, [
+      'moi bat dau',
+      'moi tap',
+      'lan dau',
+      'chua biet',
+      'nen chon',
+    ])) {
+      if (recommendationType == null) {
+        // Gợi ý gói 1 ngày hoặc 7 ngày cho người mới
+        matchedCards = allCards
+            .where(
+              (card) =>
+                  card['loaiGoi'] == 'member' &&
+                  (card['thoiLuong'] == 1 || card['thoiLuong'] == 7) &&
+                  card['donViThoiLuong'] == 'ngày',
+            )
+            .toList();
+        recommendationType = 'Người mới';
+        reasonText =
+            '🌟 Bạn mới bắt đầu? Tuyệt vời! Hãy thử gói ngắn hạn trước nhé!';
+      }
+    }
+
+    // Nếu không có filter cụ thể, hiển thị top picks
     if (matchedCards.isEmpty) {
-      matchedCards = cards.cast<Map<String, dynamic>>();
+      // Hiển thị các gói phổ biến: 1 ngày, 1 tháng, 3 tháng, 1 năm
+      final popularDurations = [
+        {'duration': 1, 'unit': 'ngày'},
+        {'duration': 7, 'unit': 'ngày'},
+        {'duration': 1, 'unit': 'tháng'},
+        {'duration': 3, 'unit': 'tháng'},
+        {'duration': 1, 'unit': 'năm'},
+      ];
+
+      for (var duration in popularDurations) {
+        final card = allCards.firstWhere(
+          (c) =>
+              c['thoiLuong'] == duration['duration'] &&
+              c['donViThoiLuong'] == duration['unit'],
+          orElse: () => {},
+        );
+        if (card.isNotEmpty) {
+          matchedCards.add(card);
+        }
+      }
+
+      if (matchedCards.isEmpty) {
+        matchedCards = allCards.take(5).toList();
+      }
+
+      recommendationType = 'Gói phổ biến';
+      reasonText = '📋 Đây là các gói thẻ phổ biến tại Gym Pro:';
     }
 
-    String response = '💳 **GÓI THẺ TẬP GYM PRO**\n\n';
+    // Tạo response
+    String response = '💳 **TƯ VẤN GÓI THẺ TẬP GYM PRO**\n\n';
+    response += '$reasonText\n\n';
+    response += '─────────────────────\n\n';
 
-    for (var i = 0; i < matchedCards.length; i++) {
-      final card = matchedCards[i];
+    // Lưu kết quả để có thể "hiện thêm"
+    _lastSearchResults = matchedCards;
+    _lastDisplayCount = matchedCards.length > 3 ? 3 : matchedCards.length;
+    _lastSearchType = 'membership';
+
+    // Hiển thị tối đa 3 gói đầu tiên
+    final displayCards = matchedCards.take(_lastDisplayCount).toList();
+
+    for (var i = 0; i < displayCards.length; i++) {
+      final card = displayCards[i];
+      final price = card['gia'] as int;
+      final duration = card['thoiLuong'] as int;
+      final unit = card['donViThoiLuong'] as String;
+
+      // Tính giá theo ngày
+      int totalDays = duration;
+      if (unit == 'tháng') {
+        totalDays = duration * 30;
+      } else if (unit == 'năm') {
+        totalDays = duration * 365;
+      }
+      final pricePerDay = (price / totalDays).round();
+
       response +=
           '''
-${i + 1}. **${card['tenGoi']}** (${card['loaiGoi'].toString().toUpperCase()})
-   💰 Giá: ${_formatCurrency(card['gia'])}
-   ⏱ Thời hạn: ${card['thoiLuong']} ${card['donViThoiLuong']}
-   📝 Mô tả: ${card['moTa']}
-   🎯 Phù hợp: ${card['phuHopCho']}
-   ✨ Lợi ích:
+${i + 1}. ✨ **${card['tenGoi']}** 
+   💰 Giá: ${_formatCurrency(price)} (≈ ${_formatCurrency(pricePerDay)}/ngày)
+   ⏱ Thời hạn: **$duration $unit**
+   📋 Loại: ${_getCardTypeBadge(card['loaiGoi'])}
+   
+   📝 ${card['moTa']}
+   
+   🎯 **Phù hợp cho:** ${card['phuHopCho']}
+   🏋️ **Mục tiêu:** ${card['mucTieuTapLuyen']}
+   
+   ✅ **Quyền lợi:**
 ${(card['loiIch'] as List).map((e) => '      • $e').join('\n')}
 
+─────────────────────
 ''';
     }
 
-    response += '''
-📞 Liên hệ ngay để được tư vấn chi tiết và ưu đãi!
+    // Thông báo nếu còn kết quả
+    if (matchedCards.length > _lastDisplayCount) {
+      response +=
+          '\n💡 Còn ${matchedCards.length - _lastDisplayCount} gói khác! Gõ "hiện thêm" để xem tiếp.\n\n';
+    }
 
-Bạn muốn biết thêm về gói nào không? 😊
+    // Tư vấn thêm
+    response += '''
+� **GỢI Ý CỦA TÔI:**
+• Người mới: Thử **gói 1 ngày** hoặc **7 ngày** trước
+• Tập đều: Chọn **gói 1-3 tháng** để có động lực
+• Cam kết dài hạn: **Gói 6 tháng - 1 năm** tiết kiệm nhất!
+• Yêu thích sang chảnh: **Gói VIP** đẳng cấp 5 sao ⭐
+
+📞 Hỏi tôi: "thẻ vip", "thẻ 3 tháng", "thẻ giá rẻ"... để tôi tư vấn cụ thể hơn nhé! 😊
+''';
+
+    return response;
+  }
+
+  /// Lấy badge cho loại thẻ
+  String _getCardTypeBadge(String type) {
+    switch (type) {
+      case 'vip':
+        return '� VIP';
+      case 'premium':
+        return '⭐ PREMIUM';
+      case 'member':
+        return '🎫 CƠ BẢN';
+      default:
+        return type.toUpperCase();
+    }
+  }
+
+  /// Xử lý câu hỏi chi tiết về một gói thẻ cụ thể
+  String _handleMembershipDetailQuery(String msg) {
+    final cards = _dataService.membershipData['cards'] as List? ?? [];
+
+    if (cards.isEmpty) {
+      return '❌ Xin lỗi, hiện tại chưa có thông tin về các gói thẻ tập.';
+    }
+
+    final allCards = cards.cast<Map<String, dynamic>>();
+
+    // Tìm tên gói trong câu hỏi
+    Map<String, dynamic>? foundCard;
+
+    // Tìm theo số (VIP 1, Premium 2, v.v.)
+    for (var card in allCards) {
+      final cardName = _normalizeText(card['tenGoi'] as String);
+
+      // Check tên đầy đủ
+      if (msg.contains(cardName)) {
+        foundCard = card;
+        break;
+      }
+
+      // Check theo pattern: vip 1, vip 2, premium 1, member 3...
+      if (_containsAny(msg, ['vip']) && cardName.contains('vip')) {
+        if (msg.contains('1') && cardName.contains('1')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('2') && cardName.contains('2')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('3') && cardName.contains('3')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('x') && cardName.contains('x')) {
+          foundCard = card;
+          break;
+        }
+      }
+
+      if (_containsAny(msg, ['premium']) && cardName.contains('premium')) {
+        if (msg.contains('1') && cardName.contains('1')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('2') && cardName.contains('2')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('3') && cardName.contains('3')) {
+          foundCard = card;
+          break;
+        }
+      }
+
+      if (_containsAny(msg, ['co ban', 'member', 'hoi vien']) &&
+          cardName.contains('co ban')) {
+        if (msg.contains('1') && cardName.contains('1')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('2') && cardName.contains('2')) {
+          foundCard = card;
+          break;
+        } else if (msg.contains('3') && cardName.contains('3')) {
+          foundCard = card;
+          break;
+        }
+      }
+    }
+
+    // Nếu không tìm thấy, hiển thị hướng dẫn
+    if (foundCard == null) {
+      return '''
+❓ **CÁCH HỎI THÔNG TIN GÓI THẺ**
+
+Để xem chi tiết một gói, hãy hỏi như sau:
+• "thông tin gói VIP 1"
+• "chi tiết gói Premium 2"
+• "thông tin thẻ Hội viên cơ bản 3"
+
+Hoặc đơn giản hơn:
+• "vip 1"
+• "premium 3"
+• "member 2"
+
+💡 Bạn cũng có thể hỏi "thẻ tập" để xem tất cả các gói nhé! 😊
+''';
+    }
+
+    // Hiển thị chi tiết gói tìm được
+    final price = foundCard['gia'] as int;
+    final duration = foundCard['thoiLuong'] as int;
+    final unit = foundCard['donViThoiLuong'] as String;
+
+    // Tính giá theo ngày và tháng
+    int totalDays = duration;
+    if (unit == 'tháng') {
+      totalDays = duration * 30;
+    } else if (unit == 'năm') {
+      totalDays = duration * 365;
+    }
+    final pricePerDay = (price / totalDays).round();
+    final pricePerMonth = unit == 'năm'
+        ? (price / (duration * 12)).round()
+        : unit == 'ngày'
+        ? (price * 30).round()
+        : price;
+
+    String response =
+        '''
+✨ **THÔNG TIN CHI TIẾT GÓI THẺ**
+
+━━━━━━━━━━━━━━━━━━━━━
+📋 **${foundCard['tenGoi']}**
+${_getCardTypeBadge(foundCard['loaiGoi'])}
+━━━━━━━━━━━━━━━━━━━━━
+
+💰 **GIÁ CẢ:**
+   • Tổng: **${_formatCurrency(price)}**
+   • Trung bình: **${_formatCurrency(pricePerDay)}/ngày**
+''';
+
+    if (unit != 'tháng') {
+      response += '   • Quy đổi: **${_formatCurrency(pricePerMonth)}/tháng**\n';
+    }
+
+    response +=
+        '''
+
+⏱ **THỜI HẠN:**
+   • **$duration $unit**
+''';
+
+    if (totalDays > 1) {
+      response += '   • Tương đương: **$totalDays ngày**\n';
+    }
+
+    response +=
+        '''
+
+📝 **MÔ TẢ:**
+${'   ${foundCard['moTa']}'.replaceAll('\n', '\n   ')}
+
+🎯 **PHÙ HỢP CHO:**
+${'   ${foundCard['phuHopCho']}'.replaceAll('\n', '\n   ')}
+
+🏋️ **MỤC TIÊU TẬP LUYỆN:**
+${'   ${foundCard['mucTieuTapLuyen']}'.replaceAll('\n', '\n   ')}
+
+✅ **QUYỀN LỢI:**
+${(foundCard['loiIch'] as List).map((e) => '   • $e').join('\n')}
+
+━━━━━━━━━━━━━━━━━━━━━
+
+💡 **SO SÁNH:**
+''';
+
+    // Tìm gói tương tự để so sánh
+    final sameType = allCards
+        .where(
+          (c) =>
+              c['loaiGoi'] == foundCard!['loaiGoi'] &&
+              c['tenGoi'] != foundCard['tenGoi'],
+        )
+        .toList();
+
+    if (sameType.isNotEmpty) {
+      response +=
+          '\n📊 **Các gói ${foundCard['loaiGoi'].toUpperCase()} khác:**\n';
+      for (var card in sameType.take(2)) {
+        final otherPrice = card['gia'] as int;
+        final otherDuration = card['thoiLuong'] as int;
+        final otherUnit = card['donViThoiLuong'] as String;
+        response +=
+            '   • ${card['tenGoi']}: ${_formatCurrency(otherPrice)} ($otherDuration $otherUnit)\n';
+      }
+    }
+
+    response += '''
+
+🤔 **ĐÁNH GIÁ:**
+''';
+
+    // Đánh giá dựa trên giá/ngày
+    if (pricePerDay < 10000) {
+      response += '   ⭐⭐⭐ **CỰC KỲ TIẾT KIỆM** - Chỉ $pricePerDay/ngày!\n';
+    } else if (pricePerDay < 20000) {
+      response += '   ⭐⭐ **TIẾT KIỆM** - Giá rất hợp lý!\n';
+    } else if (pricePerDay < 50000) {
+      response += '   ⭐ **HỢP LÝ** - Giá ổn cho chất lượng dịch vụ\n';
+    } else {
+      response +=
+          '   👑 **CAO CẤP** - Dịch vụ premium, trải nghiệm đẳng cấp!\n';
+    }
+
+    // Gợi ý
+    if (foundCard['loaiGoi'] == 'member' && duration <= 7) {
+      response +=
+          '   💡 Gói này phù hợp để **thử nghiệm** hoặc tập **ngắn hạn**\n';
+    } else if (duration >= 3 && unit == 'tháng') {
+      response +=
+          '   💡 Gói này giúp bạn **cam kết** và thấy **kết quả rõ rệt**\n';
+    } else if (duration >= 1 && unit == 'năm') {
+      response +=
+          '   💡 Gói dài hạn - **Tiết kiệm nhất** cho người tập đều đặn!\n';
+    }
+
+    response += '''
+
+━━━━━━━━━━━━━━━━━━━━━
+
+📞 **LIÊN HỆ ĐĂNG KÝ:**
+Liên hệ quầy lễ tân hoặc hotline để được tư vấn và đăng ký ngay!
+
+💬 Hỏi tôi về gói khác: "thẻ vip", "premium 3", "member 1"... 😊
 ''';
 
     return response;
@@ -2033,6 +2573,75 @@ Hãy cho tôi biết nhé! 😊
 
 Bạn muốn bắt đầu từ đâu? 😊
 ''';
+  }
+
+  /// Xử lý lời cảm ơn từ người dùng
+  String _handleThankYou() {
+    // Random response để tự nhiên hơn
+    final responses = [
+      '''
+😊 **Không có gì đâu!**
+
+Rất vui được giúp bạn! 💪
+
+🔔 **Nhớ nhé:**
+• Tôi luôn sẵn sàng hỗ trợ bạn 24/7
+• Hỏi tôi bất cứ điều gì về gym, tập luyện, dinh dưỡng
+• Tính toán BMI, BMR, TDEE miễn phí
+• Tư vấn thẻ tập phù hợp với bạn
+
+💬 Cần gì cứ gọi tôi nhé! Chúc bạn tập luyện hiệu quả! 🏋️‍♀️
+''',
+      '''
+🙏 **Rất hân hạnh được hỗ trợ bạn!**
+
+Đó là nhiệm vụ của tôi mà! 😊
+
+💡 **Mẹo nhỏ:**
+Hãy tập đều đặn, ăn uống khoa học và nghỉ ngơi đủ giấc để đạt mục tiêu tốt nhất nhé!
+
+📞 Bất cứ khi nào cần tư vấn:
+• Bài tập → Hỏi tôi
+• Dinh dưỡng → Hỏi tôi
+• Thẻ tập → Hỏi tôi
+• Lịch tập → Hỏi tôi
+
+Chúc bạn luôn khỏe mạnh và đạt được body mơ ước! 💪✨
+''',
+      '''
+😄 **Không sao, đừng khách sáo!**
+
+Tôi ở đây để giúp bạn mà! 🤗
+
+🎯 **Nhắc nhở:**
+• Đừng quên uống đủ nước khi tập (2-3 lít/ngày)
+• Khởi động kỹ trước mỗi buổi tập
+• Theo dõi tiến trình để có động lực
+
+💬 **Lần sau cần gì cứ nhắn:**
+"Tôi muốn..." hoặc "Tư vấn cho tôi..."
+Tôi sẽ giúp bạn ngay! 
+
+Gym Pro luôn đồng hành cùng bạn trên hành trình chinh phục bản thân! 🔥
+''',
+      '''
+❤️ **Cảm ơn bạn đã tin tưởng Gym Pro AI!**
+
+Mình luôn sẵn sàng để hỗ trợ bạn! 💪
+
+✨ **Fun fact:**
+Mỗi lần bạn tập đều đặn, cơ thể bạn sẽ tiết ra hormone hạnh phúc (endorphin) - giúp bạn vui vẻ và tích cực hơn!
+
+🚀 **Keep going!**
+Đừng từ bỏ giấc mơ body đẹp của bạn nhé!
+
+📲 Cần tư vấn gì thêm? Cứ hỏi thoải mái! Tôi luôn ở đây! 😊
+''',
+    ];
+
+    // Random chọn 1 response
+    final randomIndex = DateTime.now().microsecond % responses.length;
+    return responses[randomIndex];
   }
 
   /// Hiển thị hướng dẫn
