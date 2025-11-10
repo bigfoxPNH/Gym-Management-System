@@ -504,69 +504,41 @@ class MembershipCardManagementView extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      builder: (context) => Dialog(
-        child: Container(
+      builder: (context) => AlertDialog(
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
           width: 600,
-          constraints: const BoxConstraints(maxHeight: 800),
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Form
-                  _buildCardForm(context, controller),
-
-                  const SizedBox(height: 24),
-
-                  // Actions
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('Hủy'),
-                      ),
-                      const SizedBox(width: 12),
-                      Obx(
-                        () => LoadingButton(
-                          text: isEdit ? 'Cập nhật' : 'Tạo mới',
-                          isLoading: isEdit
-                              ? controller.isUpdating.value
-                              : controller.isCreating.value,
-                          backgroundColor: const Color(0xFF00BCD4),
-                          height: 42,
-                          onPressed: () async {
-                            if (isEdit) {
-                              await controller.updateCard();
-                            } else {
-                              await controller.createCard();
-                            }
-                            if (!controller.isCreating.value &&
-                                !controller.isUpdating.value) {
-                              Get.back();
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            child: _buildCardForm(context, controller),
           ),
         ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
+          Obx(
+            () => LoadingButton(
+              text: isEdit ? 'Cập nhật' : 'Tạo mới',
+              isLoading: isEdit
+                  ? controller.isUpdating.value
+                  : controller.isCreating.value,
+              backgroundColor: const Color(0xFF00BCD4),
+              height: 42,
+              onPressed: () async {
+                if (isEdit) {
+                  await controller.updateCard();
+                } else {
+                  await controller.createCard();
+                }
+                if (!controller.isCreating.value &&
+                    !controller.isUpdating.value) {
+                  Get.back();
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
