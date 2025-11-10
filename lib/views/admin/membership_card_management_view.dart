@@ -504,41 +504,104 @@ class MembershipCardManagementView extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
+      builder: (context) => Dialog(
+        child: Container(
           width: 600,
-          child: SingleChildScrollView(
-            child: _buildCardForm(context, controller),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.purple[50],
+                  border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isEdit ? Icons.edit : Icons.add_circle_outline,
+                      color: Colors.purple[700],
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.purple[900],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Get.back(),
+                      tooltip: 'Đóng',
+                    ),
+                  ],
+                ),
+              ),
+
+              // Scrollable Content
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: _buildCardForm(context, controller),
+                ),
+              ),
+
+              // Footer Actions
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  border: Border(top: BorderSide(color: Colors.grey[300]!)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Text('Hủy'),
+                    ),
+                    const SizedBox(width: 12),
+                    Obx(
+                      () => LoadingButton(
+                        text: isEdit ? 'Cập nhật' : 'Tạo mới',
+                        isLoading: isEdit
+                            ? controller.isUpdating.value
+                            : controller.isCreating.value,
+                        backgroundColor: const Color(0xFF00BCD4),
+                        height: 42,
+                        onPressed: () async {
+                          if (isEdit) {
+                            await controller.updateCard();
+                          } else {
+                            await controller.createCard();
+                          }
+                          if (!controller.isCreating.value &&
+                              !controller.isUpdating.value) {
+                            Get.back();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          Obx(
-            () => LoadingButton(
-              text: isEdit ? 'Cập nhật' : 'Tạo mới',
-              isLoading: isEdit
-                  ? controller.isUpdating.value
-                  : controller.isCreating.value,
-              backgroundColor: const Color(0xFF00BCD4),
-              height: 42,
-              onPressed: () async {
-                if (isEdit) {
-                  await controller.updateCard();
-                } else {
-                  await controller.createCard();
-                }
-                if (!controller.isCreating.value &&
-                    !controller.isUpdating.value) {
-                  Get.back();
-                }
-              },
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -26,193 +26,223 @@ class DirectPaymentConfirmationView extends StatelessWidget {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Payment confirmation card
-            Card(
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.store, color: Colors.blue, size: 28),
-                        SizedBox(width: 12),
-                        Text(
-                          'Thanh toán trực tiếp',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Membership info
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+      body: Column(
+        children: [
+          // Scrollable content area
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Payment confirmation card
+                  Card(
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Thẻ tập: ${membershipCard.cardName}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.store,
+                                color: Colors.blue,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                'Thanh toán trực tiếp',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Membership info
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Thời hạn: ${membershipCard.duration} ngày',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Giá: ${membershipCard.price.toStringAsFixed(0)} VNĐ',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Thẻ tập: ${membershipCard.cardName}',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Thời hạn: ${membershipCard.duration} ngày',
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Giá: ${membershipCard.price.toStringAsFixed(0)} VNĐ',
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
 
-            const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-            // Instructions
-            Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.orange,
-                          size: 24,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Hướng dẫn thanh toán',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    const _InstructionStep(
-                      step: '1',
-                      text: 'Đến quầy lễ tân của phòng tập',
-                    ),
-                    const _InstructionStep(
-                      step: '2',
-                      text: 'Xuất trình mã đơn hàng cho nhân viên',
-                    ),
-                    const _InstructionStep(
-                      step: '3',
-                      text: 'Thanh toán tiền mặt theo giá trị đơn hàng',
-                    ),
-                    const _InstructionStep(
-                      step: '4',
-                      text: 'Nhận xác nhận và kích hoạt thẻ tập',
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Order code
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.blue[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue[200]!),
-                      ),
+                  // Instructions
+                  Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Mã đơn hàng',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.orange,
+                                size: 22,
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Hướng dẫn thanh toán',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            transaction.id,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                          const SizedBox(height: 10),
+
+                          const _InstructionStep(
+                            step: '1',
+                            text: 'Đến quầy lễ tân của phòng tập',
+                          ),
+                          const _InstructionStep(
+                            step: '2',
+                            text: 'Xuất trình mã đơn hàng cho nhân viên',
+                          ),
+                          const _InstructionStep(
+                            step: '3',
+                            text: 'Thanh toán tiền mặt theo giá trị đơn hàng',
+                          ),
+                          const _InstructionStep(
+                            step: '4',
+                            text: 'Nhận xác nhận và kích hoạt thẻ tập',
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // Order code
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue[200]!),
+                            ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'Mã đơn hàng',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  transaction.id,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
+          ),
 
-            const Spacer(),
-
-            // Action buttons
-            Column(
-              children: [
-                // Confirm button
-                Obx(
-                  () => LoadingButton(
-                    text: 'Xác nhận đã thanh toán',
-                    isLoading: controller.isLoading.value,
-                    backgroundColor: Colors.green,
-                    onPressed: () => controller.confirmDirectPayment(),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Cancel button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: OutlinedButton(
-                    onPressed: () => Get.back(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.grey[600],
-                      side: BorderSide(color: Colors.grey[400]!),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text('Hủy bỏ', style: TextStyle(fontSize: 16)),
-                  ),
+          // Fixed footer with action buttons
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
-          ],
-        ),
+            child: SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Confirm button
+                  Obx(
+                    () => LoadingButton(
+                      text: 'Xác nhận đã thanh toán',
+                      isLoading: controller.isLoading.value,
+                      backgroundColor: Colors.green,
+                      height: 48,
+                      onPressed: () => controller.confirmDirectPayment(),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Cancel button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey[600],
+                        side: BorderSide(color: Colors.grey[400]!),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Hủy bỏ',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
