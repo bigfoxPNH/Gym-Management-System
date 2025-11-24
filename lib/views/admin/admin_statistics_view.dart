@@ -48,6 +48,8 @@ class AdminStatisticsView extends StatelessWidget {
               _buildUserStatistics(controller),
               const SizedBox(height: 24),
               _buildWorkoutStatistics(controller),
+              const SizedBox(height: 24),
+              _buildPTRevenueSection(controller),
             ],
           ),
         );
@@ -1015,6 +1017,455 @@ class AdminStatisticsView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // ============ PT REVENUE SECTION ============
+  Widget _buildPTRevenueSection(AdminStatisticsController controller) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.person_outline, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Doanh Thu PT',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Obx(
+                  () => ToggleButtons(
+                    isSelected: [
+                      controller.ptRevenueChartType.value == 'line',
+                      controller.ptRevenueChartType.value == 'pie',
+                      controller.ptRevenueChartType.value == 'bar',
+                    ],
+                    onPressed: (index) {
+                      controller.updatePTRevenueChartType(
+                        index == 0 ? 'line' : (index == 1 ? 'pie' : 'bar'),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.show_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // PT Revenue summary cards
+            Row(
+              children: [
+                Expanded(
+                  child: Card(
+                    color: Colors.orange.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.attach_money,
+                                color: Colors.orange.shade700,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Tổng doanh thu PT',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => Text(
+                              NumberFormat.currency(
+                                locale: 'vi_VN',
+                                symbol: '₫',
+                              ).format(controller.totalPTRevenue.value),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.orange.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.fitness_center,
+                                color: Colors.blue.shade700,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'Tổng buổi tập',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Obx(
+                            () => Text(
+                              NumberFormat(
+                                '#,###',
+                              ).format(controller.totalPTSessions.value),
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Search bar for PT revenue
+            TextField(
+              onChanged: (value) => controller.updatePTRevenueSearch(value),
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm theo tên PT...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              height: 300,
+              child: Obx(() {
+                if (controller.ptRevenueChartType.value == 'line') {
+                  return _buildPTRevenueLineChart(controller);
+                } else if (controller.ptRevenueChartType.value == 'pie') {
+                  return _buildPTRevenuePieChart(controller);
+                } else {
+                  return _buildPTRevenueBarChart(controller);
+                }
+              }),
+            ),
+            const SizedBox(height: 16),
+            _buildPTRevenueLegend(controller),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPTRevenueLineChart(AdminStatisticsController controller) {
+    return Obx(() {
+      if (controller.filteredPTRevenueTimeSeriesData.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            horizontalInterval: controller.totalPTRevenue.value / 5,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              );
+            },
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    NumberFormat.compact().format(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: controller.filteredPTRevenueTimeSeriesData.length > 10
+                    ? (controller.filteredPTRevenueTimeSeriesData.length / 5)
+                          .ceilToDouble()
+                    : 1,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() <
+                      controller.filteredPTRevenueTimeSeriesData.length) {
+                    final data = controller
+                        .filteredPTRevenueTimeSeriesData[value.toInt()];
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        data.title.length > 8
+                            ? '${data.title.substring(0, 5)}...'
+                            : data.title,
+                        style: const TextStyle(fontSize: 9),
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: controller.filteredPTRevenueTimeSeriesData
+                  .asMap()
+                  .entries
+                  .map(
+                    (entry) => FlSpot(entry.key.toDouble(), entry.value.value),
+                  )
+                  .toList(),
+              isCurved: true,
+              color: Colors.orange,
+              barWidth: 3,
+              isStrokeCapRound: true,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: Colors.orange,
+                  );
+                },
+              ),
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.orange.withOpacity(0.1),
+              ),
+            ),
+          ],
+          lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                return touchedBarSpots.map((barSpot) {
+                  final data = controller
+                      .filteredPTRevenueTimeSeriesData[barSpot.x.toInt()];
+                  return LineTooltipItem(
+                    '${data.title}\n${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(barSpot.y)}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildPTRevenuePieChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredPTRevenueData;
+      if (data.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return PieChart(
+        PieChartData(
+          sections: data.map((chartData) {
+            final percentage =
+                (chartData.value / controller.totalPTRevenue.value * 100);
+            return PieChartSectionData(
+              value: chartData.value,
+              title: '${percentage.toStringAsFixed(1)}%',
+              color: chartData.color,
+              radius: 100,
+              titleStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            );
+          }).toList(),
+          borderData: FlBorderData(show: false),
+          sectionsSpace: 2,
+          centerSpaceRadius: 40,
+        ),
+      );
+    });
+  }
+
+  Widget _buildPTRevenueBarChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredPTRevenueData;
+      if (data.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return BarChart(
+        BarChartData(
+          barGroups: data.asMap().entries.map((entry) {
+            return BarChartGroupData(
+              x: entry.key,
+              barRods: [
+                BarChartRodData(
+                  toY: entry.value.value,
+                  color: entry.value.color,
+                  width: 30,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            );
+          }).toList(),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    NumberFormat.compact().format(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 50,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < data.length) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        data[value.toInt()].title,
+                        style: const TextStyle(fontSize: 10),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(show: false),
+        ),
+      );
+    });
+  }
+
+  Widget _buildPTRevenueLegend(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredPTRevenueData;
+      if (data.isEmpty) return const SizedBox.shrink();
+
+      return Wrap(
+        spacing: 16,
+        runSpacing: 8,
+        children: data.map((chartData) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: chartData.color,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          );
+        }).toList(),
+      );
+    });
   }
 
   // ============ HELPER METHODS ============

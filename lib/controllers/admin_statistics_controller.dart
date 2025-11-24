@@ -57,6 +57,19 @@ class AdminStatisticsController extends GetxController {
   final averageTransactionValue = 0.0.obs;
   final totalActiveMemberships = 0.obs;
 
+  // PT Revenue stats
+  final totalPTRevenue = 0.0.obs;
+  final totalPTSessions = 0.obs;
+  final ptRevenueData = <ChartData>[].obs;
+  final ptRevenueTimeSeriesData = <ChartData>[].obs;
+  final ptRevenueChartType = 'line'.obs;
+  final ptRevenueSearchQuery = ''.obs;
+  final filteredPTRevenueData = <ChartData>[].obs;
+  final filteredPTRevenueTimeSeriesData = <ChartData>[].obs;
+
+  // Store all PT transactions for filtering
+  final List<Map<String, dynamic>> _allPTTransactions = [];
+
   @override
   void onInit() {
     super.onInit();
@@ -123,6 +136,10 @@ class AdminStatisticsController extends GetxController {
     activeMembershipChartType.value = type;
   }
 
+  void updatePTRevenueChartType(String type) {
+    ptRevenueChartType.value = type;
+  }
+
   // Search methods
   void updateRevenueSearch(String query) {
     revenueSearchQuery.value = query.toLowerCase();
@@ -137,6 +154,11 @@ class AdminStatisticsController extends GetxController {
   void updateActiveMembershipSearch(String query) {
     activeMembershipSearchQuery.value = query.toLowerCase();
     _filterActiveMembershipData();
+  }
+
+  void updatePTRevenueSearch(String query) {
+    ptRevenueSearchQuery.value = query.toLowerCase();
+    _filterPTRevenueData();
   }
 
   void _filterRevenueData() {
@@ -180,6 +202,104 @@ class AdminStatisticsController extends GetxController {
     }
   }
 
+  void _filterPTRevenueData() {
+    if (ptRevenueSearchQuery.value.isEmpty) {
+      filteredPTRevenueData.value = ptRevenueData;
+      filteredPTRevenueTimeSeriesData.value = ptRevenueTimeSeriesData;
+    } else {
+      // Filter by trainer data
+      filteredPTRevenueData.value = ptRevenueData
+          .where(
+            (data) =>
+                data.title.toLowerCase().contains(ptRevenueSearchQuery.value),
+          )
+          .toList();
+
+      // Filter time series data by trainer name
+      final filteredTransactions = _allPTTransactions
+          .where(
+            (trans) => (trans['trainer'] as String).toLowerCase().contains(
+              ptRevenueSearchQuery.value,
+            ),
+          )
+          .toList();
+
+      // Rebuild time series from filtered transactions
+      if (filteredTransactions.isNotEmpty) {
+        final Map<String, double> revenueByDate = {};
+
+        for (final trans in filteredTransactions) {
+          final dateKey = trans['dateKey'] as String;
+          final amount = trans['amount'] as double;
+          revenueByDate[dateKey] = (revenueByDate[dateKey] ?? 0) + amount;
+        }
+
+        // Group by appropriate time unit based on date range
+        final daysDiff = endDate.value.difference(startDate.value).inDays;
+
+        if (daysDiff <= 31) {
+          // Show daily data
+          filteredPTRevenueTimeSeriesData.value =
+              revenueByDate.entries
+                  .map(
+                    (entry) => ChartData(
+                      entry.key,
+                      entry.value,
+                      Colors.orange,
+                      date: DateFormat('dd/MM/yyyy').parse(entry.key),
+                    ),
+                  )
+                  .toList()
+                ..sort((a, b) => a.date!.compareTo(b.date!));
+        } else if (daysDiff <= 365) {
+          // Group by month
+          final Map<String, double> monthlyRevenue = {};
+          for (final trans in filteredTransactions) {
+            final date = trans['date'] as DateTime;
+            final monthKey = DateFormat('MM/yyyy').format(date);
+            monthlyRevenue[monthKey] =
+                (monthlyRevenue[monthKey] ?? 0) + (trans['amount'] as double);
+          }
+          filteredPTRevenueTimeSeriesData.value =
+              monthlyRevenue.entries
+                  .map(
+                    (entry) => ChartData(
+                      entry.key,
+                      entry.value,
+                      Colors.orange,
+                      date: DateFormat('MM/yyyy').parse(entry.key),
+                    ),
+                  )
+                  .toList()
+                ..sort((a, b) => a.date!.compareTo(b.date!));
+        } else {
+          // Group by year
+          final Map<String, double> yearlyRevenue = {};
+          for (final trans in filteredTransactions) {
+            final date = trans['date'] as DateTime;
+            final yearKey = date.year.toString();
+            yearlyRevenue[yearKey] =
+                (yearlyRevenue[yearKey] ?? 0) + (trans['amount'] as double);
+          }
+          filteredPTRevenueTimeSeriesData.value =
+              yearlyRevenue.entries
+                  .map(
+                    (entry) => ChartData(
+                      entry.key,
+                      entry.value,
+                      Colors.orange,
+                      date: DateTime(int.parse(entry.key)),
+                    ),
+                  )
+                  .toList()
+                ..sort((a, b) => a.date!.compareTo(b.date!));
+        }
+      } else {
+        filteredPTRevenueTimeSeriesData.value = [];
+      }
+    }
+  }
+
   Future<void> loadData() async {
     isLoading.value = true;
     try {
@@ -189,6 +309,7 @@ class AdminStatisticsController extends GetxController {
         _loadWorkoutData(),
         _loadMembershipPlanData(),
         _loadActiveMembershipData(),
+        _loadPTRevenueData(),
       ]);
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải dữ liệu: $e');
@@ -637,6 +758,251 @@ class AdminStatisticsController extends GetxController {
       activeMembershipData.clear();
       filteredActiveMembershipData.clear();
       totalActiveMemberships.value = 0;
+    }
+  }
+
+  Future<void> _loadPTRevenueData() async {
+    try {
+      print('=== LOADING PT REVENUE DATA ===');
+      print('Date range: ${startDate.value} to ${endDate.value}');
+
+      double total = 0;
+      int sessionCount = 0;
+      final Map<String, double> revenueByTrainer = {};
+      final Map<String, double> revenueByDate = {}; // For time series
+      _allPTTransactions.clear();
+
+      // Pre-load all trainers for efficient lookup
+      print('Loading trainers for name lookup...');
+      final trainersSnapshot = await _firestore.collection('trainers').get();
+      final Map<String, String> trainerNames = {};
+      for (final doc in trainersSnapshot.docs) {
+        final hoTen = doc.data()['hoTen'];
+        if (hoTen != null) {
+          trainerNames[doc.id] = hoTen.toString();
+        }
+      }
+      print('Loaded ${trainerNames.length} trainer names');
+
+      // Load from trainer_rentals collection - completed rentals
+      final snapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trangThai', isEqualTo: 'completed')
+          .get();
+
+      print('Found ${snapshot.docs.length} completed PT rentals');
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+
+        // Get completion date (updatedAt when marked completed)
+        DateTime? completedDate;
+        final updatedAtData = data['updatedAt'];
+
+        if (updatedAtData is Timestamp) {
+          completedDate = updatedAtData.toDate();
+        } else if (updatedAtData is String) {
+          try {
+            completedDate = DateTime.parse(updatedAtData);
+          } catch (e) {
+            print('Error parsing updatedAt date: $updatedAtData');
+          }
+        }
+
+        // Skip if no completion date or outside date range
+        if (completedDate == null) {
+          print('Skipping rental without updatedAt: ${doc.id}');
+          continue;
+        }
+
+        // Check if within date range
+        if (completedDate.isBefore(startDate.value) ||
+            completedDate.isAfter(endDate.value.add(const Duration(days: 1)))) {
+          continue; // Outside selected date range
+        }
+
+        // Get amount
+        final amount = (data['tongTien'] ?? 0).toDouble();
+        if (amount <= 0) {
+          print('Skipping rental with zero amount');
+          continue;
+        }
+
+        // Get trainer name from trainerId using pre-loaded cache
+        String trainerName = 'Không xác định';
+        final trainerId = data['trainerId'];
+
+        // Lookup trainer name from cache
+        if (trainerId != null && trainerId.toString().isNotEmpty) {
+          final cachedName = trainerNames[trainerId.toString()];
+          if (cachedName != null && cachedName.isNotEmpty) {
+            trainerName = cachedName;
+          }
+        }
+
+        // Fallback: try tenPT field if lookup failed
+        if (trainerName == 'Không xác định') {
+          final fallbackName = data['tenPT'] ?? data['trainerName'];
+          if (fallbackName != null &&
+              fallbackName.toString().isNotEmpty &&
+              fallbackName.toString() != 'Không xác định') {
+            trainerName = fallbackName.toString();
+          }
+        }
+
+        final sessions = (data['soBuoi'] ?? 1) as int;
+
+        // Add to totals
+        total += amount;
+        sessionCount += sessions;
+        revenueByTrainer[trainerName] =
+            (revenueByTrainer[trainerName] ?? 0) + amount;
+
+        // Group by date for time series
+        final dateKey = DateFormat('dd/MM/yyyy').format(completedDate);
+        revenueByDate[dateKey] = (revenueByDate[dateKey] ?? 0) + amount;
+
+        _allPTTransactions.add({
+          'date': completedDate,
+          'amount': amount,
+          'trainer': trainerName,
+          'dateKey': dateKey,
+          'sessions': sessions,
+        });
+
+        print('✓ Added PT transaction: $trainerName - $amount VNĐ on $dateKey');
+      }
+
+      // Update totals
+      totalPTRevenue.value = total;
+      totalPTSessions.value = sessionCount;
+
+      print('=== PT REVENUE SUMMARY ===');
+      print('Total PT Revenue: ${totalPTRevenue.value} VNĐ');
+      print('Total PT Sessions: ${totalPTSessions.value}');
+      print('Revenue by Trainer: $revenueByTrainer');
+
+      // Generate colors
+      final colors = [
+        Colors.orange,
+        Colors.blue,
+        Colors.green,
+        Colors.purple,
+        Colors.red,
+        Colors.teal,
+        Colors.indigo,
+        Colors.amber,
+        Colors.cyan,
+        Colors.pink,
+      ];
+
+      // Revenue by trainer (for pie/bar chart)
+      ptRevenueData.value = revenueByTrainer.entries
+          .map(
+            (entry) => ChartData(
+              entry.key,
+              entry.value,
+              colors[revenueByTrainer.keys.toList().indexOf(entry.key) %
+                  colors.length],
+            ),
+          )
+          .toList();
+
+      // Revenue over time (for line chart)
+      // Sort transactions by date
+      _allPTTransactions.sort(
+        (a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime),
+      );
+
+      // Group by appropriate time unit based on date range
+      final daysDiff = endDate.value.difference(startDate.value).inDays;
+
+      if (daysDiff <= 7) {
+        // Show daily data
+        ptRevenueTimeSeriesData.value =
+            revenueByDate.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.orange,
+                    date: DateFormat('dd/MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else if (daysDiff <= 31) {
+        // Show daily data
+        ptRevenueTimeSeriesData.value =
+            revenueByDate.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.orange,
+                    date: DateFormat('dd/MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else if (daysDiff <= 365) {
+        // Group by month
+        final Map<String, double> monthlyRevenue = {};
+        for (final trans in _allPTTransactions) {
+          final date = trans['date'] as DateTime;
+          final monthKey = DateFormat('MM/yyyy').format(date);
+          monthlyRevenue[monthKey] =
+              (monthlyRevenue[monthKey] ?? 0) + (trans['amount'] as double);
+        }
+        ptRevenueTimeSeriesData.value =
+            monthlyRevenue.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.orange,
+                    date: DateFormat('MM/yyyy').parse(entry.key),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      } else {
+        // Group by year
+        final Map<String, double> yearlyRevenue = {};
+        for (final trans in _allPTTransactions) {
+          final date = trans['date'] as DateTime;
+          final yearKey = date.year.toString();
+          yearlyRevenue[yearKey] =
+              (yearlyRevenue[yearKey] ?? 0) + (trans['amount'] as double);
+        }
+        ptRevenueTimeSeriesData.value =
+            yearlyRevenue.entries
+                .map(
+                  (entry) => ChartData(
+                    entry.key,
+                    entry.value,
+                    Colors.orange,
+                    date: DateTime(int.parse(entry.key)),
+                  ),
+                )
+                .toList()
+              ..sort((a, b) => a.date!.compareTo(b.date!));
+      }
+
+      // Initialize filtered data
+      filteredPTRevenueData.value = ptRevenueData;
+      filteredPTRevenueTimeSeriesData.value = ptRevenueTimeSeriesData;
+
+      print('PT Revenue data loaded successfully');
+      print('=== END PT REVENUE LOAD ===');
+    } catch (e, stackTrace) {
+      print('Error loading PT revenue data: $e');
+      print('Stack trace: $stackTrace');
+      ptRevenueData.clear();
+      ptRevenueTimeSeriesData.clear();
+      filteredPTRevenueData.clear();
+      totalPTRevenue.value = 0;
+      totalPTSessions.value = 0;
     }
   }
 
