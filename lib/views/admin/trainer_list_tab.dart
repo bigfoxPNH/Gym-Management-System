@@ -182,6 +182,9 @@ class TrainerListTab extends StatelessWidget {
   }
 
   Widget _buildStatsCards(TrainerManagementController controller) {
+    // Load tổng số buổi tập từ trainer_rentals
+    controller.loadTotalSessionsFromRentals();
+
     return Obx(
       () => Container(
         padding: const EdgeInsets.all(16),
@@ -208,7 +211,7 @@ class TrainerListTab extends StatelessWidget {
             Expanded(
               child: _buildStatCard(
                 'Buổi tập',
-                controller.totalSessions.value.toString(),
+                controller.totalSessionsFromRentals.value.toString(),
                 Icons.calendar_today,
                 Colors.blue,
               ),
@@ -411,33 +414,34 @@ class TrainerListTab extends StatelessWidget {
 
               // Stats row
               const SizedBox(height: 12),
-              Obx(() {
-                final assignments = controller.getAssignmentsForTrainer(
-                  trainer.id,
-                );
-                final activeSessions = assignments
-                    .where((a) => a.trangThai == 'active')
-                    .length;
-                final totalSessions = controller.getTotalSessionsForTrainer(
-                  trainer.id,
-                );
+              FutureBuilder<int>(
+                future: controller.getTotalSessionsFromRentals(trainer.id),
+                builder: (context, snapshot) {
+                  final totalSessions = snapshot.data ?? 0;
+                  final assignments = controller.getAssignmentsForTrainer(
+                    trainer.id,
+                  );
+                  final activeSessions = assignments
+                      .where((a) => a.trangThai == 'active')
+                      .length;
 
-                return Row(
-                  children: [
-                    _buildInfoChip(
-                      Icons.people,
-                      '$activeSessions học viên',
-                      Colors.blue,
-                    ),
-                    const SizedBox(width: 8),
-                    _buildInfoChip(
-                      Icons.event_available,
-                      '$totalSessions buổi',
-                      Colors.green,
-                    ),
-                  ],
-                );
-              }),
+                  return Row(
+                    children: [
+                      _buildInfoChip(
+                        Icons.people,
+                        '$activeSessions học viên',
+                        Colors.blue,
+                      ),
+                      const SizedBox(width: 8),
+                      _buildInfoChip(
+                        Icons.event_available,
+                        '$totalSessions buổi',
+                        Colors.green,
+                      ),
+                    ],
+                  );
+                },
+              ),
 
               // Action buttons
               const SizedBox(height: 12),

@@ -81,34 +81,40 @@ class UserMembershipManagementView extends StatelessWidget {
           return status == 'Đã hết hạn';
         }).length;
 
+        final selectedFilter = controller.selectedMembershipFilter.value;
+
         return Row(
           children: [
             _buildStatCard(
               'Tổng số',
               memberships.length.toString(),
               Colors.blue,
-              false,
+              selectedFilter == null,
+              () => controller.updateMembershipFilter(null),
             ),
             const SizedBox(width: 12),
             _buildStatCard(
               'Hoạt động',
               activeCount.toString(),
               Colors.green,
-              false,
+              selectedFilter == 'active',
+              () => controller.updateMembershipFilter('active'),
             ),
             const SizedBox(width: 12),
             _buildStatCard(
               'Chờ thanh toán',
               pendingCount.toString(),
               Colors.orange,
-              false,
+              selectedFilter == 'pending',
+              () => controller.updateMembershipFilter('pending'),
             ),
             const SizedBox(width: 12),
             _buildStatCard(
               'Hết hạn',
               expiredCount.toString(),
               Colors.red,
-              false,
+              selectedFilter == 'expired',
+              () => controller.updateMembershipFilter('expired'),
             ),
           ],
         );
@@ -121,42 +127,47 @@ class UserMembershipManagementView extends StatelessWidget {
     String count,
     Color color,
     bool isSelected,
+    VoidCallback onTap,
   ) {
     return Expanded(
-      child: Container(
-        height: 100,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? color : color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? color : color.withOpacity(0.3),
-            width: isSelected ? 2 : 1,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: 100,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected ? color : color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? color : color.withOpacity(0.3),
+              width: isSelected ? 2 : 1,
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              count,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : color,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                count,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : color,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 12,
-                color: isSelected
-                    ? Colors.white.withOpacity(0.9)
-                    : color.withOpacity(0.8),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? Colors.white.withOpacity(0.9)
+                      : color.withOpacity(0.8),
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -177,8 +188,10 @@ class UserMembershipManagementView extends StatelessWidget {
 
       final memberships = controller.userMemberships;
       final searchQuery = controller.searchQuery.value.toLowerCase();
+      final statusFilter = controller.selectedMembershipFilter.value;
 
-      final filteredMemberships = searchQuery.isEmpty
+      // Apply search filter
+      var filteredMemberships = searchQuery.isEmpty
           ? memberships
           : memberships.where((m) {
               final userName = (m['userName'] ?? '').toLowerCase();
@@ -186,6 +199,23 @@ class UserMembershipManagementView extends StatelessWidget {
               return userName.contains(searchQuery) ||
                   userEmail.contains(searchQuery);
             }).toList();
+
+      // Apply status filter
+      if (statusFilter != null) {
+        filteredMemberships = filteredMemberships.where((m) {
+          final status = controller.getMembershipStatus(m);
+          switch (statusFilter) {
+            case 'active':
+              return status == 'Đang hoạt động';
+            case 'pending':
+              return status == 'Chờ thanh toán';
+            case 'expired':
+              return status == 'Đã hết hạn';
+            default:
+              return true;
+          }
+        }).toList();
+      }
 
       if (filteredMemberships.isEmpty) {
         return _buildNoResultsState();

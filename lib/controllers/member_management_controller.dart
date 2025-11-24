@@ -23,6 +23,9 @@ class MemberManagementController extends GetxController {
   final RxList<Map<String, dynamic>> filteredUserMemberships =
       <Map<String, dynamic>>[].obs;
 
+  // Membership filter status: null = all, 'active', 'pending', 'expired'
+  final RxnString selectedMembershipFilter = RxnString(null);
+
   @override
   void onInit() {
     super.onInit();
@@ -976,10 +979,16 @@ class MemberManagementController extends GetxController {
     }
   }
 
+  // Update membership filter (for user membership management page)
+  void updateMembershipFilter(String? filter) {
+    selectedMembershipFilter.value = filter;
+  }
+
   // Clear all filters
   void clearFilters() {
     searchQuery.value = '';
     selectedRole.value = null;
+    selectedMembershipFilter.value = null;
   }
 
   // Helper method to parse date from string (dd/mm/yyyy)

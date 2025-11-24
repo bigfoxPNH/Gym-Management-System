@@ -273,7 +273,6 @@ class PTController extends GetxController {
         final data = doc.data();
         var trangThai = data['trangThai'] as String?;
         final userId = data['userId'] as String?;
-        final soGio = data['soGio'] as int? ?? 0;
 
         // Check và update expired status
         final endDate = (data['endDate'] as Timestamp?)?.toDate();
@@ -297,12 +296,20 @@ class PTController extends GetxController {
           validRentals++;
         }
 
-        // Đếm học viên và buổi tập từ đơn hoàn thành hoặc hết hạn
-        if (trangThai == 'completed' || trangThai == 'expired') {
+        // Đếm học viên và buổi tập từ đơn hoàn thành
+        if (trangThai == 'completed') {
           if (userId != null) {
             completedUserIds.add(userId);
           }
-          completedSessions += soGio;
+
+          // Tính số buổi từ goiTap (ví dụ: "5buoi" -> 5)
+          final goiTap = data['goiTap'] as String? ?? '';
+          final match = RegExp(r'(\d+)').firstMatch(goiTap);
+          if (match != null) {
+            final soBuoi = int.tryParse(match.group(1) ?? '0') ?? 0;
+            completedSessions += soBuoi;
+          }
+
           completedRentals++;
         }
       }
@@ -311,6 +318,10 @@ class PTController extends GetxController {
       _totalCompletedSessions.value = completedSessions;
       _totalCompletedRentals.value = completedRentals;
       _totalValidRentals.value = validRentals;
+
+      print(
+        '✅ [PTController] Stats loaded: Students=$_totalStudents, Sessions=$completedSessions, Completed=$completedRentals',
+      );
     } catch (e) {
       print('Error loading rental statistics: $e');
     }

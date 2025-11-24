@@ -28,6 +28,12 @@ class TrainerManagementController extends GetxController {
   var selectedStatus = 'all'.obs; // 'all', 'active', 'inactive', ...
   var selectedSpecialty = 'all'.obs;
 
+  // Revenue filter
+  var revenueTimeFilter =
+      'month'.obs; // 'day', 'week', 'month', 'year', 'custom'
+  var customStartDate = Rxn<DateTime>();
+  var customEndDate = Rxn<DateTime>();
+
   // Statistics
   var totalTrainers = 0.obs;
   var activeTrainers = 0.obs;
@@ -193,12 +199,18 @@ class TrainerManagementController extends GetxController {
         (sum, doc) => sum + ((doc.data())['soBuoiHoanThanh'] as int? ?? 0),
       );
 
-      // Calculate total revenue (example calculation)
-      totalRevenue.value = assignmentsSnapshot.docs.fold(0, (sum, doc) {
-        final sessions = (doc.data())['soBuoiHoanThanh'] as int? ?? 0;
-        final price = (doc.data())['mucGia'] as num? ?? 0;
-        return sum + (sessions * price.toInt());
+      // Calculate total revenue from completed trainer_rentals
+      final rentalsSnapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trangThai', isEqualTo: 'completed')
+          .get();
+
+      totalRevenue.value = rentalsSnapshot.docs.fold(0, (sum, doc) {
+        final tongTien = (doc.data())['tongTien'] as num? ?? 0;
+        return sum + tongTien.toInt();
       });
+
+      print('✅ [TrainerMgmt.stats] Total Revenue: ${totalRevenue.value} VNĐ');
     } catch (e) {
       print('Error loading statistics: $e');
     }
@@ -648,5 +660,228 @@ class TrainerManagementController extends GetxController {
       0,
       (sum, assignment) => sum + assignment.soBuoiHoanThanh,
     );
+  }
+
+  // Get total sessions from trainer_rentals (for more accurate count)
+  // Tính số buổi tập = số buổi từ goiTap (chỉ tính rental completed)
+  Future<int> getTotalSessionsFromRentals(String trainerId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trainerId', isEqualTo: trainerId)
+          .where(
+            'trangThai',
+            isEqualTo: 'completed',
+          ) // Chỉ tính rental đã completed
+          .get();
+
+      int totalSessions = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final goiTap = data['goiTap'] as String? ?? '';
+
+        // Parse số buổi từ goiTap (ví dụ: "5buoi" -> 5)
+        final match = RegExp(r'(\d+)').firstMatch(goiTap);
+        if (match != null) {
+          final soBuoi = int.tryParse(match.group(1) ?? '0') ?? 0;
+          totalSessions += soBuoi;
+        }
+      }
+      return totalSessions;
+    } catch (e) {
+      print('Error getting sessions from rentals: $e');
+      return 0;
+    }
+  }
+
+  // Observable cho tổng số buổi tập của tất cả PT
+  final RxInt totalSessionsFromRentals = 0.obs;
+
+  // Load tổng số buổi tập từ trainer_rentals
+  // Tính tổng số buổi = SUM(số buổi từ goiTap) của các rental completed
+  Future<void> loadTotalSessionsFromRentals() async {
+    try {
+      final snapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trangThai', isEqualTo: 'completed')
+          .get();
+
+      int total = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final goiTap = data['goiTap'] as String? ?? '';
+
+        // Parse số buổi từ goiTap (ví dụ: "5buoi" -> 5)
+        final match = RegExp(r'(\d+)').firstMatch(goiTap);
+        if (match != null) {
+          final soBuoi = int.tryParse(match.group(1) ?? '0') ?? 0;
+          total += soBuoi;
+        }
+      }
+      totalSessionsFromRentals.value = total;
+      print('✅ [TrainerMgmt] Total sessions from rentals: $total buổi tập');
+    } catch (e) {
+      print('Error loading total sessions from rentals: $e');
+      totalSessionsFromRentals.value = 0;
+    }
+  }
+
+  // Get revenue for a specific trainer from completed rentals
+  Future<double> getRevenueForTrainer(String trainerId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trainerId', isEqualTo: trainerId)
+          .where('trangThai', isEqualTo: 'completed')
+          .get();
+
+      double revenue = 0;
+      for (var doc in snapshot.docs) {
+        final tongTien = (doc.data()['tongTien'] as num?)?.toDouble() ?? 0;
+        revenue += tongTien;
+      }
+      return revenue;
+    } catch (e) {
+      print('Error getting revenue for trainer: $e');
+      return 0;
+    }
+  }
+
+  // Get revenue data by time period for chart
+  Future<Map<String, double>> getRevenueByTimePeriod() async {
+    try {
+      print(
+        '✅ [TrainerMgmt] getRevenueByTimePeriod() called with filter: ${revenueTimeFilter.value}',
+      );
+      final now = DateTime.now();
+      DateTime startDate;
+      DateTime endDate = now;
+
+      // Determine time range based on filter
+      switch (revenueTimeFilter.value) {
+        case 'day':
+          startDate = DateTime(now.year, now.month, now.day);
+          break;
+        case 'week':
+          startDate = now.subtract(Duration(days: now.weekday - 1)); // Monday
+          startDate = DateTime(startDate.year, startDate.month, startDate.day);
+          break;
+        case 'month':
+          startDate = DateTime(now.year, now.month, 1);
+          break;
+        case 'year':
+          startDate = DateTime(now.year, 1, 1);
+          break;
+        case 'custom':
+          if (customStartDate.value != null && customEndDate.value != null) {
+            startDate = customStartDate.value!;
+            endDate = customEndDate.value!;
+          } else {
+            startDate = DateTime(now.year, now.month, 1);
+          }
+          break;
+        default:
+          startDate = DateTime(now.year, now.month, 1);
+      }
+
+      print('✅ [TrainerMgmt] Query range: $startDate to $endDate');
+
+      // Query all completed rentals and filter by date in code to avoid index requirement
+      final snapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trangThai', isEqualTo: 'completed')
+          .get();
+
+      print(
+        '✅ [TrainerMgmt] Found ${snapshot.docs.length} completed rentals (before date filter)',
+      );
+
+      Map<String, double> revenueData = {};
+
+      // Group by appropriate time unit and filter by date
+      int filteredCount = 0;
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final updatedAt = (data['updatedAt'] as Timestamp?)?.toDate();
+
+        // Skip if no updatedAt or outside date range
+        if (updatedAt == null ||
+            updatedAt.isBefore(startDate) ||
+            updatedAt.isAfter(endDate)) {
+          continue;
+        }
+
+        filteredCount++;
+        final tongTien = (data['tongTien'] as num?)?.toDouble() ?? 0;
+
+        String key;
+        switch (revenueTimeFilter.value) {
+          case 'day':
+            key = '${updatedAt.hour.toString().padLeft(2, '0')}:00';
+            break;
+          case 'week':
+            final weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+            key = weekdays[updatedAt.weekday - 1];
+            break;
+          case 'month':
+            key = '${updatedAt.day}';
+            break;
+          case 'year':
+            key = 'T${updatedAt.month}';
+            break;
+          case 'custom':
+            final days = endDate.difference(startDate).inDays;
+            if (days <= 7) {
+              key = '${updatedAt.day}/${updatedAt.month}';
+            } else if (days <= 31) {
+              key = '${updatedAt.day}/${updatedAt.month}';
+            } else {
+              key =
+                  '${updatedAt.month.toString().padLeft(2, '0')}/${updatedAt.year}';
+            }
+            break;
+          default:
+            key = '${updatedAt.day}';
+        }
+
+        revenueData[key] = (revenueData[key] ?? 0) + tongTien;
+      }
+
+      print('✅ [TrainerMgmt] Filtered ${filteredCount} rentals in date range');
+      print('✅ [TrainerMgmt] Revenue data: $revenueData');
+      return revenueData;
+    } catch (e) {
+      print('Error getting revenue by time period: $e');
+      return {};
+    }
+  }
+
+  // Observable for revenue data (for reactive UI)
+  final RxMap<String, double> revenueByTimePeriod = <String, double>{}.obs;
+
+  // Load revenue data based on current filter
+  Future<void> loadRevenueByTimePeriod() async {
+    print(
+      '✅ [TrainerMgmt] Loading revenue by time period: ${revenueTimeFilter.value}',
+    );
+    final data = await getRevenueByTimePeriod();
+    print('✅ [TrainerMgmt] Revenue data loaded: ${data.length} entries');
+    print('✅ [TrainerMgmt] Revenue data: $data');
+    revenueByTimePeriod.clear();
+    revenueByTimePeriod.addAll(data);
+  }
+
+  // Update time filter and reload data
+  void updateRevenueTimeFilter(String filter) {
+    revenueTimeFilter.value = filter;
+    loadRevenueByTimePeriod();
+  }
+
+  // Set custom date range and reload data
+  void setCustomDateRange(DateTime start, DateTime end) {
+    customStartDate.value = start;
+    customEndDate.value = end;
+    revenueTimeFilter.value = 'custom';
+    loadRevenueByTimePeriod();
   }
 }
