@@ -57,6 +57,16 @@ class AdminStatisticsController extends GetxController {
   final averageTransactionValue = 0.0.obs;
   final totalActiveMemberships = 0.obs;
 
+  // Product Revenue stats
+  final totalProductRevenue = 0.0.obs;
+  final totalProductOrders = 0.obs;
+  final productRevenueData = <ChartData>[].obs;
+  final productRevenueTimeSeriesData = <ChartData>[].obs;
+  final productRevenueChartType = 'line'.obs;
+  final productRevenueSearchQuery = ''.obs;
+  final filteredProductRevenueData = <ChartData>[].obs;
+  final filteredProductRevenueTimeSeriesData = <ChartData>[].obs;
+
   // PT Revenue stats
   final totalPTRevenue = 0.0.obs;
   final totalPTSessions = 0.obs;
@@ -69,6 +79,9 @@ class AdminStatisticsController extends GetxController {
 
   // Store all PT transactions for filtering
   final List<Map<String, dynamic>> _allPTTransactions = [];
+  
+  // Store all Product transactions for filtering
+  final List<Map<String, dynamic>> _allProductTransactions = [];
 
   @override
   void onInit() {
@@ -310,7 +323,11 @@ class AdminStatisticsController extends GetxController {
         _loadMembershipPlanData(),
         _loadActiveMembershipData(),
         _loadPTRevenueData(),
+        _loadProductRevenueData(),
       ]);
+      
+      // After all data is loaded, calculate total combined revenue
+      _calculateTotalRevenue();
     } catch (e) {
       Get.snackbar('Lỗi', 'Không thể tải dữ liệu: $e');
     } finally {
@@ -403,15 +420,14 @@ class AdminStatisticsController extends GetxController {
         print('✓ Added transaction: $planName - $amount VNĐ on $dateKey');
       }
 
-      // Update totals
-      totalRevenue.value = total;
+      // Update totals (membership cards only)
       totalTransactions.value = transactionCount;
       averageTransactionValue.value = transactionCount > 0
           ? total / transactionCount
           : 0;
 
-      print('=== REVENUE SUMMARY ===');
-      print('Total Revenue: ${totalRevenue.value} VNĐ');
+      print('=== MEMBERSHIP REVENUE SUMMARY ===');
+      print('Membership Revenue: $total VNĐ');
       print('Total Transactions: ${totalTransactions.value}');
       print('Average Transaction: ${averageTransactionValue.value} VNĐ');
       print('Revenue by Plan: $revenueByPlan');
@@ -1021,6 +1037,174 @@ class AdminStatisticsController extends GetxController {
       default:
         return 'Khác';
     }
+  }
+
+  Future<void> _loadProductRevenueData() async {
+    try {
+      print('=== LOADING PRODUCT REVENUE DATA ===');
+      
+      double total = 0;
+      int orderCount = 0;
+      final Map<String, double> revenueByDate = {};
+      final Map<String, double> revenueByProduct = {};
+      _allProductTransactions.clear();
+
+      // Get all orders with status 'delivered'
+      final snapshot = await _firestore.collection('orders').get();
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final status = data['status']?.toString() ?? '';
+        
+        // Only count delivered orders
+        if (status != 'delivered') {
+          continue;
+        }
+
+        // Parse created date
+        DateTime? createdDate;
+        final createdAtData = data['createdAt'];
+        if (createdAtData is Timestamp) {
+          createdDate = createdAtData.toDate();
+        }
+
+        // Skip if no creation date or outside date range
+        if (createdDate == null) {
+          continue;
+        }
+
+        // Check if within date range
+        if (createdDate.isBefore(startDate.value) ||
+            createdDate.isAfter(endDate.value.add(const Duration(days: 1)))) {
+          continue;
+        }
+
+        // Get total amount
+        final amount = (data['total'] ?? 0).toDouble();
+        if (amount <= 0) {
+          continue;
+        }
+
+        total += amount;
+        orderCount++;
+
+        // Group by date for time series
+        final dateKey = DateFormat('dd/MM/yyyy').format(createdDate);
+        revenueByDate[dateKey] = (revenueByDate[dateKey] ?? 0) + amount;
+
+        // Group by product
+        final items = data['items'] as List<dynamic>? ?? [];
+        for (var item in items) {
+          final productName = item['productName'] ?? 'Không xác định';
+          final itemTotal = (item['total'] ?? 0).toDouble();
+          revenueByProduct[productName] = (revenueByProduct[productName] ?? 0) + itemTotal;
+        }
+
+        _allProductTransactions.add({
+          'date': createdDate,
+          'amount': amount,
+          'dateKey': dateKey,
+          'items': items,
+        });
+
+        print('✓ Added product order: $amount VNĐ on $dateKey');
+      }
+
+      // Update totals
+      totalProductRevenue.value = total;
+      totalProductOrders.value = orderCount;
+
+      print('=== PRODUCT REVENUE SUMMARY ===');
+      print('Total Product Revenue: ${totalProductRevenue.value} VNĐ');
+      print('Total Product Orders: ${totalProductOrders.value}');
+
+      // Generate colors for product revenue
+      final colors = [
+        Colors.pink,
+        Colors.purple,
+        Colors.deepPurple,
+        Colors.indigo,
+        Colors.blue,
+        Colors.lightBlue,
+        Colors.cyan,
+        Colors.teal,
+      ];
+
+      // Create chart data for products
+      int colorIndex = 0;
+      productRevenueData.value = revenueByProduct.entries.map((entry) {
+        final color = colors[colorIndex % colors.length];
+        colorIndex++;
+        return ChartData(entry.key, entry.value, color);
+      }).toList();
+
+      // Sort by revenue descending
+      productRevenueData.sort((a, b) => b.value.compareTo(a.value));
+
+      // Create time series data
+      final sortedDates = revenueByDate.keys.toList()
+        ..sort((a, b) {
+          final dateA = DateFormat('dd/MM/yyyy').parse(a);
+          final dateB = DateFormat('dd/MM/yyyy').parse(b);
+          return dateA.compareTo(dateB);
+        });
+
+      productRevenueTimeSeriesData.value = sortedDates.map((dateKey) {
+        final date = DateFormat('dd/MM/yyyy').parse(dateKey);
+        return ChartData(dateKey, revenueByDate[dateKey]!, Colors.pink, date: date);
+      }).toList();
+
+      _filterProductRevenueData();
+
+    } catch (e) {
+      print('Error loading product revenue data: $e');
+      totalProductRevenue.value = 0;
+      totalProductOrders.value = 0;
+      productRevenueData.clear();
+      productRevenueTimeSeriesData.clear();
+    }
+  }
+
+  void _filterProductRevenueData() {
+    final query = productRevenueSearchQuery.value.toLowerCase();
+    
+    if (query.isEmpty) {
+      filteredProductRevenueData.value = productRevenueData;
+      filteredProductRevenueTimeSeriesData.value = productRevenueTimeSeriesData;
+    } else {
+      filteredProductRevenueData.value = productRevenueData
+          .where((data) => data.title.toLowerCase().contains(query))
+          .toList();
+      filteredProductRevenueTimeSeriesData.value = productRevenueTimeSeriesData
+          .where((data) => data.title.toLowerCase().contains(query))
+          .toList();
+    }
+  }
+
+  void updateProductRevenueSearch(String query) {
+    productRevenueSearchQuery.value = query.toLowerCase();
+    _filterProductRevenueData();
+  }
+
+  void updateProductRevenueChartType(String type) {
+    productRevenueChartType.value = type;
+  }
+
+  void _calculateTotalRevenue() {
+    // Get membership revenue from revenueDataByPlan
+    double membershipRevenue = 0;
+    for (var data in revenueDataByPlan) {
+      membershipRevenue += data.value;
+    }
+
+    // Calculate total combined revenue from all sources
+    totalRevenue.value = membershipRevenue + totalPTRevenue.value + totalProductRevenue.value;
+
+    print('=== TOTAL COMBINED REVENUE ===');
+    print('Membership Revenue: $membershipRevenue VNĐ');
+    print('PT Revenue: ${totalPTRevenue.value} VNĐ');
+    print('Product Revenue: ${totalProductRevenue.value} VNĐ');
+    print('Total Combined Revenue: ${totalRevenue.value} VNĐ');
   }
 
   void refreshData() {

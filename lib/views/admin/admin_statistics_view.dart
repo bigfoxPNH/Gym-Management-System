@@ -50,6 +50,8 @@ class AdminStatisticsView extends StatelessWidget {
               _buildWorkoutStatistics(controller),
               const SizedBox(height: 24),
               _buildPTRevenueSection(controller),
+              const SizedBox(height: 24),
+              _buildProductRevenueSection(controller),
             ],
           ),
         );
@@ -163,48 +165,81 @@ class AdminStatisticsView extends StatelessWidget {
   // ============ SUMMARY CARDS ============
   Widget _buildSummaryCards(AdminStatisticsController controller) {
     return Obx(
-      () => Row(
+      () => Column(
         children: [
-          Expanded(
-            child: _buildSummaryCard(
-              'Tổng doanh thu',
-              NumberFormat.currency(
-                locale: 'vi_VN',
-                symbol: '₫',
-              ).format(controller.totalRevenue.value),
-              Icons.attach_money,
-              Colors.green,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSummaryCard(
+                  'Tổng doanh thu',
+                  NumberFormat.currency(
+                    locale: 'vi_VN',
+                    symbol: '₫',
+                  ).format(controller.totalRevenue.value),
+                  Icons.attach_money,
+                  Colors.green,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSummaryCard(
+                  'Giao dịch',
+                  controller.totalTransactions.value.toString(),
+                  Icons.receipt_long,
+                  Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSummaryCard(
+                  'TB/Giao dịch',
+                  NumberFormat.currency(
+                    locale: 'vi_VN',
+                    symbol: '₫',
+                  ).format(controller.averageTransactionValue.value),
+                  Icons.trending_up,
+                  Colors.orange,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSummaryCard(
+                  'Thẻ đang hoạt động',
+                  controller.totalActiveMemberships.value.toString(),
+                  Icons.card_membership,
+                  Colors.purple,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildSummaryCard(
-              'Giao dịch',
-              controller.totalTransactions.value.toString(),
-              Icons.receipt_long,
-              Colors.blue,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildSummaryCard(
-              'TB/Giao dịch',
-              NumberFormat.currency(
-                locale: 'vi_VN',
-                symbol: '₫',
-              ).format(controller.averageTransactionValue.value),
-              Icons.trending_up,
-              Colors.orange,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildSummaryCard(
-              'Thẻ đang hoạt động',
-              controller.totalActiveMemberships.value.toString(),
-              Icons.card_membership,
-              Colors.purple,
-            ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSummaryCard(
+                  'Doanh thu từ Sản phẩm',
+                  NumberFormat.currency(
+                    locale: 'vi_VN',
+                    symbol: '₫',
+                  ).format(controller.totalProductRevenue.value),
+                  Icons.shopping_bag,
+                  Colors.pink,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildSummaryCard(
+                  'Đơn hàng hoàn thành',
+                  controller.totalProductOrders.value.toString(),
+                  Icons.check_circle,
+                  Colors.teal,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Container()), // Empty space
+              const SizedBox(width: 12),
+              Expanded(child: Container()), // Empty space
+            ],
           ),
         ],
       ),
@@ -1464,6 +1499,276 @@ class AdminStatisticsView extends StatelessWidget {
             ],
           );
         }).toList(),
+      );
+    });
+  }
+
+  // ============ PRODUCT REVENUE SECTION ============
+  Widget _buildProductRevenueSection(AdminStatisticsController controller) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.shopping_bag, color: Colors.pink),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Doanh thu từ Sản phẩm',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                Obx(
+                  () => ToggleButtons(
+                    isSelected: [
+                      controller.productRevenueChartType.value == 'line',
+                      controller.productRevenueChartType.value == 'pie',
+                      controller.productRevenueChartType.value == 'bar',
+                    ],
+                    onPressed: (index) {
+                      controller.updateProductRevenueChartType(
+                        index == 0 ? 'line' : (index == 1 ? 'pie' : 'bar'),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.show_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.pie_chart, size: 20),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Icon(Icons.bar_chart, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm sản phẩm...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+              ),
+              onChanged: controller.updateProductRevenueSearch,
+            ),
+            const SizedBox(height: 16),
+            Obx(() {
+              if (controller.filteredProductRevenueData.isEmpty &&
+                  controller.filteredProductRevenueTimeSeriesData.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Text('Không có dữ liệu'),
+                  ),
+                );
+              }
+
+              return SizedBox(
+                height: 300,
+                child: _buildProductRevenueChart(controller),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductRevenueChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final chartType = controller.productRevenueChartType.value;
+      
+      if (chartType == 'line') {
+        return _buildProductLineChart(controller);
+      } else if (chartType == 'bar') {
+        return _buildProductBarChart(controller);
+      } else {
+        return _buildProductPieChart(controller);
+      }
+    });
+  }
+
+  Widget _buildProductLineChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredProductRevenueTimeSeriesData;
+      
+      if (data.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return LineChart(
+        LineChartData(
+          gridData: FlGridData(show: true),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    NumberFormat.compact(locale: 'vi_VN').format(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < 0 || value.toInt() >= data.length) {
+                    return const Text('');
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      data[value.toInt()].title,
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                  );
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: true),
+          lineBarsData: [
+            LineChartBarData(
+              spots: data.asMap().entries.map((entry) {
+                return FlSpot(entry.key.toDouble(), entry.value.value);
+              }).toList(),
+              isCurved: true,
+              color: Colors.pink,
+              barWidth: 3,
+              dotData: const FlDotData(show: true),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildProductBarChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredProductRevenueData;
+      
+      if (data.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return BarChart(
+        BarChartData(
+          gridData: FlGridData(show: true),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    NumberFormat.compact(locale: 'vi_VN').format(value),
+                    style: const TextStyle(fontSize: 10),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 80,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() < 0 || value.toInt() >= data.length) {
+                    return const Text('');
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: RotatedBox(
+                      quarterTurns: -1,
+                      child: Text(
+                        data[value.toInt()].title,
+                        style: const TextStyle(fontSize: 10),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(show: true),
+          barGroups: data.asMap().entries.map((entry) {
+            return BarChartGroupData(
+              x: entry.key,
+              barRods: [
+                BarChartRodData(
+                  toY: entry.value.value,
+                  color: entry.value.color,
+                  width: 20,
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      );
+    });
+  }
+
+  Widget _buildProductPieChart(AdminStatisticsController controller) {
+    return Obx(() {
+      final data = controller.filteredProductRevenueData;
+      
+      if (data.isEmpty) {
+        return const Center(child: Text('Không có dữ liệu'));
+      }
+
+      return PieChart(
+        PieChartData(
+          sections: data.map((item) {
+            final percentage = (item.value / controller.totalProductRevenue.value) * 100;
+            return PieChartSectionData(
+              value: item.value,
+              title: '${percentage.toStringAsFixed(1)}%',
+              color: item.color,
+              radius: 100,
+              titleStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            );
+          }).toList(),
+        ),
       );
     });
   }

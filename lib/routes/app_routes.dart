@@ -63,4 +63,7 @@ abstract class AppRoutes {
   static const userCheckout = '/user/checkout';
   static const userOrders = '/user/orders';
   static const userOrderDetail = '/user/order-detail';
+
+  // Order Management Routes (Admin)
+  static const orderManagement = '/admin/order-management';
 }

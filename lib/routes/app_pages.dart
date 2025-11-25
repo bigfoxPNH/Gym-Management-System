@@ -61,6 +61,7 @@ import '../views/user/user_product_list_view.dart';
 import '../views/user/shopping_cart_view.dart';
 import '../views/user/checkout_view.dart' as UserCheckout;
 import '../views/user/order_history_view.dart';
+import '../views/admin/order_management_view.dart';
 import '../controllers/shopping_cart_controller.dart';
 import '../controllers/order_controller.dart';
 
@@ -267,6 +268,10 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut<OrderController>(() => OrderController());
       }),
+    ),
+    GetPage(
+      name: AppRoutes.orderManagement,
+      page: () => const OrderManagementView(),
     ),
   ];
 }

@@ -20,13 +20,6 @@ class OrderHistoryView extends StatelessWidget {
         ),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home),
-            onPressed: () => Get.offAllNamed('/user'),
-            tooltip: 'Về trang chủ',
-          ),
-        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -93,7 +86,7 @@ class _OrderCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => Get.toNamed('/user/order-detail', arguments: order.id),
+        onTap: () => _showOrderDetail(context),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -206,6 +199,145 @@ class _OrderCard extends StatelessWidget {
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
+      ),
+    );
+  }
+
+  void _showOrderDetail(BuildContext context) {
+    final formatter = NumberFormat('#,###', 'vi_VN');
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Dialog(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.blue,
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Chi Tiết Đơn Hàng',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(dialogContext),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildDetailRow('Mã đơn:', order.orderNumber),
+                    _buildDetailRow('Trạng thái:', order.status.displayName),
+                    _buildDetailRow('Người nhận:', order.recipientName),
+                    _buildDetailRow('SĐT:', order.phoneNumber),
+                    _buildDetailRow(
+                      'Địa chỉ:',
+                      '${order.address}, ${order.ward}, ${order.district}, ${order.city}',
+                    ),
+                    if (order.createdAt != null)
+                      _buildDetailRow(
+                        'Ngày đặt:',
+                        DateFormat('dd/MM/yyyy HH:mm').format(order.createdAt!),
+                      ),
+                    const Divider(height: 24),
+                    const Text(
+                      'Sản phẩm:',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    ...order.items.map((item) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text('${item.productName} x${item.quantity}'),
+                          ),
+                          Text(
+                            '${formatter.format(item.total)}đ',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    )),
+                    const Divider(height: 24),
+                    _buildDetailRow('Tạm tính:', '${formatter.format(order.subtotal)}đ'),
+                    _buildDetailRow('Phí vận chuyển:', '${formatter.format(order.shippingFee)}đ'),
+                    _buildDetailRow(
+                      'Tổng cộng:',
+                      '${formatter.format(order.total)}đ',
+                      isBold: true,
+                    ),
+                    if (order.note?.isNotEmpty == true) ...[
+                      const SizedBox(height: 16),
+                      const Text('Ghi chú:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(order.note!),
+                    ],
+                    if (_canCancel(order.status)) ...[
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(dialogContext);
+                            _showCancelDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('Hủy đơn hàng'),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, {bool isBold = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                fontSize: isBold ? 16 : 14,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
