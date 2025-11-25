@@ -52,6 +52,10 @@ import '../views/pt/pt_schedule_view.dart';
 import '../views/trainer_rental/trainer_rental_view.dart';
 import '../views/trainer_rental/my_trainer_rentals_view.dart';
 
+// Product Management imports
+import '../views/admin/product_management_view.dart';
+import '../views/admin/product_detail_view.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -169,6 +173,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.myTrainerRentals,
       page: () => const MyTrainerRentalsView(),
+    ),
+
+    // Product Management Routes
+    GetPage(
+      name: AppRoutes.productManagement,
+      page: () => ProductManagementView(),
+    ),
+    GetPage(
+      name: AppRoutes.productDetail,
+      page: () => const ProductDetailView(),
     ),
 
     // News Management Routes

@@ -52,4 +52,8 @@ abstract class AppRoutes {
   // Trainer Rental Routes (Member)
   static const trainerRental = '/trainer-rental';
   static const myTrainerRentals = '/my-trainer-rentals';
+
+  // Product Management Routes
+  static const productManagement = '/admin/product-management';
+  static const productDetail = '/admin/product-detail';
 }

@@ -211,6 +211,14 @@ service cloud.firestore {
       allow delete: if isSignedIn(); // Client-side filtering
     }
     
+    // Products collection (quản lý sản phẩm)
+    match /products/{productId} {
+      allow read: if true; // Public read cho tất cả
+      allow create: if isAdmin(); // Chỉ admin được tạo
+      allow update: if isAdmin(); // Chỉ admin được cập nhật
+      allow delete: if isAdmin(); // Chỉ admin được xóa
+    }
+    
     // Đóng tất cả các collection khác
     match /{document=**} {
       allow read, write: if false;
