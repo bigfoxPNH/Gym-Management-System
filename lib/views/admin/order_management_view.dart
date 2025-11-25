@@ -13,13 +13,13 @@ class OrderManagementView extends StatefulWidget {
 
 class _OrderManagementViewState extends State<OrderManagementView> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   List<order_model.Order> allOrders = [];
   List<order_model.Order> filteredOrders = [];
   bool isLoading = true;
   String selectedStatus = 'all';
   String searchQuery = '';
-  
+
   final Map<String, String> statusLabels = {
     'all': 'Tất cả',
     'pending': 'Chờ xác nhận',
@@ -73,18 +73,26 @@ class _OrderManagementViewState extends State<OrderManagementView> {
   void _filterOrders() {
     setState(() {
       filteredOrders = allOrders.where((order) {
-        final matchesStatus = selectedStatus == 'all' || 
-                             order.status.value == selectedStatus;
-        final matchesSearch = searchQuery.isEmpty ||
-                             order.orderNumber.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                             order.recipientName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                             order.phoneNumber.contains(searchQuery);
+        final matchesStatus =
+            selectedStatus == 'all' || order.status.value == selectedStatus;
+        final matchesSearch =
+            searchQuery.isEmpty ||
+            order.orderNumber.toLowerCase().contains(
+              searchQuery.toLowerCase(),
+            ) ||
+            order.recipientName.toLowerCase().contains(
+              searchQuery.toLowerCase(),
+            ) ||
+            order.phoneNumber.contains(searchQuery);
         return matchesStatus && matchesSearch;
       }).toList();
     });
   }
 
-  Future<void> _updateOrderStatus(String orderId, order_model.OrderStatus newStatus) async {
+  Future<void> _updateOrderStatus(
+    String orderId,
+    order_model.OrderStatus newStatus,
+  ) async {
     try {
       await _firestore.collection('orders').doc(orderId).update({
         'status': newStatus.value,
@@ -137,8 +145,8 @@ class _OrderManagementViewState extends State<OrderManagementView> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredOrders.isEmpty
-                    ? _buildEmptyState()
-                    : _buildOrderList(),
+                ? _buildEmptyState()
+                : _buildOrderList(),
           ),
         ],
       ),
@@ -153,9 +161,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
         decoration: InputDecoration(
           hintText: 'Tìm mã đơn, tên, SĐT...',
           prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
           fillColor: Colors.grey[100],
         ),
@@ -199,9 +205,15 @@ class _OrderManagementViewState extends State<OrderManagementView> {
   Widget _buildOrderStats() {
     final stats = {
       'Tổng đơn': allOrders.length,
-      'Chờ xác nhận': allOrders.where((o) => o.status == order_model.OrderStatus.pending).length,
-      'Đang giao': allOrders.where((o) => o.status == order_model.OrderStatus.shipping).length,
-      'Hoàn thành': allOrders.where((o) => o.status == order_model.OrderStatus.delivered).length,
+      'Chờ xác nhận': allOrders
+          .where((o) => o.status == order_model.OrderStatus.pending)
+          .length,
+      'Đang giao': allOrders
+          .where((o) => o.status == order_model.OrderStatus.shipping)
+          .length,
+      'Hoàn thành': allOrders
+          .where((o) => o.status == order_model.OrderStatus.delivered)
+          .length,
     };
 
     return Container(
@@ -223,10 +235,7 @@ class _OrderManagementViewState extends State<OrderManagementView> {
               ),
               Text(
                 entry.key,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           );
@@ -435,10 +444,18 @@ class _OrderDetailsDialog extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
-                  ...order.items.map((item) => _buildProductItem(item, formatter)),
+                  ...order.items.map(
+                    (item) => _buildProductItem(item, formatter),
+                  ),
                   const Divider(height: 24),
-                  _buildInfoRow('Tạm tính:', '${formatter.format(order.subtotal)}đ'),
-                  _buildInfoRow('Phí vận chuyển:', '${formatter.format(order.shippingFee)}đ'),
+                  _buildInfoRow(
+                    'Tạm tính:',
+                    '${formatter.format(order.subtotal)}đ',
+                  ),
+                  _buildInfoRow(
+                    'Phí vận chuyển:',
+                    '${formatter.format(order.shippingFee)}đ',
+                  ),
                   _buildInfoRow(
                     'Tổng cộng:',
                     '${formatter.format(order.total)}đ',
@@ -446,7 +463,10 @@ class _OrderDetailsDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   if (order.note?.isNotEmpty == true) ...[
-                    const Text('Ghi chú:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Ghi chú:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text(order.note!),
                     const SizedBox(height: 16),
                   ],
@@ -500,9 +520,7 @@ class _OrderDetailsDialog extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Expanded(
-            child: Text('${item.productName} x${item.quantity}'),
-          ),
+          Expanded(child: Text('${item.productName} x${item.quantity}')),
           Text(
             '${formatter.format(item.total)}đ',
             style: const TextStyle(fontWeight: FontWeight.bold),

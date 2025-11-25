@@ -1520,7 +1520,10 @@ class AdminStatisticsView extends StatelessWidget {
                     const SizedBox(width: 8),
                     const Text(
                       'Doanh thu từ Sản phẩm',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -1596,7 +1599,7 @@ class AdminStatisticsView extends StatelessWidget {
   Widget _buildProductRevenueChart(AdminStatisticsController controller) {
     return Obx(() {
       final chartType = controller.productRevenueChartType.value;
-      
+
       if (chartType == 'line') {
         return _buildProductLineChart(controller);
       } else if (chartType == 'bar') {
@@ -1610,7 +1613,7 @@ class AdminStatisticsView extends StatelessWidget {
   Widget _buildProductLineChart(AdminStatisticsController controller) {
     return Obx(() {
       final data = controller.filteredProductRevenueTimeSeriesData;
-      
+
       if (data.isEmpty) {
         return const Center(child: Text('Không có dữ liệu'));
       }
@@ -1676,7 +1679,7 @@ class AdminStatisticsView extends StatelessWidget {
   Widget _buildProductBarChart(AdminStatisticsController controller) {
     return Obx(() {
       final data = controller.filteredProductRevenueData;
-      
+
       if (data.isEmpty) {
         return const Center(child: Text('Không có dữ liệu'));
       }
@@ -1747,7 +1750,7 @@ class AdminStatisticsView extends StatelessWidget {
   Widget _buildProductPieChart(AdminStatisticsController controller) {
     return Obx(() {
       final data = controller.filteredProductRevenueData;
-      
+
       if (data.isEmpty) {
         return const Center(child: Text('Không có dữ liệu'));
       }
@@ -1755,7 +1758,8 @@ class AdminStatisticsView extends StatelessWidget {
       return PieChart(
         PieChartData(
           sections: data.map((item) {
-            final percentage = (item.value / controller.totalProductRevenue.value) * 100;
+            final percentage =
+                (item.value / controller.totalProductRevenue.value) * 100;
             return PieChartSectionData(
               value: item.value,
               title: '${percentage.toStringAsFixed(1)}%',

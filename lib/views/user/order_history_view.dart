@@ -255,26 +255,41 @@ class _OrderCard extends StatelessWidget {
                     const Divider(height: 24),
                     const Text(
                       'Sản phẩm:',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    ...order.items.map((item) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text('${item.productName} x${item.quantity}'),
-                          ),
-                          Text(
-                            '${formatter.format(item.total)}đ',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                    ...order.items.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${item.productName} x${item.quantity}',
+                              ),
+                            ),
+                            Text(
+                              '${formatter.format(item.total)}đ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )),
+                    ),
                     const Divider(height: 24),
-                    _buildDetailRow('Tạm tính:', '${formatter.format(order.subtotal)}đ'),
-                    _buildDetailRow('Phí vận chuyển:', '${formatter.format(order.shippingFee)}đ'),
+                    _buildDetailRow(
+                      'Tạm tính:',
+                      '${formatter.format(order.subtotal)}đ',
+                    ),
+                    _buildDetailRow(
+                      'Phí vận chuyển:',
+                      '${formatter.format(order.shippingFee)}đ',
+                    ),
                     _buildDetailRow(
                       'Tổng cộng:',
                       '${formatter.format(order.total)}đ',
@@ -282,7 +297,10 @@ class _OrderCard extends StatelessWidget {
                     ),
                     if (order.note?.isNotEmpty == true) ...[
                       const SizedBox(height: 16),
-                      const Text('Ghi chú:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Ghi chú:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       Text(order.note!),
                     ],
                     if (_canCancel(order.status)) ...[

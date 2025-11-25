@@ -79,7 +79,7 @@ class AdminStatisticsController extends GetxController {
 
   // Store all PT transactions for filtering
   final List<Map<String, dynamic>> _allPTTransactions = [];
-  
+
   // Store all Product transactions for filtering
   final List<Map<String, dynamic>> _allProductTransactions = [];
 
@@ -325,7 +325,7 @@ class AdminStatisticsController extends GetxController {
         _loadPTRevenueData(),
         _loadProductRevenueData(),
       ]);
-      
+
       // After all data is loaded, calculate total combined revenue
       _calculateTotalRevenue();
     } catch (e) {
@@ -1042,7 +1042,7 @@ class AdminStatisticsController extends GetxController {
   Future<void> _loadProductRevenueData() async {
     try {
       print('=== LOADING PRODUCT REVENUE DATA ===');
-      
+
       double total = 0;
       int orderCount = 0;
       final Map<String, double> revenueByDate = {};
@@ -1055,7 +1055,7 @@ class AdminStatisticsController extends GetxController {
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final status = data['status']?.toString() ?? '';
-        
+
         // Only count delivered orders
         if (status != 'delivered') {
           continue;
@@ -1097,7 +1097,8 @@ class AdminStatisticsController extends GetxController {
         for (var item in items) {
           final productName = item['productName'] ?? 'Không xác định';
           final itemTotal = (item['total'] ?? 0).toDouble();
-          revenueByProduct[productName] = (revenueByProduct[productName] ?? 0) + itemTotal;
+          revenueByProduct[productName] =
+              (revenueByProduct[productName] ?? 0) + itemTotal;
         }
 
         _allProductTransactions.add({
@@ -1151,11 +1152,15 @@ class AdminStatisticsController extends GetxController {
 
       productRevenueTimeSeriesData.value = sortedDates.map((dateKey) {
         final date = DateFormat('dd/MM/yyyy').parse(dateKey);
-        return ChartData(dateKey, revenueByDate[dateKey]!, Colors.pink, date: date);
+        return ChartData(
+          dateKey,
+          revenueByDate[dateKey]!,
+          Colors.pink,
+          date: date,
+        );
       }).toList();
 
       _filterProductRevenueData();
-
     } catch (e) {
       print('Error loading product revenue data: $e');
       totalProductRevenue.value = 0;
@@ -1167,7 +1172,7 @@ class AdminStatisticsController extends GetxController {
 
   void _filterProductRevenueData() {
     final query = productRevenueSearchQuery.value.toLowerCase();
-    
+
     if (query.isEmpty) {
       filteredProductRevenueData.value = productRevenueData;
       filteredProductRevenueTimeSeriesData.value = productRevenueTimeSeriesData;
@@ -1198,7 +1203,8 @@ class AdminStatisticsController extends GetxController {
     }
 
     // Calculate total combined revenue from all sources
-    totalRevenue.value = membershipRevenue + totalPTRevenue.value + totalProductRevenue.value;
+    totalRevenue.value =
+        membershipRevenue + totalPTRevenue.value + totalProductRevenue.value;
 
     print('=== TOTAL COMBINED REVENUE ===');
     print('Membership Revenue: $membershipRevenue VNĐ');
