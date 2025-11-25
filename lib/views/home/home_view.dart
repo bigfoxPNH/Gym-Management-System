@@ -499,6 +499,13 @@ class _HomeViewState extends State<HomeView> {
                         onTap: () => Get.toNamed(AppRoutes.trainerRental),
                         index: 6,
                       ),
+                      _buildMoMoIconButton(
+                        icon: Icons.shopping_cart_rounded,
+                        label: 'Mua Sản Phẩm',
+                        color: const Color(0xFFE91E63),
+                        onTap: () => Get.toNamed(AppRoutes.userProducts),
+                        index: 7,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),

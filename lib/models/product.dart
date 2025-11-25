@@ -12,6 +12,9 @@ class Product {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Static getter for product categories
+  static List<String> get productCategories => ProductCategory.all;
+
   Product({
     required this.id,
     required this.name,
@@ -45,6 +48,23 @@ class Product {
       updatedAt: json['updatedAt'] != null
           ? _parseTimestamp(json['updatedAt'])
           : DateTime.now(),
+    );
+  }
+
+  factory Product.fromMap(Map<String, dynamic> map, String id) {
+    return Product(
+      id: id,
+      name: map['name'] ?? '',
+      category: map['category'] ?? '',
+      manufacturer: map['manufacturer'] ?? '',
+      originalPrice: (map['originalPrice'] ?? 0).toDouble(),
+      sellingPrice: (map['sellingPrice'] ?? 0).toDouble(),
+      stockQuantity: map['stockQuantity'] ?? 0,
+      description: map['description'] ?? '',
+      images: List<String>.from(map['images'] ?? []),
+      status: ProductStatus.fromString(map['status'] ?? 'in_stock'),
+      createdAt: _parseTimestamp(map['createdAt']),
+      updatedAt: _parseTimestamp(map['updatedAt']),
     );
   }
 
@@ -130,6 +150,15 @@ class Product {
   }
 
   bool get isLowStock => stockQuantity <= 10;
+
+  // Price for user shopping (using sellingPrice)
+  double get price => sellingPrice;
+
+  // Discount amount
+  double get discount => discountPercentage;
+
+  // Final price after discount
+  double get finalPrice => sellingPrice;
 }
 
 enum ProductStatus {

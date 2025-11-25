@@ -56,6 +56,14 @@ import '../views/trainer_rental/my_trainer_rentals_view.dart';
 import '../views/admin/product_management_view.dart';
 import '../views/admin/product_detail_view.dart';
 
+// Shopping imports
+import '../views/user/user_product_list_view.dart';
+import '../views/user/shopping_cart_view.dart';
+import '../views/user/checkout_view.dart' as UserCheckout;
+import '../views/user/order_history_view.dart';
+import '../controllers/shopping_cart_controller.dart';
+import '../controllers/order_controller.dart';
+
 import '../views/test/cleanup_test_view.dart';
 import '../views/test/test_checkout_view.dart';
 import '../views/checkout/checkout_view.dart' as GeneralCheckout;
@@ -229,5 +237,36 @@ class AppPages {
 
     // PT Schedule
     GetPage(name: '/pt/schedule', page: () => const PTScheduleView()),
+
+    // Shopping Routes (User)
+    GetPage(
+      name: AppRoutes.userProducts,
+      page: () => const UserProductListView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ShoppingCartController>(() => ShoppingCartController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.userCart,
+      page: () => const ShoppingCartView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ShoppingCartController>(() => ShoppingCartController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.userCheckout,
+      page: () => const UserCheckout.CheckoutView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<ShoppingCartController>(() => ShoppingCartController());
+        Get.lazyPut<OrderController>(() => OrderController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.userOrders,
+      page: () => const OrderHistoryView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<OrderController>(() => OrderController());
+      }),
+    ),
   ];
 }

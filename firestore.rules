@@ -219,6 +219,43 @@ service cloud.firestore {
       allow delete: if isAdmin(); // Chỉ admin được xóa
     }
     
+    // Shopping Carts collection (giỏ hàng của user)
+    match /carts/{cartId} {
+      // CartId format: userId_productId
+      // Allow any authenticated user to read carts (filter on client side)
+      // Allow write only for own cart items
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && 
+                      cartId.split('_')[0] == request.auth.uid;
+    }
+    
+    // Orders collection (đơn hàng)
+    match /orders/{orderId} {
+      // Allow any authenticated user to read (filter on client side)
+      // Admin can see all orders
+      allow read: if isSignedIn();
+      // User tạo đơn hàng cho chính mình
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // User có thể hủy đơn (update status), admin có thể update tất cả
+      allow update: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      // Chỉ admin xóa đơn hàng
+      allow delete: if isAdmin();
+    }
+    
+    // Shipping Addresses collection (địa chỉ giao hàng)
+    match /shipping_addresses/{addressId} {
+      // User chỉ xem địa chỉ của mình
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // User chỉ tạo địa chỉ cho chính mình
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // User chỉ update địa chỉ của mình
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      // User có thể xóa địa chỉ của mình
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+    
     // Đóng tất cả các collection khác
     match /{document=**} {
       allow read, write: if false;

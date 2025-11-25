@@ -56,4 +56,11 @@ abstract class AppRoutes {
   // Product Management Routes
   static const productManagement = '/admin/product-management';
   static const productDetail = '/admin/product-detail';
+
+  // Shopping Routes (User)
+  static const userProducts = '/user/products';
+  static const userCart = '/user/cart';
+  static const userCheckout = '/user/checkout';
+  static const userOrders = '/user/orders';
+  static const userOrderDetail = '/user/order-detail';
 }
