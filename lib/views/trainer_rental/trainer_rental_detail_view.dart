@@ -55,8 +55,8 @@ class _TrainerRentalDetailViewState extends State<TrainerRentalDetailView> {
   // Tính tổng số buổi trong khóa
   int get _tongSoBuoi {
     if (_startDate == null || _endDate == null) {
-      // Nếu chưa chọn ngày, giả định 1 tháng (4 tuần)
-      return _soBuoiTrongTuan * 4;
+      // Nếu chưa chọn ngày, trả về 0
+      return 0;
     }
     final weeks = _endDate!.difference(_startDate!).inDays / 7;
     return (weeks * _soBuoiTrongTuan).ceil();
@@ -880,6 +880,11 @@ class _TrainerRentalDetailViewState extends State<TrainerRentalDetailView> {
   }
 
   double _calculateTotal() {
+    // Nếu chưa chọn ngày bắt đầu hoặc kết thúc, trả về 0
+    if (_startDate == null || _endDate == null) {
+      return 0;
+    }
+
     // Lấy giá từ trainer dựa trên trình độ
     final giaMoiGio = widget.trainer.giaMoiGio;
 
