@@ -14,12 +14,15 @@ class PTController extends GetxController {
   final Rx<Trainer?> _trainerProfile = Rx<Trainer?>(null);
   final RxList<TrainerAssignment> _myAssignments = <TrainerAssignment>[].obs;
   final RxList<TrainerReview> _myReviews = <TrainerReview>[].obs;
+  final RxList<Map<String, dynamic>> _activeRentals =
+      <Map<String, dynamic>>[].obs;
   final RxBool _isLoading = false.obs;
 
   // Getters
   Trainer? get trainerProfile => _trainerProfile.value;
   List<TrainerAssignment> get myAssignments => _myAssignments;
   List<TrainerReview> get myReviews => _myReviews;
+  List<Map<String, dynamic>> get activeRentals => _activeRentals;
   bool get isLoading => _isLoading.value;
 
   // Stats getters
@@ -94,6 +97,7 @@ class PTController extends GetxController {
       // Load assignments, reviews and rental statistics
       await _loadMyAssignments();
       await _loadMyReviews();
+      await _loadActiveRentals();
       await loadRentalStatistics();
     } catch (e) {
       print('Error loading trainer profile: $e');
@@ -142,6 +146,51 @@ class PTController extends GetxController {
           .toList();
     } catch (e) {
       print('Error loading reviews: $e');
+    }
+  }
+
+  /// Load active rentals (approved/completed) with user info
+  Future<void> _loadActiveRentals() async {
+    try {
+      if (_trainerProfile.value == null) return;
+
+      final querySnapshot = await _firestore
+          .collection('trainer_rentals')
+          .where('trainerId', isEqualTo: _trainerProfile.value!.id)
+          .where('trangThai', whereIn: ['approved', 'completed'])
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      // Load user info for each rental
+      final rentalsWithUserInfo = <Map<String, dynamic>>[];
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data();
+        final userId = data['userId'] as String?;
+
+        if (userId != null) {
+          // Get user info
+          final userDoc = await _firestore
+              .collection('users')
+              .doc(userId)
+              .get();
+          if (userDoc.exists) {
+            final userData = userDoc.data();
+            rentalsWithUserInfo.add({
+              'rentalId': doc.id,
+              'userId': userId,
+              'userName': data['userName'] ?? 'N/A',
+              'userAvatar': userData?['avatarUrl'],
+              'trangThai': data['trangThai'],
+              'startDate': (data['startDate'] as Timestamp?)?.toDate(),
+              'endDate': (data['endDate'] as Timestamp?)?.toDate(),
+            });
+          }
+        }
+      }
+
+      _activeRentals.value = rentalsWithUserInfo;
+    } catch (e) {
+      print('Error loading active rentals: $e');
     }
   }
 

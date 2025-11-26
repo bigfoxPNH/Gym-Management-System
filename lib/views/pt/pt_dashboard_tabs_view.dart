@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../controllers/pt_controller.dart';
 import '../../widgets/loading_overlay.dart';
 import 'pt_rental_management_tab.dart';
+import 'pt_assignment_view.dart';
 
 /// PT Dashboard với tabs: Tổng quan và Quản lý đơn thuê
 class PTDashboardTabsView extends StatefulWidget {
@@ -355,15 +356,9 @@ class _PTDashboardContent extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _buildActionButton(
-                icon: Icons.assignment,
-                label: 'Bài tập',
-                onTap: () {
-                  Get.snackbar(
-                    'Thông tin',
-                    'Chức năng quản lý bài tập đang được phát triển',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
+                icon: Icons.person_add,
+                label: 'Phân công',
+                onTap: () => Get.to(() => const PTAssignmentView()),
               ),
             ),
           ],
@@ -407,156 +402,202 @@ class _PTDashboardContent extends StatelessWidget {
     BuildContext context,
     PTController controller,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Lớp đang hoạt động',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        if (controller.myAssignments.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Chưa có lớp nào',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        else
-          ...controller.myAssignments.take(3).map((assignment) {
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.green.withOpacity(0.2),
-                  child: const Icon(Icons.person, color: Colors.green),
-                ),
-                title: Text(assignment.userName),
-                subtitle: Text(
-                  'Bắt đầu: ${DateFormat('dd/MM/yyyy').format(assignment.ngayBatDau)}',
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  // TODO: Navigate to assignment detail
-                },
-              ),
-            );
-          }),
-      ],
-    );
-  }
+    return Obx(() {
+      final activeRentals = controller.activeRentals;
 
-  Widget _buildRecentReviews(BuildContext context, PTController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Đánh giá gần đây',
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        if (controller.myReviews.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  children: [
-                    Icon(Icons.rate_review, size: 48, color: Colors.grey[400]),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Chưa có đánh giá',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ],
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hội viên tham gia',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (activeRentals.isEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.inbox, size: 48, color: Colors.grey[400]),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Chưa có hội viên nào',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )
-        else
-          ...controller.myReviews.take(3).map((review) {
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            )
+          else
+            SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: activeRentals.length,
+                itemBuilder: (context, index) {
+                  final rental = activeRentals[index];
+                  final userName = rental['userName'] as String? ?? 'N/A';
+                  final userAvatar = rental['userAvatar'] as String?;
+
+                  return Container(
+                    width: 90,
+                    margin: const EdgeInsets.only(right: 12),
+                    child: Column(
                       children: [
                         CircleAvatar(
-                          backgroundColor: Colors.amber.withOpacity(0.2),
-                          child: const Icon(Icons.person, color: Colors.amber),
+                          radius: 35,
+                          backgroundColor: Colors.deepPurple.shade100,
+                          backgroundImage:
+                              userAvatar != null && userAvatar.isNotEmpty
+                              ? NetworkImage(userAvatar)
+                              : null,
+                          child: userAvatar == null || userAvatar.isEmpty
+                              ? Text(
+                                  userName.isNotEmpty
+                                      ? userName[0].toUpperCase()
+                                      : '?',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.deepPurple,
+                                  ),
+                                )
+                              : null,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                review.userName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  ...List.generate(
-                                    5,
-                                    (index) => Icon(
-                                      index < review.rating
-                                          ? Icons.star
-                                          : Icons.star_border,
-                                      color: Colors.amber,
-                                      size: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    DateFormat(
-                                      'dd/MM/yyyy',
-                                    ).format(review.createdAt),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                        const SizedBox(height: 8),
+                        Text(
+                          userName,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                    if (review.comment != null &&
-                        review.comment!.isNotEmpty) ...[
+                  );
+                },
+              ),
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildRecentReviews(BuildContext context, PTController controller) {
+    return Obx(() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Đánh giá gần đây',
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          if (controller.myReviews.isEmpty)
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.rate_review,
+                        size: 48,
+                        color: Colors.grey[400],
+                      ),
                       const SizedBox(height: 8),
                       Text(
-                        review.comment!,
-                        style: TextStyle(color: Colors.grey[700]),
+                        'Chưa có đánh giá',
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
-                  ],
+                  ),
                 ),
               ),
-            );
-          }),
-      ],
-    );
+            )
+          else
+            ...controller.myReviews.take(2).map((review) {
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.amber.withOpacity(0.2),
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.amber,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  review.userName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    ...List.generate(
+                                      5,
+                                      (index) => Icon(
+                                        index < review.rating
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(review.createdAt),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (review.comment != null &&
+                          review.comment!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          review.comment!,
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+        ],
+      );
+    });
   }
 }

@@ -77,11 +77,24 @@ class AuthController extends GetxController {
   Future<void> signIn(String email, String password) async {
     try {
       _isLoading.value = true;
-      await AuthService.signInWithEmailAndPassword(
+      final userCredential = await AuthService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      Get.offAllNamed(AppRoutes.home);
+
+      // Wait for user account to be loaded
+      if (userCredential?.user != null) {
+        await _loadUserAccount(userCredential!.user!.uid);
+
+        // Navigate based on user role
+        if (_userAccount.value?.isTrainer == true) {
+          Get.offAllNamed(AppRoutes.ptDashboard);
+        } else {
+          Get.offAllNamed(AppRoutes.home);
+        }
+      } else {
+        Get.offAllNamed(AppRoutes.home);
+      }
     } catch (e) {
       Get.snackbar(
         'Lỗi Đăng Nhập',

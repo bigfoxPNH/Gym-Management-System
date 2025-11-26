@@ -109,7 +109,8 @@ class _HomeViewState extends State<HomeView> {
     return Obx(() {
       final user = authController.userAccount;
 
-      // Redirect PT users to PT Dashboard
+      // Redirect PT users to PT Dashboard (nếu vào nhầm trang này)
+      // Note: Login flow đã xử lý redirect rồi, chỉ cần check để phòng trường hợp vào trực tiếp
       if (user != null && user.isTrainer) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           Get.offAllNamed(AppRoutes.ptDashboard);
