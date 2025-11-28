@@ -226,7 +226,9 @@ class AppPages {
       name: '${AppRoutes.newsDetailUser}/:newsId',
       page: () => NewsDetailUserScreen(newsId: Get.parameters['newsId']!),
       binding: BindingsBuilder(() {
-        Get.lazyPut<NewsUserController>(() => NewsUserController());
+        if (!Get.isRegistered<NewsUserController>()) {
+          Get.lazyPut<NewsUserController>(() => NewsUserController());
+        }
       }),
     ),
 

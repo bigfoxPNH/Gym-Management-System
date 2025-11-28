@@ -7,11 +7,69 @@ import '../../models/membership_card.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../widgets/loading_button.dart';
 
-class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
+class MembershipPurchaseView extends StatefulWidget {
   const MembershipPurchaseView({super.key});
 
   @override
+  State<MembershipPurchaseView> createState() => _MembershipPurchaseViewState();
+}
+
+class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
+  bool _hasAutoOpened = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check if there's a selected card ID and auto-open dialog
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasAutoOpened) {
+        final controller = Get.find<MembershipPurchaseController>();
+        final selectedCardId = controller.getSelectedCardId();
+        if (selectedCardId != null) {
+          _hasAutoOpened = true;
+          _waitAndOpenCard(controller, selectedCardId);
+        }
+      }
+    });
+  }
+
+  void _waitAndOpenCard(
+    MembershipPurchaseController controller,
+    String cardId,
+  ) async {
+    print('Looking for card with ID: $cardId');
+
+    // Wait for templates to load
+    int attempts = 0;
+    while (attempts < 20 && controller.filteredTemplates.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      attempts++;
+    }
+
+    print('Templates loaded: ${controller.filteredTemplates.length}');
+    for (var c in controller.filteredTemplates) {
+      print('Available card: ${c.id} - ${c.cardName}');
+    }
+
+    // Find and open the card
+    final card = controller.filteredTemplates.firstWhereOrNull(
+      (c) => c.id == cardId,
+    );
+
+    if (card != null) {
+      print('Found card: ${card.cardName}');
+      if (mounted) {
+        _showTemplatePreview(card);
+      }
+    } else {
+      print('Card not found with ID: $cardId');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = Get.find<MembershipPurchaseController>();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mua thẻ tập'), elevation: 0),
       body: Column(
@@ -24,6 +82,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   }
 
   Widget _buildSearchAndFilter() {
+    final controller = Get.find<MembershipPurchaseController>();
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -138,6 +197,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   }
 
   Widget _buildContent() {
+    final controller = Get.find<MembershipPurchaseController>();
     if (controller.isLoadingTemplates.value) {
       return const CenterLoading(message: 'Đang tải danh sách thẻ tập...');
     }
@@ -171,6 +231,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   }
 
   Widget _buildTemplateList() {
+    final controller = Get.find<MembershipPurchaseController>();
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: controller.filteredTemplates.length,
@@ -182,6 +243,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   }
 
   Widget _buildTemplateCard(MembershipCard template) {
+    final controller = Get.find<MembershipPurchaseController>();
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
@@ -292,6 +354,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
   }
 
   String _getDurationText(MembershipCard template) {
+    final controller = Get.find<MembershipPurchaseController>();
     if (template.durationType == DurationType.custom &&
         template.customEndDate != null) {
       return 'Đến ${DateFormat('dd/MM/yyyy').format(template.customEndDate!)}';
@@ -334,7 +397,9 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
               // Details
               _buildDetailRow(
                 'Loại thẻ',
-                controller.getCardTypeText(template.cardType),
+                Get.find<MembershipPurchaseController>().getCardTypeText(
+                  template.cardType,
+                ),
               ),
               _buildDetailRow('Mô tả', template.description),
               _buildDetailRow('Thời hạn', _getDurationText(template)),
@@ -365,8 +430,10 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Obx(
-                      () => LoadingButton(
+                    child: Obx(() {
+                      final controller =
+                          Get.find<MembershipPurchaseController>();
+                      return LoadingButton(
                         text: 'Mua ngay',
                         isLoading: controller.isPurchasing.value,
                         backgroundColor: const Color(0xFF00BCD4),
@@ -374,8 +441,8 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
                           Get.back();
                           _confirmPurchase(template);
                         },
-                      ),
-                    ),
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -500,15 +567,16 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Hủy')),
-          Obx(
-            () => LoadingButton(
+          Obx(() {
+            final controller = Get.find<MembershipPurchaseController>();
+            return LoadingButton(
               text: 'Xác nhận',
               isLoading: controller.isPurchasing.value,
               backgroundColor: const Color(0xFF00BCD4),
               height: 42,
               onPressed: () => _processPurchase(template),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -530,6 +598,7 @@ class MembershipPurchaseView extends GetView<MembershipPurchaseController> {
     }
 
     try {
+      final controller = Get.find<MembershipPurchaseController>();
       // Create purchase record first (with pending status)
       final purchaseId = await controller.createPendingPurchase(
         userId,

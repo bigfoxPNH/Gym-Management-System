@@ -33,6 +33,19 @@ class MembershipPurchaseController extends GetxController {
     _initializeSampleData();
     loadAvailableTemplates();
     _setupSearchListener();
+
+    // Check if there's a selected card ID in arguments
+    final args = Get.arguments;
+    if (args != null && args is Map && args['selectedCardId'] != null) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _scrollToCard(args['selectedCardId']);
+      });
+    }
+  }
+
+  void _scrollToCard(String cardId) {
+    // This will be used to scroll to the specific card
+    // The view will handle the actual scrolling
   }
 
   /// Initialize sample data if needed
@@ -71,6 +84,15 @@ class MembershipPurchaseController extends GetxController {
     } finally {
       isLoadingTemplates.value = false;
     }
+  }
+
+  /// Get selected card ID from arguments
+  String? getSelectedCardId() {
+    final args = Get.arguments;
+    if (args != null && args is Map && args['selectedCardId'] != null) {
+      return args['selectedCardId'];
+    }
+    return null;
   }
 
   /// Purchase a membership template

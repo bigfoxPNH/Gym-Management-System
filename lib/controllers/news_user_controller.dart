@@ -522,6 +522,44 @@ class NewsUserController extends GetxController {
     }
   }
 
+  // Load a specific news by ID if not in list
+  Future<News?> loadNewsById(String newsId) async {
+    try {
+      print('NewsUserController: Loading specific news by ID: $newsId');
+
+      // First check if already in list
+      final existingNews = getNewsById(newsId);
+      if (existingNews != null) {
+        print('NewsUserController: News already in list');
+        return existingNews;
+      }
+
+      // Load from Firestore
+      final doc = await _firestore
+          .collection(_newsCollection)
+          .doc(newsId)
+          .get();
+
+      if (!doc.exists) {
+        print('NewsUserController: News document does not exist');
+        return null;
+      }
+
+      final news = News.fromFirestore(doc);
+      print('NewsUserController: Loaded news: ${news.title}');
+
+      // Add to list if not already there
+      if (!newsList.any((n) => n.id == newsId)) {
+        newsList.add(news);
+      }
+
+      return news;
+    } catch (e) {
+      print('NewsUserController: Error loading news by ID: $e');
+      return null;
+    }
+  }
+
   // Check if user liked a news
   bool isLiked(String newsId) {
     return userLikedNews[newsId] ?? false;

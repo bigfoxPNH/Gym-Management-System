@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../controllers/news_user_controller.dart';
 import '../../models/news.dart';
 import '../../models/comment.dart';
@@ -30,16 +31,105 @@ class _NewsDetailUserScreenState extends State<NewsDetailUserScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<NewsUserController>(
       builder: (controller) {
+        print('NewsDetailUserScreen: Looking for newsId: ${widget.newsId}');
+        print(
+          'NewsDetailUserScreen: Available news IDs: ${controller.newsList.map((n) => n.id).toList()}',
+        );
+
         final news = controller.getNewsById(widget.newsId);
 
+        // If news not found, try to load it from Firestore
         if (news == null) {
+          print(
+            'NewsDetailUserScreen: News not found, loading from Firestore...',
+          );
+
           return Scaffold(
             appBar: AppBar(
               title: const Text('Bản tin'),
               backgroundColor: Colors.cyan[600],
               foregroundColor: Colors.white,
             ),
-            body: const Center(child: Text('Không tìm thấy bản tin')),
+            body: FutureBuilder<News?>(
+              future: controller.loadNewsById(widget.newsId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Đang tải bản tin...'),
+                      ],
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red[300],
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Lỗi: ${snapshot.error}'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Quay lại'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.article_outlined,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('Không tìm thấy bản tin'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('Quay lại'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // News loaded, rebuild to show it
+                print(
+                  'NewsDetailUserScreen: News loaded successfully, triggering rebuild',
+                );
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  controller.update();
+                });
+
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Đang hiển thị...'),
+                    ],
+                  ),
+                );
+              },
+            ),
           );
         }
 
@@ -431,34 +521,53 @@ class _NewsDetailUserScreenState extends State<NewsDetailUserScreen> {
   }
 
   // Open video directly in YouTube
-  void _openVideoUrl(String videoUrl) {
-    _openYouTube(videoUrl);
+  Future<void> _openVideoUrl(String videoUrl) async {
+    await _openYouTube(videoUrl);
   }
 
   // Open video in YouTube
-  void _openYouTube(String videoUrl) {
-    Get.snackbar(
-      'Mở YouTube',
-      'Đang mở video trên YouTube...',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red[100],
-      colorText: Colors.red[800],
-      duration: const Duration(seconds: 2),
-    );
-    // TODO: Implement url_launcher to open YouTube
+  Future<void> _openYouTube(String videoUrl) async {
+    try {
+      final Uri url = Uri.parse(videoUrl);
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        Get.snackbar(
+          'Lỗi',
+          'Không thể mở video. Vui lòng kiểm tra lại đường dẫn.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red[100],
+          colorText: Colors.red[800],
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Đã xảy ra lỗi khi mở video: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        duration: const Duration(seconds: 3),
+      );
+    }
   }
 
   // Share video
-  void _shareVideo(String videoUrl) {
-    Get.snackbar(
-      'Chia sẻ',
-      'Đã sao chép địa chỉ video',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green[100],
-      colorText: Colors.green[800],
-      duration: const Duration(seconds: 3),
-    );
-    // TODO: Implement share functionality
+  Future<void> _shareVideo(String videoUrl) async {
+    try {
+      final Uri url = Uri.parse(videoUrl);
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      Get.snackbar(
+        'Lỗi',
+        'Không thể chia sẻ video',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        duration: const Duration(seconds: 2),
+      );
+    }
   }
 
   Widget _buildInteractionSection(News news, NewsUserController controller) {

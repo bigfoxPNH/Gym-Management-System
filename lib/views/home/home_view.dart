@@ -7,6 +7,7 @@ import '../../routes/app_routes.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../features/ai_chat/widgets/draggable_ai_chat_button.dart';
 import '../../features/ai_chat/views/ai_chat_view.dart';
+import '../../models/news.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -47,9 +48,30 @@ class _HomeViewState extends State<HomeView> {
 
       if (mounted) {
         setState(() {
-          _latestNews = newsSnapshot.docs
-              .map((doc) => {'id': doc.id, ...doc.data()})
-              .toList();
+          _latestNews = newsSnapshot.docs.map((doc) {
+            final news = News.fromFirestore(doc);
+            // Serialize to a plain Map without Timestamp objects
+            return {
+              'id': news.id,
+              'title': news.title,
+              'type': news.type.name,
+              'images': news.images,
+              'description': news.description,
+              'detailImages': news.detailImages,
+              'videoUrl': news.videoUrl,
+              'interaction': {
+                'likes': news.interaction.likes,
+                'shares': news.interaction.shares,
+                'comments': news.interaction.comments,
+                'reports': news.interaction.reports,
+              },
+              'createdAt': news.createdAt.millisecondsSinceEpoch,
+              'updatedAt': news.updatedAt?.millisecondsSinceEpoch,
+              'authorId': news.authorId,
+              'authorName': news.authorName,
+              'isPublished': news.isPublished,
+            };
+          }).toList();
         });
       }
     } catch (e) {
@@ -86,9 +108,23 @@ class _HomeViewState extends State<HomeView> {
 
       if (mounted) {
         setState(() {
-          _popularMembershipCards = cardsSnapshot.docs
-              .map((doc) => {'id': doc.id, ...doc.data()})
-              .toList();
+          _popularMembershipCards = cardsSnapshot.docs.map((doc) {
+            final data = doc.data();
+            final result = {
+              ...data,
+              'id': doc.id, // Put id AFTER data to ensure it's not overridden
+            };
+            print(
+              'Loading card - Doc ID: ${doc.id}, Result ID: ${result['id']}',
+            );
+            return result;
+          }).toList();
+          print('Loaded ${_popularMembershipCards.length} membership cards');
+          for (var card in _popularMembershipCards) {
+            print(
+              'Card: ${card['cardName'] ?? card['name']} - ID in list: ${card['id']}',
+            );
+          }
         });
       }
     } catch (e) {
@@ -671,7 +707,7 @@ class _HomeViewState extends State<HomeView> {
     if (_latestNews.isEmpty) {
       // Skeleton loading
       return SizedBox(
-        height: 180,
+        height: 220,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 3,
@@ -683,7 +719,7 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return SizedBox(
-      height: 180,
+      height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: _latestNews.length,
@@ -716,7 +752,7 @@ class _HomeViewState extends State<HomeView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 100,
+              height: 120,
               color: Colors.grey[300],
               child: Center(
                 child: CircularProgressIndicator(
@@ -778,11 +814,15 @@ class _HomeViewState extends State<HomeView> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => Get.toNamed(AppRoutes.newsFeed),
+          onTap: () {
+            if (news['id'] != null) {
+              Get.toNamed('${AppRoutes.newsDetailUser}/${news['id']}');
+            }
+          },
           borderRadius: BorderRadius.circular(20),
           child: Container(
             width: 300,
-            height: 180, // Fixed height
+            height: 220, // Fixed height
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -812,12 +852,12 @@ class _HomeViewState extends State<HomeView> {
                           (news['detailImages'] as List).isNotEmpty)
                         Image.network(
                           news['detailImages'][0],
-                          height: 100,
+                          height: 120,
                           width: double.infinity,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(
-                              height: 100,
+                              height: 120,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
@@ -838,7 +878,7 @@ class _HomeViewState extends State<HomeView> {
                         )
                       else
                         Container(
-                          height: 100,
+                          height: 120,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Colors.pink[100]!, Colors.purple[100]!],
@@ -954,7 +994,7 @@ class _HomeViewState extends State<HomeView> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 0.85,
+        childAspectRatio: 1.0,
       ),
       itemCount: _popularExercises.length > 6 ? 6 : _popularExercises.length,
       itemBuilder: (context, index) {
@@ -1003,7 +1043,12 @@ class _HomeViewState extends State<HomeView> {
           borderRadius: BorderRadius.circular(20),
           child: InkWell(
             onTap: () {
-              Get.toNamed('/exercises');
+              if (exercise['id'] != null) {
+                Get.toNamed(
+                  AppRoutes.exercises,
+                  arguments: {'exerciseId': exercise['id']},
+                );
+              }
             },
             borderRadius: BorderRadius.circular(20),
             child: Column(
@@ -1213,15 +1258,45 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
+  String _getCardDurationText(Map<String, dynamic> card) {
+    final duration = card['duration'] ?? 0;
+    final durationType = card['durationType'] ?? 'months';
+
+    switch (durationType) {
+      case 'days':
+        return '$duration ngày';
+      case 'months':
+        return '$duration tháng';
+      case 'years':
+        return '$duration năm';
+      case 'custom':
+        if (card['customEndDate'] != null) {
+          final endDate = DateTime.fromMillisecondsSinceEpoch(
+            card['customEndDate'],
+          );
+          return 'Đến ${DateFormat('dd/MM/yyyy').format(endDate)}';
+        }
+        return '$duration ngày';
+      default:
+        return '$duration ngày';
+    }
+  }
+
   Widget _buildMembershipCard(Map<String, dynamic> card) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          Get.toNamed(
-            AppRoutes.membershipPurchase,
-            arguments: {'selectedCardId': card['id']},
-          );
+          print('Card clicked: ${card['cardName']} - ID: ${card['id']}');
+          if (card['id'] != null && card['id'].toString().isNotEmpty) {
+            print('Navigating with ID: ${card['id']}');
+            Get.toNamed(
+              AppRoutes.membershipPurchase,
+              arguments: {'selectedCardId': card['id']},
+            );
+          } else {
+            print('Card ID is null or empty!');
+          }
         },
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -1253,7 +1328,7 @@ class _HomeViewState extends State<HomeView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                card['name'] ?? 'Gói tập',
+                card['cardName'] ?? card['name'] ?? 'Gói tập',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -1266,7 +1341,7 @@ class _HomeViewState extends State<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${card['duration'] ?? 0} ${card['durationUnit'] ?? 'ngày'}',
+                    _getCardDurationText(card),
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   const SizedBox(height: 4),

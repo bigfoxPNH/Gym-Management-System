@@ -7,8 +7,40 @@ import '../../widgets/loading_overlay.dart';
 import '../../widgets/loading_button.dart';
 import 'simple_exercise_detail_view.dart';
 
-class ExerciseListView extends StatelessWidget {
+class ExerciseListView extends StatefulWidget {
   const ExerciseListView({Key? key}) : super(key: key);
+
+  @override
+  State<ExerciseListView> createState() => _ExerciseListViewState();
+}
+
+class _ExerciseListViewState extends State<ExerciseListView> {
+  @override
+  void initState() {
+    super.initState();
+    // Check if there's an exerciseId in arguments
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = Get.arguments;
+      if (args != null && args is Map && args['exerciseId'] != null) {
+        final controller = Get.find<ExerciseController>();
+        // Wait for exercises to load
+        Future.delayed(const Duration(milliseconds: 500), () {
+          final exercise = controller.exercises.firstWhereOrNull(
+            (e) => e.id == args['exerciseId'],
+          );
+          if (exercise != null && mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    SimpleExerciseDetailView(exercise: exercise),
+              ),
+            );
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
