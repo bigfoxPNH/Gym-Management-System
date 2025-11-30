@@ -394,163 +394,188 @@ class _HomeViewState extends State<HomeView> {
                   // Admin Features (chỉ hiển thị cho admin)
                   if (user.isAdmin) ...[
                     _buildSectionHeader('Quản Trị Viên', Colors.red),
-                    const SizedBox(height: 12),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 0.95,
-                      children: [
-                        _buildMoMoIconButton(
-                          icon: Icons.fitness_center,
-                          label: 'Bài Tập',
-                          color: Colors.red,
-                          onTap: () =>
-                              Get.toNamed('/admin/exercise-management'),
-                          index: 0,
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.red.shade50, Colors.white],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        _buildMoMoIconButton(
-                          icon: Icons.card_membership,
-                          label: 'Thẻ Tập',
-                          color: Colors.deepPurple,
-                          onTap: () =>
-                              Get.toNamed('/admin/membership-card-management'),
-                          index: 1,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.people,
-                          label: 'Thành Viên',
-                          color: Colors.indigo,
-                          onTap: () => Get.toNamed(AppRoutes.memberManagement),
-                          index: 2,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.schedule,
-                          label: 'Lịch Trình',
-                          color: Colors.orange,
-                          onTap: () =>
-                              Get.toNamed(AppRoutes.scheduleManagement),
-                          index: 3,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.check_circle,
-                          label: 'Check In/Out',
-                          color: Colors.green,
-                          onTap: () => Get.toNamed(AppRoutes.checkinCheckout),
-                          index: 4,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.analytics,
-                          label: 'Thống Kê',
-                          color: Colors.teal,
-                          onTap: () => Get.toNamed(AppRoutes.adminStatistics),
-                          index: 5,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.article,
-                          label: 'Bản Tin',
-                          color: Colors.blue,
-                          onTap: () => Get.toNamed('/admin/news-management'),
-                          index: 6,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.fitness_center,
-                          label: 'Quản Lý PT',
-                          color: const Color(0xFFFF9800),
-                          onTap: () => Get.toNamed(AppRoutes.trainerManagement),
-                          index: 7,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.shopping_bag_rounded,
-                          label: 'Sản Phẩm',
-                          color: const Color(0xFF9C27B0),
-                          onTap: () => Get.toNamed(AppRoutes.productManagement),
-                          index: 8,
-                        ),
-                        _buildMoMoIconButton(
-                          icon: Icons.receipt_long_rounded,
-                          label: 'Quản Lý Đơn Mua',
-                          color: const Color(0xFFE91E63),
-                          onTap: () => Get.toNamed(AppRoutes.orderManagement),
-                          index: 9,
-                        ),
-                      ],
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 4,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 0.85,
+                        children: [
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/exercise.png',
+                            label: 'Quản Lý Bài Tập',
+                            onTap: () =>
+                                Get.toNamed('/admin/exercise-management'),
+                            index: 0,
+                          ),
+                          _buildImageIconButton(
+                            imagePath:
+                                'assets/images/admin/membership_card.png',
+                            label: 'Quản Lý Thẻ Tập',
+                            onTap: () => Get.toNamed(
+                              '/admin/membership-card-management',
+                            ),
+                            index: 1,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/manager_member.png',
+                            label: 'Quản Lý Thành Viên',
+                            onTap: () =>
+                                Get.toNamed(AppRoutes.memberManagement),
+                            index: 2,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/user_schedule.png',
+                            label: 'Quản Lý Lịch Trình',
+                            onTap: () =>
+                                Get.toNamed(AppRoutes.scheduleManagement),
+                            index: 3,
+                          ),
+                          _buildImageIconButton(
+                            imagePath:
+                                'assets/images/admin/checkin_checkout.png',
+                            label: 'Check In/Out',
+                            onTap: () => Get.toNamed(AppRoutes.checkinCheckout),
+                            index: 4,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/baocaothongke.png',
+                            label: 'Thống Kê',
+                            onTap: () => Get.toNamed(AppRoutes.adminStatistics),
+                            index: 5,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/news.png',
+                            label: 'Quản Lý Bản Tin',
+                            onTap: () => Get.toNamed('/admin/news-management'),
+                            index: 6,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/manager_pt.png',
+                            label: 'Quản Lý PT',
+                            onTap: () =>
+                                Get.toNamed(AppRoutes.trainerManagement),
+                            index: 7,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/manager_goods.png',
+                            label: 'Quản Lý Sản Phẩm',
+                            onTap: () =>
+                                Get.toNamed(AppRoutes.productManagement),
+                            index: 8,
+                          ),
+                          _buildImageIconButton(
+                            imagePath: 'assets/images/admin/purchase_order.png',
+                            label: 'Quản lý Đơn Mua',
+                            onTap: () => Get.toNamed(AppRoutes.orderManagement),
+                            index: 9,
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 24),
                   ],
 
                   // Quick Actions (cho tất cả users)
                   _buildSectionHeader('Dịch Vụ', const Color(0xFF2196F3)),
-                  const SizedBox(height: 12),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.95,
-                    children: [
-                      _buildMoMoIconButton(
-                        icon: Icons.fitness_center_rounded,
-                        label: 'Kho Bài Tập',
-                        color: const Color(0xFFFF6B6B),
-                        onTap: () => Get.toNamed('/exercises'),
-                        index: 0,
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue.shade50, Colors.white],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      _buildMoMoIconButton(
-                        icon: Icons.credit_card_rounded,
-                        label: 'Thẻ Của Tôi',
-                        color: const Color(0xFF4ECB71),
-                        onTap: () => Get.toNamed(AppRoutes.myMembershipCards),
-                        index: 1,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.qr_code_scanner_rounded,
-                        label: 'Xuất Thẻ',
-                        color: const Color(0xFF4A90E2),
-                        onTap: () =>
-                            Get.toNamed(AppRoutes.membershipCardExport),
-                        index: 2,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.event_note_rounded,
-                        label: 'Lịch Tập',
-                        color: const Color(0xFF26C6DA),
-                        onTap: () =>
-                            Get.toNamed(AppRoutes.userScheduleSelection),
-                        index: 3,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.shopping_bag_rounded,
-                        label: 'Mua Thẻ',
-                        color: const Color(0xFF7B68EE),
-                        onTap: () => Get.toNamed(AppRoutes.membershipPurchase),
-                        index: 4,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.newspaper_rounded,
-                        label: 'Bảng Tin',
-                        color: const Color(0xFF00ACC1),
-                        onTap: () => Get.toNamed(AppRoutes.newsFeed),
-                        index: 5,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.person_pin_rounded,
-                        label: 'Thuê PT',
-                        color: const Color(0xFF9C27B0),
-                        onTap: () => Get.toNamed(AppRoutes.trainerRental),
-                        index: 6,
-                      ),
-                      _buildMoMoIconButton(
-                        icon: Icons.shopping_cart_rounded,
-                        label: 'Mua Sản Phẩm',
-                        color: const Color(0xFFE91E63),
-                        onTap: () => Get.toNamed(AppRoutes.userProducts),
-                        index: 7,
-                      ),
-                    ],
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 4,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.85,
+                      children: [
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/khobaitap.png',
+                          label: 'Kho Bài Tập',
+                          onTap: () => Get.toNamed('/exercises'),
+                          index: 0,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/thecuatoi.png',
+                          label: 'Thẻ Của Tôi',
+                          onTap: () => Get.toNamed(AppRoutes.myMembershipCards),
+                          index: 1,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/xuatthetap.png',
+                          label: 'Xuất Thẻ',
+                          onTap: () =>
+                              Get.toNamed(AppRoutes.membershipCardExport),
+                          index: 2,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/lichtap.png',
+                          label: 'Lịch Tập',
+                          onTap: () =>
+                              Get.toNamed(AppRoutes.userScheduleSelection),
+                          index: 3,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/muathetap.png',
+                          label: 'Mua Thẻ Tập',
+                          onTap: () =>
+                              Get.toNamed(AppRoutes.membershipPurchase),
+                          index: 4,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/bangtin.png',
+                          label: 'Bảng Tin',
+                          onTap: () => Get.toNamed(AppRoutes.newsFeed),
+                          index: 5,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/thuept.png',
+                          label: 'Thuê PT',
+                          onTap: () => Get.toNamed(AppRoutes.trainerRental),
+                          index: 6,
+                        ),
+                        _buildImageIconButton(
+                          imagePath: 'assets/images/user/muasanpham.png',
+                          label: 'Mua Sản Phẩm',
+                          onTap: () => Get.toNamed(AppRoutes.userProducts),
+                          index: 7,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 24),
 
@@ -690,6 +715,89 @@ class _HomeViewState extends State<HomeView> {
                     color: Colors.black87,
                     fontWeight: FontWeight.w600,
                     letterSpacing: -0.2,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImageIconButton({
+    required String imagePath,
+    required String label,
+    required VoidCallback onTap,
+    int index = 0,
+  }) {
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 300 + (index * 60)),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.scale(
+          scale: 0.7 + (0.3 * value),
+          child: Opacity(opacity: value, child: child),
+        );
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 4),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey.shade400,
+                          size: 32,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: Colors.grey.shade800,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,
