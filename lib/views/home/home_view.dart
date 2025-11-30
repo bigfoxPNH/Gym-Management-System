@@ -536,7 +536,7 @@ class _HomeViewState extends State<HomeView> {
                           index: 1,
                         ),
                         _buildImageIconButton(
-                          imagePath: 'assets/images/user/xuatthetap.png',
+                          imagePath: 'assets/images/user/xuatthe.png',
                           label: 'Xuất Thẻ',
                           onTap: () =>
                               Get.toNamed(AppRoutes.membershipCardExport),
