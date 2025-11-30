@@ -14,6 +14,10 @@ class OrderHistoryView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Get.back(),
+        ),
         title: const Text(
           'Đơn hàng của tôi',
           style: TextStyle(fontWeight: FontWeight.bold),

@@ -5,6 +5,7 @@ import 'package:gympro/controllers/shopping_cart_controller.dart';
 import 'package:gympro/controllers/order_controller.dart';
 import 'package:gympro/models/order.dart' as order_model;
 import 'package:gympro/models/shipping_address.dart';
+import 'order_history_view.dart';
 
 class CheckoutView extends StatefulWidget {
   const CheckoutView({super.key});
@@ -437,7 +438,7 @@ class _CheckoutViewState extends State<CheckoutView> {
     );
 
     if (orderId != null) {
-      Get.offAllNamed('/user/orders');
+      Get.off(() => const OrderHistoryView());
     }
   }
 }

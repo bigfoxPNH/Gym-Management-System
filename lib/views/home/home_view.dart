@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/auth_controller.dart';
 import '../../routes/app_routes.dart';
+import '../../models/product.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../features/ai_chat/widgets/draggable_ai_chat_button.dart';
 import '../../features/ai_chat/views/ai_chat_view.dart';
@@ -23,6 +24,7 @@ class _HomeViewState extends State<HomeView> {
   List<Map<String, dynamic>> _latestNews = [];
   List<Map<String, dynamic>> _popularExercises = [];
   List<Map<String, dynamic>> _popularMembershipCards = [];
+  List<Map<String, dynamic>> _popularProducts = [];
   String _searchQuery = '';
 
   @override
@@ -69,11 +71,21 @@ class _HomeViewState extends State<HomeView> {
     }).toList();
   }
 
+  List<Map<String, dynamic>> _getFilteredProducts() {
+    if (_searchQuery.isEmpty) return _popularProducts;
+    return _popularProducts.where((product) {
+      final name = (product['name'] ?? '').toString().toLowerCase();
+      final category = (product['category'] ?? '').toString().toLowerCase();
+      return name.contains(_searchQuery) || category.contains(_searchQuery);
+    }).toList();
+  }
+
   Future<void> _loadDataAsync() async {
     // Load data asynchronously in background
     _loadNews();
     _loadExercises();
     _loadMembershipCards();
+    _loadPopularProducts();
   }
 
   Future<void> _loadNews() async {
@@ -167,6 +179,73 @@ class _HomeViewState extends State<HomeView> {
       }
     } catch (e) {
       print('Error loading membership cards: $e');
+    }
+  }
+
+  Future<void> _loadPopularProducts() async {
+    try {
+      // Lấy tất cả orders để tính tổng số lượng mua của mỗi sản phẩm
+      final ordersSnapshot = await _firestore.collection('orders').get();
+
+      // Map để lưu tổng số lượng mua theo productId
+      final Map<String, int> productQuantities = {};
+
+      for (var orderDoc in ordersSnapshot.docs) {
+        final orderData = orderDoc.data();
+        final items = orderData['items'] as List<dynamic>? ?? [];
+
+        for (var item in items) {
+          final productId = item['productId'] as String?;
+          final quantity = item['quantity'] as int? ?? 0;
+
+          if (productId != null && productId.isNotEmpty) {
+            productQuantities[productId] =
+                (productQuantities[productId] ?? 0) + quantity;
+          }
+        }
+      }
+
+      // Sắp xếp theo số lượng giảm dần và lấy top 5
+      final topProductIds = productQuantities.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      final top5ProductIds = topProductIds.take(5).map((e) => e.key).toList();
+
+      if (top5ProductIds.isEmpty) {
+        if (mounted) {
+          setState(() {
+            _popularProducts = [];
+          });
+        }
+        return;
+      }
+
+      // Lấy thông tin chi tiết của 5 sản phẩm
+      final productsSnapshot = await _firestore
+          .collection('products')
+          .where(FieldPath.documentId, whereIn: top5ProductIds)
+          .get();
+
+      if (mounted) {
+        final productsList = productsSnapshot.docs.map((doc) {
+          return {
+            'id': doc.id,
+            ...doc.data(),
+            'totalSold': productQuantities[doc.id] ?? 0,
+          };
+        }).toList();
+
+        // Sắp xếp lại theo thứ tự số lượng bán
+        productsList.sort(
+          (a, b) => (b['totalSold'] as int).compareTo(a['totalSold'] as int),
+        );
+
+        setState(() {
+          _popularProducts = productsList;
+        });
+      }
+    } catch (e) {
+      print('Error loading popular products: $e');
     }
   }
 
@@ -670,6 +749,15 @@ class _HomeViewState extends State<HomeView> {
                     _buildSectionHeader('Bài Tập Phổ Biến', Colors.orange),
                     const SizedBox(height: 12),
                     _buildPopularExercisesSection(),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Popular Products
+                  if (_sectionMatchesSearch('Các Sản Phẩm Phổ Biến') ||
+                      _getFilteredProducts().isNotEmpty) ...[
+                    _buildSectionHeader('Các Sản Phẩm Phổ Biến', Colors.purple),
+                    const SizedBox(height: 12),
+                    _buildPopularProductsSection(),
                     const SizedBox(height: 24),
                   ],
 
@@ -1593,6 +1681,251 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopularProductsSection() {
+    if (_popularProducts.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(child: Text('Chưa có sản phẩm phổ biến')),
+      );
+    }
+
+    final showAll = _sectionMatchesSearch('Các Sản Phẩm Phổ Biến');
+    final displayProducts = showAll ? _popularProducts : _getFilteredProducts();
+
+    return SizedBox(
+      height: 270,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: displayProducts.length > 5 ? 5 : displayProducts.length,
+        itemBuilder: (context, index) {
+          final product = displayProducts[index];
+          return _buildProductCard(product, index);
+        },
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Map<String, dynamic> product, int index) {
+    final formatter = NumberFormat('#,###', 'vi_VN');
+    final imageUrl =
+        (product['images'] != null && (product['images'] as List).isNotEmpty)
+        ? product['images'][0]
+        : '';
+    final name = product['name'] ?? 'Sản phẩm';
+    final originalPrice = product['originalPrice'] ?? 0;
+    final price = product['sellingPrice'] ?? 0;
+    final totalSold = product['totalSold'] ?? 0;
+
+    return TweenAnimationBuilder(
+      duration: Duration(milliseconds: 400 + (index * 100)),
+      tween: Tween<double>(begin: 0, end: 1),
+      builder: (context, double value, child) {
+        return Transform.translate(
+          offset: Offset(30 * (1 - value), 0),
+          child: Opacity(opacity: value, child: child),
+        );
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            if (product['id'] != null) {
+              Get.toNamed(
+                AppRoutes.userProducts,
+                arguments: {'productId': product['id']},
+              );
+            }
+          },
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: 180,
+            margin: const EdgeInsets.only(right: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image section
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
+                  child: Stack(
+                    children: [
+                      imageUrl.isNotEmpty
+                          ? Image.network(
+                              imageUrl,
+                              height: 130,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 130,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.purple[100]!,
+                                        Colors.purple[50]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.shopping_bag,
+                                    size: 48,
+                                    color: Colors.purple,
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
+                              height: 130,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.purple[100]!,
+                                    Colors.purple[50]!,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.shopping_bag,
+                                size: 48,
+                                color: Colors.purple,
+                              ),
+                            ),
+                      // Badge hiển thị số lượng đã bán
+                      if (totalSold > 0)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.red[600],
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              'Đã bán $totalSold',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                // Content section
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (product['category'] != null &&
+                                product['category'].toString().isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  product['category'],
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.purple[700],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            const SizedBox(height: 4),
+                            if (originalPrice > price)
+                              Text(
+                                '${formatter.format(originalPrice)}đ',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[500],
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: Colors.grey[500],
+                                  decorationThickness: 2,
+                                ),
+                              ),
+                            Text(
+                              '${formatter.format(price)}đ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Colors.purple,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -544,6 +544,8 @@ class _OrderDetailsDialog extends StatelessWidget {
       runSpacing: 8,
       children: statuses.map((status) {
         final isCurrentStatus = order.status == status;
+        final isCancelled = status == order_model.OrderStatus.cancelled;
+
         return ElevatedButton(
           onPressed: isCurrentStatus
               ? null
@@ -552,7 +554,9 @@ class _OrderDetailsDialog extends StatelessWidget {
                   Navigator.pop(context);
                 },
           style: ElevatedButton.styleFrom(
-            backgroundColor: isCurrentStatus ? Colors.grey : Colors.blue,
+            backgroundColor: isCurrentStatus
+                ? Colors.grey
+                : (isCancelled ? Colors.red : Colors.blue),
             foregroundColor: Colors.white,
           ),
           child: Text(status.displayName),
