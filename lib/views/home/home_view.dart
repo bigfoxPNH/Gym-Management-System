@@ -23,12 +23,50 @@ class _HomeViewState extends State<HomeView> {
   List<Map<String, dynamic>> _latestNews = [];
   List<Map<String, dynamic>> _popularExercises = [];
   List<Map<String, dynamic>> _popularMembershipCards = [];
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     // Load data immediately without blocking UI
     _loadDataAsync();
+  }
+
+  bool _matchesSearch(String label) {
+    if (_searchQuery.isEmpty) return true;
+    return label.toLowerCase().contains(_searchQuery);
+  }
+
+  bool _sectionMatchesSearch(String sectionTitle) {
+    if (_searchQuery.isEmpty) return true;
+    return sectionTitle.toLowerCase().contains(_searchQuery);
+  }
+
+  List<Map<String, dynamic>> _getFilteredNews() {
+    if (_searchQuery.isEmpty) return _latestNews;
+    return _latestNews.where((news) {
+      final title = (news['title'] ?? '').toString().toLowerCase();
+      final description = (news['description'] ?? '').toString().toLowerCase();
+      return title.contains(_searchQuery) || description.contains(_searchQuery);
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> _getFilteredExercises() {
+    if (_searchQuery.isEmpty) return _popularExercises;
+    return _popularExercises.where((exercise) {
+      final name = (exercise['tenBaiTap'] ?? '').toString().toLowerCase();
+      final muscleGroup = (exercise['nhomCo'] ?? '').toString().toLowerCase();
+      return name.contains(_searchQuery) || muscleGroup.contains(_searchQuery);
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> _getFilteredMembershipCards() {
+    if (_searchQuery.isEmpty) return _popularMembershipCards;
+    return _popularMembershipCards.where((card) {
+      final name = (card['name'] ?? '').toString().toLowerCase();
+      final description = (card['description'] ?? '').toString().toLowerCase();
+      return name.contains(_searchQuery) || description.contains(_searchQuery);
+    }).toList();
   }
 
   Future<void> _loadDataAsync() async {
@@ -267,7 +305,7 @@ class _HomeViewState extends State<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,18 +327,6 @@ class _HomeViewState extends State<HomeView> {
                             ),
                           ),
                         ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_outlined,
-                          color: Colors.white,
-                          size: 28,
-                        ),
                       ),
                     ],
                   ),
@@ -340,23 +366,12 @@ class _HomeViewState extends State<HomeView> {
                               isDense: true,
                             ),
                             onChanged: (value) {
-                              // Tự động tìm kiếm khi gõ (debounce)
-                              if (value.length >= 2) {
-                                Future.delayed(
-                                  const Duration(milliseconds: 500),
-                                  () {
-                                    if (_searchController.text == value &&
-                                        value.isNotEmpty) {
-                                      Get.toNamed(
-                                        '/exercises',
-                                        arguments: {'search': value},
-                                      );
-                                    }
-                                  },
-                                );
-                              }
+                              setState(() {
+                                _searchQuery = value.toLowerCase().trim();
+                              });
                             },
                             onSubmitted: (value) {
+                              // Giữ nguyên cho người dùng có thể submit để xem thêm
                               if (value.isNotEmpty) {
                                 Get.toNamed(
                                   '/exercises',
@@ -370,7 +385,9 @@ class _HomeViewState extends State<HomeView> {
                           GestureDetector(
                             onTap: () {
                               _searchController.clear();
-                              setState(() {});
+                              setState(() {
+                                _searchQuery = '';
+                              });
                             },
                             child: const Icon(
                               Icons.clear,
@@ -393,212 +410,266 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   // Admin Features (chỉ hiển thị cho admin)
                   if (user.isAdmin) ...[
-                    _buildSectionHeader('Quản Trị Viên', Colors.red),
-                    const SizedBox(height: 16),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.red.shade50, Colors.white],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.red.withOpacity(0.08),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 4,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 0.85,
+                    () {
+                      final adminItems = [
+                        {
+                          'label': 'Quản Lý Bài Tập',
+                          'imagePath': 'assets/images/admin/exercise.png',
+                          'route': '/admin/exercise-management',
+                        },
+                        {
+                          'label': 'Quản Lý Thẻ Tập',
+                          'imagePath':
+                              'assets/images/admin/membership_card.png',
+                          'route': '/admin/membership-card-management',
+                        },
+                        {
+                          'label': 'Quản Lý Thành Viên',
+                          'imagePath': 'assets/images/admin/manager_member.png',
+                          'route': AppRoutes.memberManagement,
+                        },
+                        {
+                          'label': 'Quản Lý Lịch Trình',
+                          'imagePath': 'assets/images/admin/user_schedule.png',
+                          'route': AppRoutes.scheduleManagement,
+                        },
+                        {
+                          'label': 'Check In/Out',
+                          'imagePath':
+                              'assets/images/admin/checkin_checkout.png',
+                          'route': AppRoutes.checkinCheckout,
+                        },
+                        {
+                          'label': 'Thống Kê',
+                          'imagePath': 'assets/images/admin/baocaothongke.png',
+                          'route': AppRoutes.adminStatistics,
+                        },
+                        {
+                          'label': 'Quản Lý Bản Tin',
+                          'imagePath': 'assets/images/admin/news.png',
+                          'route': '/admin/news-management',
+                        },
+                        {
+                          'label': 'Quản Lý PT',
+                          'imagePath': 'assets/images/admin/manager_pt.png',
+                          'route': AppRoutes.trainerManagement,
+                        },
+                        {
+                          'label': 'Quản Lý Sản Phẩm',
+                          'imagePath': 'assets/images/admin/manager_goods.png',
+                          'route': AppRoutes.productManagement,
+                        },
+                        {
+                          'label': 'Quản lý Đơn Mua',
+                          'imagePath': 'assets/images/admin/purchase_order.png',
+                          'route': AppRoutes.orderManagement,
+                        },
+                      ];
+
+                      // Nếu tìm được tiêu đề thì hiển thị tất cả
+                      final showAll = _sectionMatchesSearch(
+                        'Quản Trị Viên Admin',
+                      );
+                      final filteredItems = showAll
+                          ? adminItems
+                          : adminItems
+                                .where(
+                                  (item) =>
+                                      _matchesSearch(item['label'] as String),
+                                )
+                                .toList();
+
+                      if (filteredItems.isEmpty) return const SizedBox.shrink();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/exercise.png',
-                            label: 'Quản Lý Bài Tập',
-                            onTap: () =>
-                                Get.toNamed('/admin/exercise-management'),
-                            index: 0,
-                          ),
-                          _buildImageIconButton(
-                            imagePath:
-                                'assets/images/admin/membership_card.png',
-                            label: 'Quản Lý Thẻ Tập',
-                            onTap: () => Get.toNamed(
-                              '/admin/membership-card-management',
+                          _buildSectionHeader('Quản Trị Viên', Colors.red),
+                          const SizedBox(height: 16),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.red.shade50, Colors.white],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.red.withOpacity(0.08),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            index: 1,
+                            padding: const EdgeInsets.all(16),
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 16,
+                                    childAspectRatio: 0.85,
+                                  ),
+                              itemCount: filteredItems.length,
+                              itemBuilder: (context, index) {
+                                final item = filteredItems[index];
+                                return _buildImageIconButton(
+                                  imagePath: item['imagePath'] as String,
+                                  label: item['label'] as String,
+                                  onTap: () =>
+                                      Get.toNamed(item['route'] as String),
+                                  index: index,
+                                );
+                              },
+                            ),
                           ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/manager_member.png',
-                            label: 'Quản Lý Thành Viên',
-                            onTap: () =>
-                                Get.toNamed(AppRoutes.memberManagement),
-                            index: 2,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/user_schedule.png',
-                            label: 'Quản Lý Lịch Trình',
-                            onTap: () =>
-                                Get.toNamed(AppRoutes.scheduleManagement),
-                            index: 3,
-                          ),
-                          _buildImageIconButton(
-                            imagePath:
-                                'assets/images/admin/checkin_checkout.png',
-                            label: 'Check In/Out',
-                            onTap: () => Get.toNamed(AppRoutes.checkinCheckout),
-                            index: 4,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/baocaothongke.png',
-                            label: 'Thống Kê',
-                            onTap: () => Get.toNamed(AppRoutes.adminStatistics),
-                            index: 5,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/news.png',
-                            label: 'Quản Lý Bản Tin',
-                            onTap: () => Get.toNamed('/admin/news-management'),
-                            index: 6,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/manager_pt.png',
-                            label: 'Quản Lý PT',
-                            onTap: () =>
-                                Get.toNamed(AppRoutes.trainerManagement),
-                            index: 7,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/manager_goods.png',
-                            label: 'Quản Lý Sản Phẩm',
-                            onTap: () =>
-                                Get.toNamed(AppRoutes.productManagement),
-                            index: 8,
-                          ),
-                          _buildImageIconButton(
-                            imagePath: 'assets/images/admin/purchase_order.png',
-                            label: 'Quản lý Đơn Mua',
-                            onTap: () => Get.toNamed(AppRoutes.orderManagement),
-                            index: 9,
-                          ),
+                          const SizedBox(height: 24),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                      );
+                    }(),
                   ],
 
                   // Quick Actions (cho tất cả users)
-                  _buildSectionHeader('Dịch Vụ', const Color(0xFF2196F3)),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade50, Colors.white],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.85,
+                  () {
+                    final userItems = [
+                      {
+                        'label': 'Kho Bài Tập',
+                        'imagePath': 'assets/images/user/khobaitap.png',
+                        'route': '/exercises',
+                      },
+                      {
+                        'label': 'Thẻ Của Tôi',
+                        'imagePath': 'assets/images/user/thecuatoi.png',
+                        'route': AppRoutes.myMembershipCards,
+                      },
+                      {
+                        'label': 'Xuất Thẻ',
+                        'imagePath': 'assets/images/user/xuatthe.png',
+                        'route': AppRoutes.membershipCardExport,
+                      },
+                      {
+                        'label': 'Lịch Tập',
+                        'imagePath': 'assets/images/user/lichtap.png',
+                        'route': AppRoutes.userScheduleSelection,
+                      },
+                      {
+                        'label': 'Mua Thẻ Tập',
+                        'imagePath': 'assets/images/user/muathetap.png',
+                        'route': AppRoutes.membershipPurchase,
+                      },
+                      {
+                        'label': 'Bảng Tin',
+                        'imagePath': 'assets/images/user/bangtin.png',
+                        'route': AppRoutes.newsFeed,
+                      },
+                      {
+                        'label': 'Thuê PT',
+                        'imagePath': 'assets/images/user/thuept.png',
+                        'route': AppRoutes.trainerRental,
+                      },
+                      {
+                        'label': 'Mua Sản Phẩm',
+                        'imagePath': 'assets/images/user/muasanpham.png',
+                        'route': AppRoutes.userProducts,
+                      },
+                    ];
+
+                    // Nếu tìm được tiêu đề thì hiển thị tất cả
+                    final showAll = _sectionMatchesSearch('Dịch Vụ');
+                    final filteredItems = showAll
+                        ? userItems
+                        : userItems
+                              .where(
+                                (item) =>
+                                    _matchesSearch(item['label'] as String),
+                              )
+                              .toList();
+
+                    if (filteredItems.isEmpty) return const SizedBox.shrink();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/khobaitap.png',
-                          label: 'Kho Bài Tập',
-                          onTap: () => Get.toNamed('/exercises'),
-                          index: 0,
+                        _buildSectionHeader('Dịch Vụ', const Color(0xFF2196F3)),
+                        const SizedBox(height: 16),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.blue.shade50, Colors.white],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.blue.withOpacity(0.08),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.85,
+                                ),
+                            itemCount: filteredItems.length,
+                            itemBuilder: (context, index) {
+                              final item = filteredItems[index];
+                              return _buildImageIconButton(
+                                imagePath: item['imagePath'] as String,
+                                label: item['label'] as String,
+                                onTap: () =>
+                                    Get.toNamed(item['route'] as String),
+                                index: index,
+                              );
+                            },
+                          ),
                         ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/thecuatoi.png',
-                          label: 'Thẻ Của Tôi',
-                          onTap: () => Get.toNamed(AppRoutes.myMembershipCards),
-                          index: 1,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/xuatthe.png',
-                          label: 'Xuất Thẻ',
-                          onTap: () =>
-                              Get.toNamed(AppRoutes.membershipCardExport),
-                          index: 2,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/lichtap.png',
-                          label: 'Lịch Tập',
-                          onTap: () =>
-                              Get.toNamed(AppRoutes.userScheduleSelection),
-                          index: 3,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/muathetap.png',
-                          label: 'Mua Thẻ Tập',
-                          onTap: () =>
-                              Get.toNamed(AppRoutes.membershipPurchase),
-                          index: 4,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/bangtin.png',
-                          label: 'Bảng Tin',
-                          onTap: () => Get.toNamed(AppRoutes.newsFeed),
-                          index: 5,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/thuept.png',
-                          label: 'Thuê PT',
-                          onTap: () => Get.toNamed(AppRoutes.trainerRental),
-                          index: 6,
-                        ),
-                        _buildImageIconButton(
-                          imagePath: 'assets/images/user/muasanpham.png',
-                          label: 'Mua Sản Phẩm',
-                          onTap: () => Get.toNamed(AppRoutes.userProducts),
-                          index: 7,
-                        ),
+                        const SizedBox(height: 24),
                       ],
-                    ),
-                  ),
+                    );
+                  }(),
                   const SizedBox(height: 24),
 
                   // Latest News Section
-                  _buildSectionHeader(
-                    'Tin Tức & Sự Kiện',
-                    const Color(0xFFFF6B9D),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildNewsSection(),
-                  const SizedBox(height: 24),
+                  if (_sectionMatchesSearch('Tin Tức Sự Kiện Bảng Tin') ||
+                      _getFilteredNews().isNotEmpty) ...[
+                    _buildSectionHeader(
+                      'Tin Tức & Sự Kiện',
+                      const Color(0xFFFF6B9D),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildNewsSection(),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Popular Exercises
-                  _buildSectionHeader('Bài Tập Phổ Biến', Colors.orange),
-                  const SizedBox(height: 12),
-                  _buildPopularExercisesSection(),
-                  const SizedBox(height: 24),
+                  if (_sectionMatchesSearch('Bài Tập Phổ Biến') ||
+                      _getFilteredExercises().isNotEmpty) ...[
+                    _buildSectionHeader('Bài Tập Phổ Biến', Colors.orange),
+                    const SizedBox(height: 12),
+                    _buildPopularExercisesSection(),
+                    const SizedBox(height: 24),
+                  ],
 
                   // Popular Membership Cards
-                  _buildSectionHeader('Gói Tập Phổ Biến', Colors.green),
-                  const SizedBox(height: 12),
-                  _buildPopularCardsSection(),
-                  const SizedBox(height: 24),
+                  if (_sectionMatchesSearch('Gói Tập Phổ Biến Thẻ') ||
+                      _getFilteredMembershipCards().isNotEmpty) ...[
+                    _buildSectionHeader('Gói Tập Phổ Biến', Colors.green),
+                    const SizedBox(height: 12),
+                    _buildPopularCardsSection(),
+                    const SizedBox(height: 24),
+                  ],
                 ],
               ),
             ),
@@ -826,13 +897,17 @@ class _HomeViewState extends State<HomeView> {
       );
     }
 
+    // Nếu tìm được tiêu đề thì hiển thị tất cả
+    final showAll = _sectionMatchesSearch('Tin Tức Sự Kiện Bảng Tin');
+    final displayNews = showAll ? _latestNews : _getFilteredNews();
+
     return SizedBox(
       height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: _latestNews.length,
+        itemCount: displayNews.length,
         itemBuilder: (context, index) {
-          final news = _latestNews[index];
+          final news = displayNews[index];
           return _buildNewsCard(news);
         },
       ),
@@ -1095,6 +1170,12 @@ class _HomeViewState extends State<HomeView> {
       );
     }
 
+    // Nếu tìm được tiêu đề thì hiển thị tất cả
+    final showAll = _sectionMatchesSearch('Bài Tập Phổ Biến');
+    final displayExercises = showAll
+        ? _popularExercises
+        : _getFilteredExercises();
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -1102,11 +1183,11 @@ class _HomeViewState extends State<HomeView> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.0,
+        childAspectRatio: 1.43,
       ),
-      itemCount: _popularExercises.length > 6 ? 6 : _popularExercises.length,
+      itemCount: displayExercises.length > 6 ? 6 : displayExercises.length,
       itemBuilder: (context, index) {
-        final exercise = _popularExercises[index];
+        final exercise = displayExercises[index];
         return _buildExerciseCard(exercise, index);
       },
     );
@@ -1353,13 +1434,19 @@ class _HomeViewState extends State<HomeView> {
       );
     }
 
+    // Nếu tìm được tiêu đề thì hiển thị tất cả
+    final showAll = _sectionMatchesSearch('Gói Tập Phổ Biến Thẻ');
+    final displayCards = showAll
+        ? _popularMembershipCards
+        : _getFilteredMembershipCards();
+
     return SizedBox(
       height: 120,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: _popularMembershipCards.length,
+        itemCount: displayCards.length,
         itemBuilder: (context, index) {
-          final card = _popularMembershipCards[index];
+          final card = displayCards[index];
           return _buildMembershipCard(card);
         },
       ),
