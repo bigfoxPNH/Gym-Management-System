@@ -135,7 +135,9 @@ class _AIChatViewState extends State<AIChatView>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.purple.shade400],
+          colors: [const Color(0xFF1E88E5), const Color(0xFF42A5F5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
@@ -147,11 +149,23 @@ class _AIChatViewState extends State<AIChatView>
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+            decoration: const BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Center(child: _buildRobotIcon(24)),
+            child: Center(
+              child: ClipOval(
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(
+                  'assets/images/chatai/chatbotai.png',
+                  width: 28,
+                  height: 28,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                  isAntiAlias: true,
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           const Expanded(
@@ -347,97 +361,4 @@ class _AIChatViewState extends State<AIChatView>
       ),
     );
   }
-
-  Widget _buildRobotIcon(double size) {
-    return CustomPaint(size: Size(size, size), painter: RobotIconPainter());
-  }
-}
-
-/// Custom painter vẽ icon robot AI
-class RobotIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final strokePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.06;
-
-    // Vẽ ăng-ten (antenna)
-    final antennaPath = Path()
-      ..moveTo(size.width * 0.5, size.height * 0.1)
-      ..lineTo(size.width * 0.5, size.height * 0.25);
-    canvas.drawPath(antennaPath, strokePaint);
-
-    // Vẽ chấm tròn trên ăng-ten
-    canvas.drawCircle(
-      Offset(size.width * 0.5, size.height * 0.05),
-      size.width * 0.08,
-      paint,
-    );
-
-    // Vẽ đầu robot (hình chữ nhật bo góc)
-    final headRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        size.width * 0.15,
-        size.height * 0.25,
-        size.width * 0.7,
-        size.height * 0.6,
-      ),
-      Radius.circular(size.width * 0.12),
-    );
-    canvas.drawRRect(headRect, paint);
-
-    // Vẽ mắt trái
-    canvas.drawCircle(
-      Offset(size.width * 0.35, size.height * 0.45),
-      size.width * 0.08,
-      Paint()..color = Colors.blue.shade700,
-    );
-
-    // Vẽ mắt phải
-    canvas.drawCircle(
-      Offset(size.width * 0.65, size.height * 0.45),
-      size.width * 0.08,
-      Paint()..color = Colors.blue.shade700,
-    );
-
-    // Vẽ miệng (nụ cười)
-    final mouthPath = Path()
-      ..moveTo(size.width * 0.3, size.height * 0.65)
-      ..quadraticBezierTo(
-        size.width * 0.5,
-        size.height * 0.75,
-        size.width * 0.7,
-        size.height * 0.65,
-      );
-    canvas.drawPath(
-      mouthPath,
-      Paint()
-        ..color = Colors.blue.shade700
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.width * 0.05
-        ..strokeCap = StrokeCap.round,
-    );
-
-    // Vẽ tai trái
-    canvas.drawCircle(
-      Offset(size.width * 0.1, size.height * 0.5),
-      size.width * 0.08,
-      paint,
-    );
-
-    // Vẽ tai phải
-    canvas.drawCircle(
-      Offset(size.width * 0.9, size.height * 0.5),
-      size.width * 0.08,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

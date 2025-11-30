@@ -36,11 +36,22 @@ class _PTDashboardTabsViewState extends State<PTDashboardTabsView>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.fitness_center, size: 24),
-            SizedBox(width: 8),
-            Text('PT Dashboard'),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                'assets/images/logoapp/logoappgym2.png',
+                width: 26,
+                height: 26,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+                isAntiAlias: true,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Text('PT Home'),
           ],
         ),
         backgroundColor: const Color(0xFFFF9800),

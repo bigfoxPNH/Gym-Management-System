@@ -232,17 +232,13 @@ class _DraggableAIChatButtonState extends State<DraggableAIChatButton>
         height: _iconSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade400, Colors.purple.shade400],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.blue.withOpacity(0.4),
-              blurRadius: 8,
-              spreadRadius: 1,
-              offset: const Offset(0, 2),
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -256,29 +252,18 @@ class _DraggableAIChatButtonState extends State<DraggableAIChatButton>
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Custom robot head icon
-                _buildRobotIcon(),
-                // Badge cho số tin nhắn mới (có thể thêm sau)
-                Obx(() {
-                  if (controller.messages.isEmpty) {
-                    return const SizedBox.shrink();
-                  }
-                  return Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                    ),
-                  );
-                }),
+                // Chatbot AI icon
+                ClipOval(
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    'assets/images/chatai/chatbotai.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.medium,
+                    isAntiAlias: true,
+                  ),
+                ),
               ],
             ),
           ),
@@ -286,101 +271,4 @@ class _DraggableAIChatButtonState extends State<DraggableAIChatButton>
       ),
     );
   }
-
-  Widget _buildRobotIcon() {
-    return SizedBox(
-      width: 36,
-      height: 36,
-      child: CustomPaint(painter: _RobotHeadPainter()),
-    );
-  }
-}
-
-/// Custom painter để vẽ đầu robot AI
-class _RobotHeadPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final strokePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    // Vẽ râu ăng ten trên đầu
-    final antennaPath = Path();
-    antennaPath.moveTo(size.width * 0.5, size.height * 0.1);
-    antennaPath.lineTo(size.width * 0.5, size.height * 0.25);
-    canvas.drawPath(antennaPath, strokePaint);
-
-    // Vẽ bulb ăng ten
-    canvas.drawCircle(Offset(size.width * 0.5, size.height * 0.08), 2.5, paint);
-
-    // Vẽ đầu robot (hình chữ nhật bo góc)
-    final headRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(
-        size.width * 0.15,
-        size.height * 0.25,
-        size.width * 0.7,
-        size.height * 0.55,
-      ),
-      const Radius.circular(6),
-    );
-    canvas.drawRRect(headRect, paint);
-
-    // Vẽ 2 mắt (hình chữ nhật)
-    final leftEyePaint = Paint()
-      ..color = Colors.blue.shade700
-      ..style = PaintingStyle.fill;
-
-    final rightEyePaint = Paint()
-      ..color = Colors.blue.shade700
-      ..style = PaintingStyle.fill;
-
-    // Mắt trái
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          size.width * 0.25,
-          size.height * 0.4,
-          size.width * 0.15,
-          size.height * 0.12,
-        ),
-        const Radius.circular(2),
-      ),
-      leftEyePaint,
-    );
-
-    // Mắt phải
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          size.width * 0.6,
-          size.height * 0.4,
-          size.width * 0.15,
-          size.height * 0.12,
-        ),
-        const Radius.circular(2),
-      ),
-      rightEyePaint,
-    );
-
-    // Vẽ miệng (đường thẳng ngang)
-    final mouthPath = Path();
-    mouthPath.moveTo(size.width * 0.3, size.height * 0.65);
-    mouthPath.lineTo(size.width * 0.7, size.height * 0.65);
-    canvas.drawPath(mouthPath, strokePaint);
-
-    // Vẽ tai robot (2 nửa hình tròn nhỏ 2 bên)
-    // Tai trái
-    canvas.drawCircle(Offset(size.width * 0.12, size.height * 0.5), 4, paint);
-
-    // Tai phải
-    canvas.drawCircle(Offset(size.width * 0.88, size.height * 0.5), 4, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

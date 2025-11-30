@@ -207,7 +207,18 @@ class _HomeViewState extends State<HomeView> {
           final user = authController.userAccount;
           return Row(
             children: [
-              const Text('Gym Pro'),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                clipBehavior: Clip.antiAlias,
+                child: Image.asset(
+                  'assets/images/logoapp/logoappgym2.png',
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                  isAntiAlias: true,
+                ),
+              ),
               if (user != null && user.isAdmin) ...[
                 const SizedBox(width: 12),
                 Container(
@@ -285,9 +296,9 @@ class _HomeViewState extends State<HomeView> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFFB31E51),
-                    const Color(0xFFD91A5B),
-                    const Color(0xFFFF6B9D),
+                    const Color(0xFF42A5F5),
+                    const Color(0xFF64B5F6),
+                    const Color(0xFF90CAF9),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -295,9 +306,9 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFB31E51).withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
+                    color: const Color(0xFF42A5F5).withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -847,9 +858,12 @@ class _HomeViewState extends State<HomeView> {
                   padding: const EdgeInsets.all(10),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
+                    clipBehavior: Clip.antiAlias,
                     child: Image.asset(
                       imagePath,
                       fit: BoxFit.contain,
+                      filterQuality: FilterQuality.medium,
+                      isAntiAlias: true,
                       errorBuilder: (context, error, stackTrace) {
                         return Icon(
                           Icons.image_not_supported,
@@ -1447,7 +1461,7 @@ class _HomeViewState extends State<HomeView> {
         itemCount: displayCards.length,
         itemBuilder: (context, index) {
           final card = displayCards[index];
-          return _buildMembershipCard(card);
+          return _buildMembershipCard(card, index);
         },
       ),
     );
@@ -1477,7 +1491,36 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  Widget _buildMembershipCard(Map<String, dynamic> card) {
+  Widget _buildMembershipCard(Map<String, dynamic> card, int index) {
+    // Định nghĩa danh sách màu gradient cho mỗi card (màu nhạt hơn 15%)
+    final gradientColors = [
+      // Card 1: Green (nhạt hơn)
+      [Colors.green[300]!, Colors.green[400]!, Colors.green[500]!],
+      // Card 2: Blue (nhạt hơn)
+      [Colors.blue[300]!, Colors.blue[400]!, Colors.blue[500]!],
+      // Card 3: Purple (nhạt hơn)
+      [Colors.purple[300]!, Colors.purple[400]!, Colors.purple[500]!],
+      // Card 4: Orange (nhạt hơn)
+      [Colors.orange[300]!, Colors.orange[400]!, Colors.orange[500]!],
+      // Card 5: Teal (nhạt hơn)
+      [Colors.teal[300]!, Colors.teal[400]!, Colors.teal[500]!],
+      // Card 6: Pink (nhạt hơn)
+      [Colors.pink[300]!, Colors.pink[400]!, Colors.pink[500]!],
+    ];
+
+    final shadowColors = [
+      Colors.green[300]!,
+      Colors.blue[300]!,
+      Colors.purple[300]!,
+      Colors.orange[300]!,
+      Colors.teal[300]!,
+      Colors.pink[300]!,
+    ];
+
+    final colorIndex = index % gradientColors.length;
+    final selectedGradient = gradientColors[colorIndex];
+    final selectedShadow = shadowColors[colorIndex];
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -1500,11 +1543,7 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.green[400]!,
-                Colors.green[500]!,
-                Colors.green[600]!,
-              ],
+              colors: selectedGradient,
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               stops: const [0.0, 0.5, 1.0],
@@ -1512,7 +1551,7 @@ class _HomeViewState extends State<HomeView> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.green.withOpacity(0.4),
+                color: selectedShadow.withOpacity(0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),

@@ -51,22 +51,21 @@ class LoginView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Logo and Title
-                    const Icon(
-                      Icons.fitness_center,
-                      size: 80,
-                      color: Color(0xFF2196F3),
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          'assets/images/logoapp/logoappgym.png',
+                          width: 175,
+                          height: 175,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.medium,
+                          isAntiAlias: true,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 24),
-                    Text(
-                      'Gym Pro',
-                      style: Theme.of(context).textTheme.headlineLarge
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF2196F3),
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
                     Text(
                       'Đăng nhập để tiếp tục',
                       style: Theme.of(

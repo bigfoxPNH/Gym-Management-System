@@ -32,10 +32,19 @@ class RegisterView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo and Title
-                const Icon(
-                  Icons.fitness_center,
-                  size: 60,
-                  color: Color(0xFF2196F3),
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/images/logoapp/logoappgym.png',
+                      width: 156,
+                      height: 156,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.medium,
+                      isAntiAlias: true,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(

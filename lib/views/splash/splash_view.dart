@@ -98,39 +98,19 @@ class _SplashViewState extends State<SplashView>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Logo/Icon
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.fitness_center,
-                        size: 60,
-                        color: Color(0xFF00BCD4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(40),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.asset(
+                        'assets/images/logoapp/logoappgym2.png',
+                        width: 265,
+                        height: 265,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                        isAntiAlias: true,
                       ),
                     ),
                     const SizedBox(height: 30),
-
-                    // App Name
-                    const Text(
-                      'Gym Pro',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
 
                     // Tagline
                     Text(
