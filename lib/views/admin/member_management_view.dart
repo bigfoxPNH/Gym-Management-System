@@ -68,58 +68,63 @@ class MemberManagementView extends StatelessWidget {
 
   Widget _buildStatsBar(MemberManagementController controller) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      height: 130,
       child: Obx(() {
-        return Row(
-          children: [
-            _buildStatCard(
-              'Tất cả',
-              controller.users.length.toString(),
-              Colors.blue,
-              () => controller.updateRoleFilter(null),
-              controller.selectedRole.value == null,
-            ),
-            const SizedBox(width: 12),
-            _buildStatCard(
-              'Admin',
-              controller.adminCount.toString(),
-              Colors.red,
-              () => controller.updateRoleFilter(Role.admin),
-              controller.selectedRole.value == Role.admin,
-            ),
-            const SizedBox(width: 12),
-            _buildStatCard(
-              'Quản lý',
-              controller.managerCount.toString(),
-              Colors.orange,
-              () => controller.updateRoleFilter(Role.manager),
-              controller.selectedRole.value == Role.manager,
-            ),
-            const SizedBox(width: 12),
-            _buildStatCard(
-              'Lễ tân',
-              controller.staffCount.toString(),
-              Colors.green,
-              () => controller.updateRoleFilter(Role.staff),
-              controller.selectedRole.value == Role.staff,
-            ),
-            const SizedBox(width: 12),
-            _buildStatCard(
-              'Hội viên',
-              controller.memberCount.toString(),
-              Colors.purple,
-              () => controller.updateRoleFilter(Role.member),
-              controller.selectedRole.value == Role.member,
-            ),
-            const SizedBox(width: 12),
-            _buildStatCard(
-              'PT',
-              controller.trainerCount.toString(),
-              const Color(0xFFFF9800),
-              () => controller.updateRoleFilter(Role.trainer),
-              controller.selectedRole.value == Role.trainer,
-            ),
-          ],
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              _buildStatCard(
+                'Tất cả',
+                controller.users.length.toString(),
+                Colors.blue,
+                () => controller.updateRoleFilter(null),
+                controller.selectedRole.value == null,
+              ),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                'Admin',
+                controller.adminCount.toString(),
+                Colors.red,
+                () => controller.updateRoleFilter(Role.admin),
+                controller.selectedRole.value == Role.admin,
+              ),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                'Quản lý',
+                controller.managerCount.toString(),
+                Colors.orange,
+                () => controller.updateRoleFilter(Role.manager),
+                controller.selectedRole.value == Role.manager,
+              ),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                'Lễ tân',
+                controller.staffCount.toString(),
+                Colors.green,
+                () => controller.updateRoleFilter(Role.staff),
+                controller.selectedRole.value == Role.staff,
+              ),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                'Hội viên',
+                controller.memberCount.toString(),
+                Colors.purple,
+                () => controller.updateRoleFilter(Role.member),
+                controller.selectedRole.value == Role.member,
+              ),
+              const SizedBox(width: 12),
+              _buildStatCard(
+                'PT',
+                controller.trainerCount.toString(),
+                const Color(0xFFFF9800),
+                () => controller.updateRoleFilter(Role.trainer),
+                controller.selectedRole.value == Role.trainer,
+              ),
+            ],
+          ),
         );
       }),
     );
@@ -132,44 +137,46 @@ class MemberManagementView extends StatelessWidget {
     VoidCallback onTap,
     bool isSelected,
   ) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          height: 100, // Ensure consistent height for all cards
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isSelected ? color : color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? color : color.withOpacity(0.3),
-              width: isSelected ? 2 : 1,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: 90,
+        height: 100,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? color : color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? color : color.withOpacity(0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              count,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : color,
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                count,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : color,
-                ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected
+                    ? Colors.white.withOpacity(0.9)
+                    : color.withOpacity(0.8),
               ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isSelected
-                      ? Colors.white.withOpacity(0.9)
-                      : color.withOpacity(0.8),
-                ),
-              ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
@@ -268,10 +275,14 @@ class MemberManagementView extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            user.fullName,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+                          Expanded(
+                            child: Text(
+                              user.fullName,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Container(
@@ -300,6 +311,8 @@ class MemberManagementView extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (user.phone != null && user.phone!.isNotEmpty) ...[
                         const SizedBox(height: 2),

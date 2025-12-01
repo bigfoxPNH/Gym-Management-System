@@ -363,7 +363,13 @@ class CheckinCheckoutView extends StatelessWidget {
           children: [
             Icon(Icons.login, color: Colors.green),
             SizedBox(width: 8),
-            Text('Checkin thành viên'),
+            Expanded(
+              child: Text(
+                'Checkin thành viên',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -421,7 +427,13 @@ class CheckinCheckoutView extends StatelessWidget {
           children: [
             Icon(Icons.logout, color: Colors.orange),
             SizedBox(width: 8),
-            Text('Checkout thành viên'),
+            Expanded(
+              child: Text(
+                'Checkout thành viên',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         content: Column(

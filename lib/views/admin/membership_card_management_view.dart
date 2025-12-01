@@ -895,52 +895,57 @@ class MembershipCardManagementView extends StatelessWidget {
       builder: (context) => Dialog(
         child: Container(
           width: 500,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
-              Text(
-                'Chi Tiết Thẻ Tập',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  'Chi Tiết Thẻ Tập',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Card Info
-              _buildDetailRow('Tên thẻ', card.cardName),
-              _buildDetailRow('Mô tả', card.description),
-              _buildDetailRow('Loại thẻ', card.cardType.label),
-              _buildDetailRow('Thời gian', card.getFormattedDuration()),
-              _buildDetailRow('Giá tiền', card.getFormattedPrice()),
-              _buildDetailRow('Preview', card.getPreviewInfo()),
-              _buildDetailRow(
-                'Trạng thái',
-                card.isActive ? 'Đang hoạt động' : 'Không hoạt động',
-              ),
-              _buildDetailRow(
-                'Ngày tạo',
-                DateFormat('dd/MM/yyyy HH:mm').format(card.createdAt),
-              ),
-              _buildDetailRow(
-                'Cập nhật lần cuối',
-                DateFormat('dd/MM/yyyy HH:mm').format(card.updatedAt),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Close button
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Get.back(),
-                  child: const Text('Đóng'),
+                // Card Info
+                _buildDetailRow('Tên thẻ', card.cardName),
+                _buildDetailRow('Mô tả', card.description),
+                _buildDetailRow('Loại thẻ', card.cardType.label),
+                _buildDetailRow('Thời gian', card.getFormattedDuration()),
+                _buildDetailRow('Giá tiền', card.getFormattedPrice()),
+                _buildDetailRow('Preview', card.getPreviewInfo()),
+                _buildDetailRow(
+                  'Trạng thái',
+                  card.isActive ? 'Đang hoạt động' : 'Không hoạt động',
                 ),
-              ),
-            ],
+                _buildDetailRow(
+                  'Ngày tạo',
+                  DateFormat('dd/MM/yyyy HH:mm').format(card.createdAt),
+                ),
+                _buildDetailRow(
+                  'Cập nhật lần cuối',
+                  DateFormat('dd/MM/yyyy HH:mm').format(card.updatedAt),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Close button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Đóng'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

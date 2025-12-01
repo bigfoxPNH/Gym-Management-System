@@ -61,48 +61,40 @@ class TrainerListTab extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onChanged: controller.updateSearchQuery,
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm PT theo tên...',
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color(0xFFFF9800),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFFFF9800),
-                        width: 2,
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
+          TextField(
+            onChanged: controller.updateSearchQuery,
+            style: const TextStyle(fontSize: 11),
+            decoration: InputDecoration(
+              hintText: 'Tìm kiếm PT theo tên...',
+              hintStyle: const TextStyle(fontSize: 11),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: Color(0xFFFF9800),
+                size: 17,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFFFF9800),
+                  width: 2,
                 ),
               ),
-              const SizedBox(width: 12),
-              FloatingActionButton(
-                onPressed: () => Get.to(() => const TrainerFormView()),
-                backgroundColor: const Color(0xFFFF9800),
-                child: const Icon(Icons.add, color: Colors.white),
+              filled: true,
+              fillColor: Colors.grey[50],
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8.5,
               ),
-            ],
+              isDense: true,
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -165,7 +157,7 @@ class TrainerListTab extends StatelessWidget {
   ) {
     final isSelected = currentValue == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 6),
       child: FilterChip(
         label: Text(label),
         selected: isSelected,
@@ -173,7 +165,10 @@ class TrainerListTab extends StatelessWidget {
         backgroundColor: Colors.grey[200],
         selectedColor: color.withOpacity(0.2),
         checkmarkColor: color,
+        padding: const EdgeInsets.symmetric(horizontal: 6.5, vertical: 0),
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         labelStyle: TextStyle(
+          fontSize: 9.5,
           color: isSelected ? color : Colors.grey[700],
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
@@ -229,7 +224,7 @@ class TrainerListTab extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
@@ -238,18 +233,23 @@ class TrainerListTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -261,14 +261,14 @@ class TrainerListTab extends StatelessWidget {
     TrainerManagementController controller,
   ) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () => Get.to(() => TrainerDetailView(trainer: trainer)),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -276,7 +276,7 @@ class TrainerListTab extends StatelessWidget {
                 children: [
                   // Avatar
                   CircleAvatar(
-                    radius: 35,
+                    radius: 24,
                     backgroundColor: const Color(0xFFFF9800).withOpacity(0.1),
                     backgroundImage: trainer.anhDaiDien != null
                         ? NetworkImage(trainer.anhDaiDien!)
@@ -284,12 +284,12 @@ class TrainerListTab extends StatelessWidget {
                     child: trainer.anhDaiDien == null
                         ? const Icon(
                             Icons.person,
-                            size: 35,
+                            size: 24,
                             color: Color(0xFFFF9800),
                           )
                         : null,
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 10),
 
                   // Name & Info
                   Expanded(
@@ -302,7 +302,7 @@ class TrainerListTab extends StatelessWidget {
                               child: Text(
                                 trainer.hoTen,
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -310,19 +310,19 @@ class TrainerListTab extends StatelessWidget {
                             _buildStatusBadge(trainer.trangThai),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 3),
                         Row(
                           children: [
                             Icon(
                               Icons.phone,
-                              size: 14,
+                              size: 12,
                               color: Colors.grey[600],
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 3),
                             Text(
                               trainer.soDienThoai ?? 'Chưa có SĐT',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 11,
                                 color: Colors.grey[600],
                               ),
                             ),
@@ -359,14 +359,14 @@ class TrainerListTab extends StatelessWidget {
 
                             return Row(
                               children: [
-                                Icon(Icons.star, size: 14, color: Colors.amber),
-                                const SizedBox(width: 4),
+                                Icon(Icons.star, size: 11, color: Colors.amber),
+                                const SizedBox(width: 3),
                                 Text(
                                   reviewCount > 0
                                       ? '${avgRating.toStringAsFixed(1)} ($reviewCount đánh giá)'
                                       : 'Chưa có đánh giá',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 10,
                                     color: Colors.grey[600],
                                   ),
                                 ),
@@ -380,82 +380,21 @@ class TrainerListTab extends StatelessWidget {
                 ],
               ),
 
-              // Specialties
-              if (trainer.chuyenMon.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: trainer.chuyenMon.take(3).map((specialty) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF9800).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: const Color(0xFFFF9800).withOpacity(0.3),
-                        ),
-                      ),
-                      child: Text(
-                        specialty,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFFF9800),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-
-              // Stats row
-              const SizedBox(height: 12),
-              FutureBuilder<int>(
-                future: controller.getTotalSessionsFromRentals(trainer.id),
-                builder: (context, snapshot) {
-                  final totalSessions = snapshot.data ?? 0;
-                  final assignments = controller.getAssignmentsForTrainer(
-                    trainer.id,
-                  );
-                  final activeSessions = assignments
-                      .where((a) => a.trangThai == 'active')
-                      .length;
-
-                  return Row(
-                    children: [
-                      _buildInfoChip(
-                        Icons.people,
-                        '$activeSessions học viên',
-                        Colors.blue,
-                      ),
-                      const SizedBox(width: 8),
-                      _buildInfoChip(
-                        Icons.event_available,
-                        '$totalSessions buổi',
-                        Colors.green,
-                      ),
-                    ],
-                  );
-                },
-              ),
-
               // Action buttons
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () =>
                           Get.to(() => TrainerFormView(trainer: trainer)),
-                      icon: const Icon(Icons.edit, size: 18),
-                      label: const Text('Sửa'),
+                      icon: const Icon(Icons.edit, size: 14),
+                      label: const Text('Sửa', style: TextStyle(fontSize: 12)),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFFFF9800),
                         side: const BorderSide(color: Color(0xFFFF9800)),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(0, 32),
                       ),
                     ),
                   ),
@@ -464,11 +403,16 @@ class TrainerListTab extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () =>
                           Get.to(() => TrainerDetailView(trainer: trainer)),
-                      icon: const Icon(Icons.visibility, size: 18),
-                      label: const Text('Chi tiết'),
+                      icon: const Icon(Icons.visibility, size: 14),
+                      label: const Text(
+                        'Chi tiết',
+                        style: TextStyle(fontSize: 12),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFF9800),
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(0, 32),
                       ),
                     ),
                   ),
@@ -521,31 +465,6 @@ class TrainerListTab extends StatelessWidget {
           color: color,
           fontWeight: FontWeight.bold,
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }

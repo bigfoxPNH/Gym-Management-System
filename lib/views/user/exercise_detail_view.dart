@@ -75,22 +75,37 @@ class ExerciseDetailView extends StatelessWidget {
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Row(
+          Wrap(
+            spacing: 16,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Icon(Icons.fitness_center, size: 16, color: Colors.grey[600]),
-              const SizedBox(width: 4),
-              Text(
-                exercise.doKho.label,
-                style: TextStyle(color: Colors.grey[600]),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.fitness_center, size: 16, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    exercise.doKho.label,
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                ],
               ),
-              const SizedBox(width: 16),
-              Icon(Icons.category, size: 16, color: Colors.orange),
-              const SizedBox(width: 4),
-              Text(
-                exercise.loaiBaiTap.isNotEmpty
-                    ? exercise.loaiBaiTap.first
-                    : 'N/A',
-                style: TextStyle(color: Colors.grey[600]),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.category, size: 16, color: Colors.orange),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      exercise.loaiBaiTap.isNotEmpty
+                          ? exercise.loaiBaiTap.first
+                          : 'N/A',
+                      style: TextStyle(color: Colors.grey[600]),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

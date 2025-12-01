@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/news_controller.dart';
@@ -324,24 +325,7 @@ class NewsDetailScreen extends StatelessWidget {
           // Single image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              images[0],
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.image_not_supported,
-                  color: Colors.grey,
-                ),
-              ),
-            ),
+            child: _buildBase64Image(images[0]),
           )
         else
           // Multiple images grid
@@ -357,20 +341,7 @@ class NewsDetailScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  images[index],
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.image_not_supported,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
+                child: _buildBase64Image(images[index]),
               );
             },
           ),
@@ -602,6 +573,54 @@ class NewsDetailScreen extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildBase64Image(String imageUrl) {
+    try {
+      if (imageUrl.startsWith('data:image')) {
+        final base64String = imageUrl.split(',')[1];
+        final bytes = base64.decode(base64String);
+        return Image.memory(
+          bytes,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.image_not_supported, color: Colors.grey),
+          ),
+        );
+      } else {
+        return Image.network(
+          imageUrl,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.image_not_supported, color: Colors.grey),
+          ),
+        );
+      }
+    } catch (e) {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+      );
+    }
   }
 
   void _handleMenuAction(String action, NewsController controller) {

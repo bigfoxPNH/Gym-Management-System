@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -436,8 +437,8 @@ class _HomeViewState extends State<HomeView> {
                   // Search Bar
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 11,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -455,14 +456,16 @@ class _HomeViewState extends State<HomeView> {
                         const Icon(
                           Icons.search_rounded,
                           color: Colors.grey,
-                          size: 24,
+                          size: 17,
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _searchController,
+                            style: const TextStyle(fontSize: 13),
                             decoration: const InputDecoration(
                               hintText: 'Tìm kiếm bài tập, gói tập...',
+                              hintStyle: TextStyle(fontSize: 13),
                               border: InputBorder.none,
                               isDense: true,
                             ),
@@ -493,7 +496,7 @@ class _HomeViewState extends State<HomeView> {
                             child: const Icon(
                               Icons.clear,
                               color: Colors.grey,
-                              size: 20,
+                              size: 14,
                             ),
                           ),
                       ],
@@ -930,33 +933,29 @@ class _HomeViewState extends State<HomeView> {
           onTap: onTap,
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 64,
-                  height: 64,
+                  width: 52,
+                  height: 52,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 12,
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 8,
                         spreadRadius: 1,
-                        offset: const Offset(0, 4),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(8),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                     clipBehavior: Clip.antiAlias,
                     child: Image.asset(
                       imagePath,
@@ -967,25 +966,27 @@ class _HomeViewState extends State<HomeView> {
                         return Icon(
                           Icons.image_not_supported,
                           color: Colors.grey.shade400,
-                          size: 32,
+                          size: 24,
                         );
                       },
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: Colors.grey.shade800,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.3,
-                    height: 1.2,
+                const SizedBox(height: 6),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey.shade800,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                      height: 1.1,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -999,7 +1000,7 @@ class _HomeViewState extends State<HomeView> {
     if (_latestNews.isEmpty) {
       // Skeleton loading
       return SizedBox(
-        height: 220,
+        height: 200,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: 3,
@@ -1015,7 +1016,7 @@ class _HomeViewState extends State<HomeView> {
     final displayNews = showAll ? _latestNews : _getFilteredNews();
 
     return SizedBox(
-      height: 220,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: displayNews.length,
@@ -1117,21 +1118,16 @@ class _HomeViewState extends State<HomeView> {
           },
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            width: 300,
-            height: 220, // Fixed height
-            margin: const EdgeInsets.only(right: 16),
+            width: 280,
+            height: 200,
+            margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 4,
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -1146,31 +1142,16 @@ class _HomeViewState extends State<HomeView> {
                     children: [
                       if (news['detailImages'] != null &&
                           (news['detailImages'] as List).isNotEmpty)
-                        Image.network(
+                        _buildBase64Image(
                           news['detailImages'][0],
-                          height: 120,
+                          height: 100,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              height: 120,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.pink[100]!,
-                                    Colors.purple[100]!,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.image_outlined,
-                                size: 40,
-                                color: Colors.white,
-                              ),
-                            );
-                          },
+                          errorIcon: Icons.article_outlined,
+                          gradientColors: [
+                            Colors.pink[100]!,
+                            Colors.purple[100]!,
+                          ],
                         )
                       else
                         Container(
@@ -1307,11 +1288,20 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildExerciseCard(Map<String, dynamic> exercise, int index) {
-    final imageUrl =
-        (exercise['anhMinhHoa'] != null &&
-            (exercise['anhMinhHoa'] as List).isNotEmpty)
-        ? exercise['anhMinhHoa'][0]
-        : '';
+    // Try multiple field names for image
+    String imageUrl = '';
+    if (exercise['anhMinhHoa'] != null) {
+      if (exercise['anhMinhHoa'] is List &&
+          (exercise['anhMinhHoa'] as List).isNotEmpty) {
+        imageUrl = exercise['anhMinhHoa'][0];
+      } else if (exercise['anhMinhHoa'] is String) {
+        imageUrl = exercise['anhMinhHoa'];
+      }
+    } else if (exercise['image'] != null &&
+        exercise['image'].toString().isNotEmpty) {
+      imageUrl = exercise['image'];
+    }
+
     final name = exercise['tenBaiTap'] ?? 'Bài tập';
     final muscleGroup = exercise['nhomCo'] ?? 'Chung';
 
@@ -1366,69 +1356,16 @@ class _HomeViewState extends State<HomeView> {
                       fit: StackFit.expand,
                       children: [
                         imageUrl.isNotEmpty
-                            ? Image.network(
+                            ? _buildBase64Image(
                                 imageUrl,
+                                height: double.infinity,
+                                width: double.infinity,
                                 fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return TweenAnimationBuilder(
-                                          duration: const Duration(
-                                            milliseconds: 300,
-                                          ),
-                                          tween: Tween<double>(
-                                            begin: 0,
-                                            end: 1,
-                                          ),
-                                          builder: (context, double value, _) {
-                                            return Opacity(
-                                              opacity: value,
-                                              child: child,
-                                            );
-                                          },
-                                        );
-                                      }
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.orange[100]!,
-                                              Colors.orange[50]!,
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                        ),
-                                        child: const Center(
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                  Colors.orange,
-                                                ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.orange[100]!,
-                                          Colors.orange[50]!,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.fitness_center,
-                                      size: 48,
-                                      color: Colors.orange,
-                                    ),
-                                  );
-                                },
+                                errorIcon: Icons.fitness_center,
+                                gradientColors: [
+                                  Colors.orange[100]!,
+                                  Colors.orange[50]!,
+                                ],
                               )
                             : Container(
                                 decoration: BoxDecoration(
@@ -1714,7 +1651,7 @@ class _HomeViewState extends State<HomeView> {
     final displayProducts = showAll ? _popularProducts : _getFilteredProducts();
 
     return SizedBox(
-      height: 270,
+      height: 250,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: displayProducts.length > 5 ? 5 : displayProducts.length,
@@ -1804,11 +1741,11 @@ class _HomeViewState extends State<HomeView> {
           },
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            width: 180,
-            margin: const EdgeInsets.only(right: 16),
+            width: 160,
+            margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.08),
@@ -1828,31 +1765,16 @@ class _HomeViewState extends State<HomeView> {
                   child: Stack(
                     children: [
                       imageUrl.isNotEmpty
-                          ? Image.network(
+                          ? _buildBase64Image(
                               imageUrl,
-                              height: 130,
+                              height: 110,
                               width: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 130,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.purple[100]!,
-                                        Colors.purple[50]!,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.shopping_bag,
-                                    size: 48,
-                                    color: Colors.purple,
-                                  ),
-                                );
-                              },
+                              errorIcon: Icons.shopping_bag,
+                              gradientColors: [
+                                Colors.purple[100]!,
+                                Colors.purple[50]!,
+                              ],
                             )
                           : Container(
                               height: 130,
@@ -1981,5 +1903,73 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
     );
+  }
+
+  // Helper method to build image from base64 data URL
+  Widget _buildBase64Image(
+    String dataUrl, {
+    required double height,
+    required double width,
+    required BoxFit fit,
+    required IconData errorIcon,
+    required List<Color> gradientColors,
+  }) {
+    try {
+      // Check if it's a data URL
+      if (dataUrl.startsWith('data:image')) {
+        // Extract base64 part from data URL
+        final base64String = dataUrl.split(',')[1];
+        final bytes = base64.decode(base64String);
+
+        return Image.memory(
+          bytes,
+          height: height,
+          width: width,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: height,
+              width: width,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Icon(errorIcon, size: 40, color: Colors.white),
+            );
+          },
+        );
+      } else {
+        // Not a data URL, show error container
+        return Container(
+          height: height,
+          width: width,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: gradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Icon(errorIcon, size: 40, color: Colors.white),
+        );
+      }
+    } catch (e) {
+      // Error decoding, show error container
+      return Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Icon(errorIcon, size: 40, color: Colors.white),
+      );
+    }
   }
 }

@@ -131,12 +131,12 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
             children: [
               const Text(
                 'Phân Công PT',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
                 '${_activeRentals.length} phân công đang hoạt động',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -170,11 +170,11 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.people_outline, size: 80, color: Colors.grey[300]),
+          Icon(Icons.people_outline, size: 92, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             'Chưa có phân công nào đang hoạt động',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 18.5, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -219,7 +219,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                                 ? trainerName[0].toUpperCase()
                                 : 'P',
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 23,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFFFF9800),
                             ),
@@ -236,7 +236,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                           children: [
                             const Icon(
                               Icons.fitness_center,
-                              size: 14,
+                              size: 16,
                               color: Color(0xFFFF9800),
                             ),
                             const SizedBox(width: 4),
@@ -244,7 +244,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                               child: Text(
                                 trainerName,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFFFF9800),
                                 ),
@@ -257,21 +257,21 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                           children: [
                             const Icon(
                               Icons.arrow_forward,
-                              size: 12,
+                              size: 14,
                               color: Colors.grey,
                             ),
                             const SizedBox(width: 4),
                             const Text(
                               'dạy',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 13,
                                 color: Colors.grey,
                               ),
                             ),
                             const SizedBox(width: 4),
                             const Icon(
                               Icons.arrow_forward,
-                              size: 12,
+                              size: 14,
                               color: Colors.grey,
                             ),
                           ],
@@ -295,7 +295,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                                 ? userName[0].toUpperCase()
                                 : 'U',
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 23,
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
                             ),
@@ -312,7 +312,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                           children: [
                             const Icon(
                               Icons.person,
-                              size: 14,
+                              size: 16,
                               color: Colors.deepPurple,
                             ),
                             const SizedBox(width: 4),
@@ -320,7 +320,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                               child: Text(
                                 userName,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.deepPurple,
                                 ),
@@ -341,7 +341,7 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
                           child: const Text(
                             'Đang hoạt động',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 11.5,
                               color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
@@ -398,12 +398,12 @@ class _TrainerAssignmentTabState extends State<TrainerAssignmentTab> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: color),
+          Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 13,
               color: color,
               fontWeight: FontWeight.w600,
             ),
@@ -545,7 +545,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
           children: [
             const Text(
               'Thông tin PT',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20.5, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
@@ -561,7 +561,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                       ? Text(
                           trainerName[0].toUpperCase(),
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 27.5,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFFFF9800),
                           ),
@@ -576,7 +576,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                       Text(
                         trainerName,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -585,7 +585,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                         Text(
                           'Chuyên môn: ${chuyenMon.join(", ")}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 14,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -615,7 +615,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
           children: [
             const Text(
               'Thông tin hội viên',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20.5, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
@@ -630,7 +630,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                       ? Text(
                           userName[0].toUpperCase(),
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 27.5,
                             fontWeight: FontWeight.bold,
                             color: Colors.deepPurple,
                           ),
@@ -645,7 +645,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                       Text(
                         userName,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -654,7 +654,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                         Text(
                           userEmail,
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 13,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -664,7 +664,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
                         Text(
                           userPhone,
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 13,
                             color: Colors.grey[600],
                           ),
                         ),
@@ -695,7 +695,7 @@ class _AdminRentalDetailViewState extends State<AdminRentalDetailView> {
           children: [
             const Text(
               'Thông tin gói tập',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20.5, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             _buildInfoRow(Icons.fitness_center, 'Gói tập', goiTap),

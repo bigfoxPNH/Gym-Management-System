@@ -95,7 +95,13 @@ class ScheduleManagementView extends StatelessWidget {
               color: color,
             ),
           ),
-          Text(title, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -104,72 +110,78 @@ class ScheduleManagementView extends StatelessWidget {
   Widget _buildFilters(ScheduleManagementController controller) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Obx(
-              () => DropdownButtonFormField<ScheduleCategory>(
-                value: controller.selectedCategory.value,
-                decoration: const InputDecoration(
-                  labelText: 'Danh mục',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-                items: [
-                  const DropdownMenuItem<ScheduleCategory>(
-                    value: null,
-                    child: Text('Tất cả danh mục'),
-                  ),
-                  ...ScheduleCategory.values.map(
-                    (category) => DropdownMenuItem<ScheduleCategory>(
-                      value: category,
-                      child: Text(_getCategoryText(category)),
+      height: 70,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 150,
+              child: Obx(
+                () => DropdownButtonFormField<ScheduleCategory>(
+                  value: controller.selectedCategory.value,
+                  decoration: const InputDecoration(
+                    labelText: 'Danh mục',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
                   ),
-                ],
-                onChanged: (value) => controller.filterByCategory(value),
+                  items: [
+                    const DropdownMenuItem<ScheduleCategory>(
+                      value: null,
+                      child: Text('Tất cả danh mục'),
+                    ),
+                    ...ScheduleCategory.values.map(
+                      (category) => DropdownMenuItem<ScheduleCategory>(
+                        value: category,
+                        child: Text(_getCategoryText(category)),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) => controller.filterByCategory(value),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Obx(
-              () => DropdownButtonFormField<DifficultyLevel>(
-                value: controller.selectedDifficulty.value,
-                decoration: const InputDecoration(
-                  labelText: 'Độ khó',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-                items: [
-                  const DropdownMenuItem<DifficultyLevel>(
-                    value: null,
-                    child: Text('Tất cả độ khó'),
-                  ),
-                  ...DifficultyLevel.values.map(
-                    (difficulty) => DropdownMenuItem<DifficultyLevel>(
-                      value: difficulty,
-                      child: Text(_getDifficultyText(difficulty)),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 120,
+              child: Obx(
+                () => DropdownButtonFormField<DifficultyLevel>(
+                  value: controller.selectedDifficulty.value,
+                  decoration: const InputDecoration(
+                    labelText: 'Độ khó',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
                   ),
-                ],
-                onChanged: (value) => controller.filterByDifficulty(value),
+                  items: [
+                    const DropdownMenuItem<DifficultyLevel>(
+                      value: null,
+                      child: Text('Tất cả độ khó'),
+                    ),
+                    ...DifficultyLevel.values.map(
+                      (difficulty) => DropdownMenuItem<DifficultyLevel>(
+                        value: difficulty,
+                        child: Text(_getDifficultyText(difficulty)),
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) => controller.filterByDifficulty(value),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () => controller.clearFilters(),
-            tooltip: 'Xóa bộ lọc',
-          ),
-        ],
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () => controller.clearFilters(),
+              tooltip: 'Xóa bộ lọc',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -236,6 +248,8 @@ class ScheduleManagementView extends StatelessWidget {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(

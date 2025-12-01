@@ -167,79 +167,31 @@ class AdminStatisticsView extends StatelessWidget {
     return Obx(
       () => Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Tổng doanh thu',
-                  NumberFormat.currency(
-                    locale: 'vi_VN',
-                    symbol: '₫',
-                  ).format(controller.totalRevenue.value),
-                  Icons.attach_money,
-                  Colors.green,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Giao dịch',
-                  controller.totalTransactions.value.toString(),
-                  Icons.receipt_long,
-                  Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'TB/Giao dịch',
-                  NumberFormat.currency(
-                    locale: 'vi_VN',
-                    symbol: '₫',
-                  ).format(controller.averageTransactionValue.value),
-                  Icons.trending_up,
-                  Colors.orange,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Thẻ đang hoạt động',
-                  controller.totalActiveMemberships.value.toString(),
-                  Icons.card_membership,
-                  Colors.purple,
-                ),
-              ),
-            ],
+          _buildSummaryCard(
+            'Tổng doanh thu',
+            NumberFormat.currency(
+              locale: 'vi_VN',
+              symbol: '₫',
+            ).format(controller.totalRevenue.value),
+            Icons.attach_money,
+            Colors.green,
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  'Doanh thu từ Sản phẩm',
-                  NumberFormat.currency(
-                    locale: 'vi_VN',
-                    symbol: '₫',
-                  ).format(controller.totalProductRevenue.value),
-                  Icons.shopping_bag,
-                  Colors.pink,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  'Đơn hàng hoàn thành',
-                  controller.totalProductOrders.value.toString(),
-                  Icons.check_circle,
-                  Colors.teal,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Container()), // Empty space
-              const SizedBox(width: 12),
-              Expanded(child: Container()), // Empty space
-            ],
+          _buildSummaryCard(
+            'Doanh thu từ Sản phẩm',
+            NumberFormat.currency(
+              locale: 'vi_VN',
+              symbol: '₫',
+            ).format(controller.totalProductRevenue.value),
+            Icons.shopping_bag,
+            Colors.pink,
+          ),
+          const SizedBox(height: 12),
+          _buildSummaryCard(
+            'Đơn hàng hoàn thành',
+            controller.totalProductOrders.value.toString(),
+            Icons.check_circle,
+            Colors.teal,
           ),
         ],
       ),
@@ -276,6 +228,8 @@ class AdminStatisticsView extends StatelessWidget {
             Text(
               title,
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Text(
@@ -305,18 +259,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.monetization_on, color: Colors.green),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Doanh thu từ Thẻ Tập',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.monetization_on, color: Colors.green),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Doanh thu từ Thẻ Tập',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -636,9 +596,13 @@ class AdminStatisticsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
-                style: const TextStyle(fontSize: 12),
+              Flexible(
+                child: Text(
+                  '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           );
@@ -658,18 +622,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.card_membership, color: Colors.purple),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Các Loại Thẻ Tập',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.card_membership, color: Colors.purple),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Các Loại Thẻ Tập',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -745,18 +715,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: Colors.green),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Thẻ Đang Hoạt Động',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.green),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Thẻ Đang Hoạt Động',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -931,18 +907,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.people, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Thống kê Người dùng',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.people, color: Colors.blue),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Thống kê Người dùng',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -998,18 +980,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.fitness_center, color: Colors.orange),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Thống kê Bài tập',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.fitness_center, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Thống kê Bài tập',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -1065,18 +1053,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.person_outline, color: Colors.orange),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Doanh Thu PT',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_outline, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Doanh Thu PT',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(
@@ -1129,11 +1123,15 @@ class AdminStatisticsView extends StatelessWidget {
                                 size: 20,
                               ),
                               const SizedBox(width: 4),
-                              const Text(
-                                'Tổng doanh thu PT',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
+                              const Expanded(
+                                child: Text(
+                                  'Tổng doanh thu PT',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -1174,11 +1172,15 @@ class AdminStatisticsView extends StatelessWidget {
                                 size: 20,
                               ),
                               const SizedBox(width: 4),
-                              const Text(
-                                'Tổng buổi tập',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
+                              const Expanded(
+                                child: Text(
+                                  'Tổng buổi tập',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
@@ -1492,9 +1494,13 @@ class AdminStatisticsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
-                style: const TextStyle(fontSize: 12),
+              Flexible(
+                child: Text(
+                  '${chartData.title}: ${NumberFormat.currency(locale: 'vi_VN', symbol: '₫').format(chartData.value)}',
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           );
@@ -1514,18 +1520,24 @@ class AdminStatisticsView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.shopping_bag, color: Colors.pink),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Doanh thu từ Sản phẩm',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.shopping_bag, color: Colors.pink),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Doanh thu từ Sản phẩm',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Obx(
                   () => ToggleButtons(

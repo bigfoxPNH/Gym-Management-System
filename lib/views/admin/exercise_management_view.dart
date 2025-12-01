@@ -106,28 +106,32 @@ class ExerciseManagementView extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.9),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white.withOpacity(0.3)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: Colors.grey[700]),
+          Icon(icon, size: 18, color: Colors.grey[700]),
           const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.grey[800],
             ),
+            overflow: TextOverflow.ellipsis,
           ),
           Text(
             title,
-            style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 9, color: Colors.grey[600]),
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -295,10 +299,12 @@ class ExerciseManagementView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             _buildLevelChip(exercise.doKho),
-                            const SizedBox(width: 8),
                             _buildMultiTypeChips(exercise.loaiBaiTap),
                           ],
                         ),
@@ -355,6 +361,7 @@ class ExerciseManagementView extends StatelessWidget {
               // Muscle Groups
               if (exercise.cochinh.isNotEmpty) ...[
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.accessibility_new,
@@ -366,6 +373,8 @@ class ExerciseManagementView extends StatelessWidget {
                       child: Text(
                         'Nhóm cơ: ${exercise.cochinh.join(', ')}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -376,6 +385,7 @@ class ExerciseManagementView extends StatelessWidget {
               // Equipment
               if (exercise.dungCu.isNotEmpty) ...[
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.fitness_center,
@@ -387,6 +397,8 @@ class ExerciseManagementView extends StatelessWidget {
                       child: Text(
                         'Dụng cụ: ${exercise.dungCu.join(', ')}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -406,33 +418,46 @@ class ExerciseManagementView extends StatelessWidget {
               ],
 
               // Video and Image indicators
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (exercise.videoMinhHoa != null &&
-                      exercise.videoMinhHoa!.isNotEmpty) ...[
-                    Icon(
-                      Icons.play_circle_filled,
-                      size: 16,
-                      color: Colors.red[600],
+                      exercise.videoMinhHoa!.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.play_circle_filled,
+                          size: 16,
+                          color: Colors.red[600],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Video',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.red[600],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Video',
-                      style: TextStyle(fontSize: 12, color: Colors.red[600]),
+                  if (exercise.anhMinhHoa.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.image, size: 16, color: Colors.green[600]),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Hình ảnh',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[600],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                  ],
-                  if (exercise.anhMinhHoa != null &&
-                      exercise.anhMinhHoa!.isNotEmpty) ...[
-                    Icon(Icons.image, size: 16, color: Colors.green[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Hình ảnh',
-                      style: TextStyle(fontSize: 12, color: Colors.green[600]),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  const Spacer(),
                   Text(
                     DateFormat('dd/MM/yyyy').format(exercise.createdAt),
                     style: TextStyle(fontSize: 12, color: Colors.grey[500]),
@@ -478,25 +503,6 @@ class ExerciseManagementView extends StatelessWidget {
     );
   }
 
-  Widget _buildTypeChip(ExerciseType type) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
-      ),
-      child: Text(
-        type.label,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.blue.shade700,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
   Widget _buildMultiTypeChips(List<String> types) {
     if (types.isEmpty) return const Text('Không có');
 
@@ -516,33 +522,6 @@ class ExerciseManagementView extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               color: Colors.blue.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildPositionChips(List<String> positions) {
-    if (positions.isEmpty) return const Text('Không có');
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 4,
-      children: positions.map((position) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.withOpacity(0.3)),
-          ),
-          child: Text(
-            position,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.green.shade700,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -1072,10 +1051,12 @@ class ExerciseManagementView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Basic Info
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             _buildLevelChip(exercise.doKho),
-            const SizedBox(width: 8),
             _buildMultiTypeChips(exercise.loaiBaiTap),
           ],
         ),
@@ -1168,6 +1149,8 @@ class ExerciseManagementView extends StatelessWidget {
                   child: Text(
                     exercise.videoMinhHoa!,
                     style: TextStyle(color: Colors.red[700], fontSize: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -1176,7 +1159,7 @@ class ExerciseManagementView extends StatelessWidget {
           const SizedBox(height: 16),
         ],
 
-        if (exercise.anhMinhHoa != null && exercise.anhMinhHoa!.isNotEmpty) ...[
+        if (exercise.anhMinhHoa.isNotEmpty) ...[
           const Text(
             'Hình ảnh minh họa',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -1195,10 +1178,10 @@ class ExerciseManagementView extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    exercise.anhMinhHoa.isNotEmpty
-                        ? exercise.anhMinhHoa.first
-                        : 'Chưa có ảnh',
+                    exercise.anhMinhHoa.first,
                     style: TextStyle(color: Colors.green[700], fontSize: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

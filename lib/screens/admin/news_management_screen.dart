@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../controllers/news_controller.dart';
 import '../../models/news.dart';
 import '../../widgets/robust_image.dart';
-import '../../widgets/image_loading_issue_dialog.dart';
 import '../../widgets/loading_overlay.dart';
 import '../../widgets/loading_button.dart';
 
@@ -26,11 +25,6 @@ class NewsManagementScreen extends StatelessWidget {
             foregroundColor: Colors.white,
             elevation: 0,
             actions: [
-              IconButton(
-                icon: const Icon(Icons.help_outline),
-                onPressed: () => ImageLoadingIssueDialog.show(),
-                tooltip: 'Trợ giúp về tải ảnh',
-              ),
               IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () => controller.loadNews(refresh: true),

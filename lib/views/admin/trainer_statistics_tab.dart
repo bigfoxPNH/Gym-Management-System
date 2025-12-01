@@ -57,11 +57,11 @@ class TrainerStatisticsTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.analytics, color: Color(0xFFFF9800), size: 28),
+                const Icon(Icons.analytics, color: Color(0xFFFF9800), size: 32),
                 const SizedBox(width: 12),
                 const Text(
                   'Tổng Quan',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -115,7 +115,7 @@ class TrainerStatisticsTab extends StatelessWidget {
             color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: color, size: 24),
+          child: Icon(icon, color: color, size: 27.5),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -124,13 +124,13 @@ class TrainerStatisticsTab extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 23,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),
@@ -153,11 +153,11 @@ class TrainerStatisticsTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.stars, color: Colors.amber, size: 28),
+                const Icon(Icons.stars, color: Colors.amber, size: 32),
                 const SizedBox(width: 12),
                 const Text(
                   'Top PT Xuất Sắc',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -250,7 +250,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                                 Text(
                                   trainer.hoTen,
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18.5,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -258,7 +258,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                                 Text(
                                   '$sessions buổi tập',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 15,
                                     color: Colors.grey[600],
                                   ),
                                 ),
@@ -272,13 +272,13 @@ class TrainerStatisticsTab extends StatelessWidget {
                               const Icon(
                                 Icons.star,
                                 color: Colors.amber,
-                                size: 20,
+                                size: 23,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 trainer.danhGiaTrungBinh.toStringAsFixed(1),
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18.5,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -324,12 +324,12 @@ class TrainerStatisticsTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.show_chart, color: Colors.green, size: 28),
+                const Icon(Icons.show_chart, color: Colors.green, size: 32),
                 const SizedBox(width: 12),
                 const Expanded(
                   child: Text(
                     'Doanh Thu PT',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -367,14 +367,14 @@ class TrainerStatisticsTab extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () =>
                               _showDatePicker(context, controller, true),
-                          icon: const Icon(Icons.calendar_today, size: 16),
+                          icon: const Icon(Icons.calendar_today, size: 18.5),
                           label: Text(
                             controller.customStartDate.value != null
                                 ? DateFormat(
                                     'dd/MM/yyyy',
                                   ).format(controller.customStartDate.value!)
                                 : 'Từ ngày',
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ),
                       ),
@@ -383,14 +383,14 @@ class TrainerStatisticsTab extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () =>
                               _showDatePicker(context, controller, false),
-                          icon: const Icon(Icons.calendar_today, size: 16),
+                          icon: const Icon(Icons.calendar_today, size: 18.5),
                           label: Text(
                             controller.customEndDate.value != null
                                 ? DateFormat(
                                     'dd/MM/yyyy',
                                   ).format(controller.customEndDate.value!)
                                 : 'Đến ngày',
-                            style: const TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 14),
                           ),
                         ),
                       ),
@@ -447,7 +447,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                                 text: '${revenue}đ',
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
@@ -469,7 +469,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 8),
                               child: Text(
                                 month,
-                                style: const TextStyle(fontSize: 11),
+                                style: const TextStyle(fontSize: 13),
                               ),
                             );
                           },
@@ -482,7 +482,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                           getTitlesWidget: (value, meta) {
                             return Text(
                               NumberFormat.compact().format(value),
-                              style: const TextStyle(fontSize: 11),
+                              style: const TextStyle(fontSize: 13),
                             );
                           },
                         ),
@@ -541,12 +541,12 @@ class TrainerStatisticsTab extends StatelessWidget {
                 const Icon(
                   Icons.account_balance_wallet,
                   color: Colors.purple,
-                  size: 28,
+                  size: 32,
                 ),
                 const SizedBox(width: 12),
                 const Text(
                   'Doanh Thu Theo PT',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -604,7 +604,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                                 Text(
                                   trainer.hoTen,
                                   style: const TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18.5,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -614,7 +614,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                                       ? 'Chuyên môn chưa cập nhật'
                                       : trainer.chuyenMon.take(2).join(', '),
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     color: Colors.grey[600],
                                   ),
                                 ),
@@ -629,7 +629,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                               Text(
                                 '${NumberFormat('#,###').format(revenue)}đ',
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20.5,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.purple,
                                 ),
@@ -637,7 +637,7 @@ class TrainerStatisticsTab extends StatelessWidget {
                               Text(
                                 'Doanh thu',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   color: Colors.grey[600],
                                 ),
                               ),
@@ -667,11 +667,11 @@ class TrainerStatisticsTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.pie_chart, color: Colors.blue, size: 28),
+                const Icon(Icons.pie_chart, color: Colors.blue, size: 32),
                 const SizedBox(width: 12),
                 const Text(
                   'Phân Bố PT',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
