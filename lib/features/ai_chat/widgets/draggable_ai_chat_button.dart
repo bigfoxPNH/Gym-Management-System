@@ -224,47 +224,26 @@ class _DraggableAIChatButtonState extends State<DraggableAIChatButton>
   Widget _buildChatButton() {
     return Material(
       color: Colors.transparent,
-      elevation: 6,
-      shadowColor: Colors.blue.withOpacity(0.3),
+      elevation: 0,
       shape: const CircleBorder(),
-      child: Container(
-        width: _iconSize,
-        height: _iconSize,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 12,
-              spreadRadius: 2,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => controller.openChat(),
-            customBorder: const CircleBorder(),
-            splashColor: Colors.white.withOpacity(0.3),
-            highlightColor: Colors.white.withOpacity(0.1),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Chatbot AI icon
-                ClipOval(
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    'assets/images/chatai/chatbotai.png',
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.contain,
-                    filterQuality: FilterQuality.medium,
-                    isAntiAlias: true,
-                  ),
-                ),
-              ],
+      child: InkWell(
+        onTap: () => controller.openChat(),
+        customBorder: const CircleBorder(),
+        splashColor: Colors.blue.withOpacity(0.2),
+        highlightColor: Colors.blue.withOpacity(0.1),
+        child: Container(
+          width: _iconSize,
+          height: _iconSize,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(_iconSize / 2),
+            child: Image.asset(
+              'assets/images/chatai/chatbotai.png',
+              width: _iconSize,
+              height: _iconSize,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
+              isAntiAlias: true,
             ),
           ),
         ),

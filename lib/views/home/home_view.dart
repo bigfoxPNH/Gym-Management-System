@@ -9,6 +9,7 @@ import '../../widgets/loading_overlay.dart';
 import '../../features/ai_chat/widgets/draggable_ai_chat_button.dart';
 import '../../features/ai_chat/views/ai_chat_view.dart';
 import '../../models/news.dart';
+import '../user/product_detail_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -228,21 +229,31 @@ class _HomeViewState extends State<HomeView> {
 
       if (mounted) {
         final productsList = productsSnapshot.docs.map((doc) {
+          final docData = doc.data();
           return {
             'id': doc.id,
-            ...doc.data(),
+            ...docData,
             'totalSold': productQuantities[doc.id] ?? 0,
           };
         }).toList();
 
+        // Lọc bỏ sản phẩm không hợp lệ
+        final validProducts = productsList.where((p) {
+          final id = p['id'];
+          return id != null && id.toString().trim().isNotEmpty;
+        }).toList();
+
         // Sắp xếp lại theo thứ tự số lượng bán
-        productsList.sort(
+        validProducts.sort(
           (a, b) => (b['totalSold'] as int).compareTo(a['totalSold'] as int),
         );
 
         setState(() {
-          _popularProducts = productsList;
+          _popularProducts = validProducts;
         });
+
+        // Debug: in ra số sản phẩm hợp lệ
+        print('Loaded ${validProducts.length} valid popular products');
       }
     } catch (e) {
       print('Error loading popular products: $e');
@@ -1738,11 +1749,56 @@ class _HomeViewState extends State<HomeView> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            if (product['id'] != null) {
-              Get.toNamed(
-                AppRoutes.userProducts,
-                arguments: {'productId': product['id']},
+          onTap: () async {
+            // Kiểm tra id hợp lệ
+            final productId = product['id'];
+            if (productId == null || productId.toString().trim().isEmpty) {
+              Get.snackbar(
+                'Lỗi',
+                'Sản phẩm không hợp lệ',
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+              );
+              return;
+            }
+
+            // Load product details and navigate to detail view
+            try {
+              LoadingOverlay.show(context, message: 'Đang tải...');
+
+              final productDoc = await _firestore
+                  .collection('products')
+                  .doc(productId.toString())
+                  .get();
+
+              LoadingOverlay.hide(context);
+
+              if (productDoc.exists && productDoc.data() != null) {
+                final productData = Product.fromMap(
+                  productDoc.data()!,
+                  productDoc.id,
+                );
+
+                Get.to(
+                  () => ProductDetailView(product: productData),
+                  transition: Transition.rightToLeft,
+                );
+              } else {
+                Get.snackbar(
+                  'Lỗi',
+                  'Không tìm thấy sản phẩm',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+              }
+            } catch (e) {
+              LoadingOverlay.hide(context);
+              print('Error loading product: $e');
+              Get.snackbar(
+                'Lỗi',
+                'Không thể tải sản phẩm',
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
               );
             }
           },

@@ -84,7 +84,7 @@ class AIChatController extends GetxController {
       ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         content: '''
- Xin chào! Tôi là Gym Pro AI - trợ lý thông minh của bạn!
+ Xin chào! Tôi là Gym Pro AI trợ lý thông minh của bạn!
 
  Tôi có thể giúp bạn:
 • Tính BMI, BMR, TDEE

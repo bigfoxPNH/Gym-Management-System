@@ -15,9 +15,16 @@ class ProductDetailView extends StatefulWidget {
 }
 
 class _ProductDetailViewState extends State<ProductDetailView> {
-  final ShoppingCartController _cartController = Get.find();
+  late final ShoppingCartController _cartController;
   int _quantity = 1;
   int _currentImageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize or get existing ShoppingCartController
+    _cartController = Get.put(ShoppingCartController());
+  }
 
   @override
   Widget build(BuildContext context) {
