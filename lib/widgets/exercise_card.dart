@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/exercise.dart';
 
@@ -33,14 +34,7 @@ class ExerciseCard extends StatelessWidget {
                       height: 60,
                       color: Colors.grey[200],
                       child: exercise.anhMinhHoa.isNotEmpty
-                          ? Image.network(
-                              exercise.anhMinhHoa.first, // Lấy ảnh đầu tiên
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  _buildPlaceholderImage(),
-                            )
+                          ? _buildExerciseImage(exercise.anhMinhHoa.first)
                           : _buildPlaceholderImage(),
                     ),
                   ),
@@ -177,6 +171,61 @@ class ExerciseCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildExerciseImage(String imageUrl) {
+    imageUrl = imageUrl.trim();
+
+    // Check if it's a base64 data URL
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',')[1];
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            print('❌ Error decoding base64 image: $error');
+            return _buildPlaceholderImage();
+          },
+        );
+      } catch (e) {
+        print('❌ Error parsing base64 image: $e');
+        return _buildPlaceholderImage();
+      }
+    }
+
+    // Regular network image
+    return Image.network(
+      imageUrl,
+      width: 60,
+      height: 60,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: 60,
+          height: 60,
+          color: Colors.grey[100],
+          child: Center(
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[400]!),
+              ),
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        print('❌ Error loading network image: $error');
+        return _buildPlaceholderImage();
+      },
     );
   }
 

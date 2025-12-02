@@ -232,10 +232,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   // Product Name
                   TextFormField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Tên sản phẩm *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.inventory_2),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.inventory_2),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -249,10 +253,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   // Category
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Nhóm sản phẩm *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.category),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.category),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
                     ),
                     items: ProductCategory.all.map((category) {
                       return DropdownMenuItem(
@@ -269,10 +277,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   // Manufacturer
                   TextFormField(
                     controller: _manufacturerController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Hãng sản xuất *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.business),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.business),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -289,10 +301,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       Expanded(
                         child: TextFormField(
                           controller: _originalPriceController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Giá gốc *',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.attach_money),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.attach_money),
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
                             suffixText: '₫',
                           ),
                           keyboardType: TextInputType.number,
@@ -311,10 +327,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       Expanded(
                         child: TextFormField(
                           controller: _sellingPriceController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Giá bán *',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.sell),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.sell),
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
                             suffixText: '₫',
                           ),
                           keyboardType: TextInputType.number,
@@ -339,10 +359,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       Expanded(
                         child: TextFormField(
                           controller: _stockController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Số lượng tồn kho *',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.inventory),
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.inventory),
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 48,
+                              minHeight: 48,
+                            ),
                           ),
                           keyboardType: TextInputType.number,
                           validator: (value) {
@@ -363,7 +387,10 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                           decoration: const InputDecoration(
                             labelText: 'Trạng thái *',
                             border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.info),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
                           ),
                           items: ProductStatus.values.map((status) {
                             return DropdownMenuItem(
@@ -383,10 +410,14 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   // Description
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Mô tả sản phẩm',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.description),
+                      prefixIconConstraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
                       alignLabelWithHint: true,
                     ),
                     maxLines: 5,

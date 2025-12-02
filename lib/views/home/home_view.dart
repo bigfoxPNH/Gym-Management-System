@@ -613,9 +613,9 @@ class _HomeViewState extends State<HomeView> {
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 4,
-                                    crossAxisSpacing: 12,
-                                    mainAxisSpacing: 16,
-                                    childAspectRatio: 0.85,
+                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.80,
                                   ),
                               itemCount: filteredItems.length,
                               itemBuilder: (context, index) {
@@ -722,9 +722,9 @@ class _HomeViewState extends State<HomeView> {
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 4,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.85,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 0.80,
                                 ),
                             itemCount: filteredItems.length,
                             itemBuilder: (context, index) {
@@ -932,18 +932,17 @@ class _HomeViewState extends State<HomeView> {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 50,
+                  height: 50,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.06),
@@ -953,7 +952,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(7),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     clipBehavior: Clip.antiAlias,
@@ -966,27 +965,25 @@ class _HomeViewState extends State<HomeView> {
                         return Icon(
                           Icons.image_not_supported,
                           color: Colors.grey.shade400,
-                          size: 24,
+                          size: 22,
                         );
                       },
                     ),
                   ),
                 ),
-                const SizedBox(height: 6),
-                Flexible(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey.shade800,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.2,
-                      height: 1.1,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: Colors.grey.shade800,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.2,
+                    height: 1.15,
                   ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

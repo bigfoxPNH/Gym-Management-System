@@ -95,22 +95,28 @@ class ProductManagementView extends StatelessWidget {
 
           // Search and Filter
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12.8),
             child: Column(
               children: [
                 TextField(
+                  style: const TextStyle(fontSize: 12.8),
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm sản phẩm...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: const TextStyle(fontSize: 12.8),
+                    prefixIcon: const Icon(Icons.search, size: 19.2),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     filled: true,
                     fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12.8,
+                      vertical: 12.8,
+                    ),
                   ),
                   onChanged: (value) => controller.setSearchQuery(value),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 9.6),
                 Obx(() {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -119,7 +125,7 @@ class ProductManagementView extends StatelessWidget {
                         final isSelected =
                             controller.selectedCategory.value == category;
                         return Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.only(right: 6.4),
                           child: FilterChip(
                             label: Text(category),
                             selected: isSelected,
@@ -128,7 +134,14 @@ class ProductManagementView extends StatelessWidget {
                             },
                             backgroundColor: Colors.grey[200],
                             selectedColor: Colors.deepPurple.withOpacity(0.2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 9.6,
+                              vertical: 0,
+                            ),
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
                             labelStyle: TextStyle(
+                              fontSize: 11.2,
                               color: isSelected
                                   ? Colors.deepPurple
                                   : Colors.black87,
@@ -212,7 +225,7 @@ class ProductManagementView extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12.8),
         decoration: BoxDecoration(
           color: isSelected ? color.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -227,19 +240,19 @@ class ProductManagementView extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 25.6),
+            const SizedBox(height: 6.4),
             Text(
               value,
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 19.2,
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
             ),
             Text(
               label,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 9.6, color: Colors.grey[600]),
             ),
           ],
         ),

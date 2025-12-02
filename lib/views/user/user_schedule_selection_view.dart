@@ -201,16 +201,18 @@ class UserScheduleSelectionView extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(7),
             ),
             child: TextField(
+              style: const TextStyle(fontSize: 13.6),
               decoration: const InputDecoration(
                 labelText: 'Tìm kiếm theo tên lịch trình',
-                prefixIcon: Icon(Icons.search),
+                labelStyle: TextStyle(fontSize: 12.75),
+                prefixIcon: Icon(Icons.search, size: 20.4),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: 10.2,
+                  vertical: 6.8,
                 ),
               ),
               onChanged: (value) => controller.searchByName(value),
@@ -225,28 +227,39 @@ class UserScheduleSelectionView extends StatelessWidget {
                   () => Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                     child: DropdownButtonFormField<ScheduleCategory>(
                       value: controller.selectedCategory.value,
+                      style: const TextStyle(
+                        fontSize: 12.75,
+                        color: Colors.black87,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Danh mục',
+                        labelStyle: TextStyle(fontSize: 11.9),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                          horizontal: 10.2,
+                          vertical: 6.8,
                         ),
                       ),
                       isExpanded: true,
                       items: [
                         const DropdownMenuItem<ScheduleCategory>(
                           value: null,
-                          child: Text('Tất cả danh mục'),
+                          child: Text(
+                            'Tất cả danh mục',
+                            style: TextStyle(fontSize: 12.75),
+                          ),
                         ),
                         ...ScheduleCategory.values.map(
                           (category) => DropdownMenuItem<ScheduleCategory>(
                             value: category,
-                            child: Text(_getCategoryText(category)),
+                            child: Text(
+                              _getCategoryText(category),
+                              style: const TextStyle(fontSize: 12.75),
+                            ),
                           ),
                         ),
                       ],
@@ -255,34 +268,45 @@ class UserScheduleSelectionView extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 13.6),
               Expanded(
                 child: Obx(
                   () => Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                     child: DropdownButtonFormField<DifficultyLevel>(
                       value: controller.selectedDifficulty.value,
+                      style: const TextStyle(
+                        fontSize: 12.75,
+                        color: Colors.black87,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Độ khó',
+                        labelStyle: TextStyle(fontSize: 11.9),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                          horizontal: 10.2,
+                          vertical: 6.8,
                         ),
                       ),
                       isExpanded: true,
                       items: [
                         const DropdownMenuItem<DifficultyLevel>(
                           value: null,
-                          child: Text('Tất cả độ khó'),
+                          child: Text(
+                            'Tất cả độ khó',
+                            style: TextStyle(fontSize: 12.75),
+                          ),
                         ),
                         ...DifficultyLevel.values.map(
                           (difficulty) => DropdownMenuItem<DifficultyLevel>(
                             value: difficulty,
-                            child: Text(_getDifficultyText(difficulty)),
+                            child: Text(
+                              _getDifficultyText(difficulty),
+                              style: const TextStyle(fontSize: 12.75),
+                            ),
                           ),
                         ),
                       ],
@@ -303,23 +327,31 @@ class UserScheduleSelectionView extends StatelessWidget {
                   () => Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[300]!),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                     ),
                     child: DropdownButtonFormField<bool?>(
                       value: controller.showActiveOnly.value ? true : null,
+                      style: const TextStyle(
+                        fontSize: 12.75,
+                        color: Colors.black87,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Trạng thái',
+                        labelStyle: TextStyle(fontSize: 11.9),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                          horizontal: 10.2,
+                          vertical: 6.8,
                         ),
                       ),
                       isExpanded: true,
                       items: [
                         const DropdownMenuItem<bool?>(
                           value: null,
-                          child: Text('Tất cả lịch trình'),
+                          child: Text(
+                            'Tất cả lịch trình',
+                            style: TextStyle(fontSize: 12.75),
+                          ),
                         ),
                         DropdownMenuItem<bool?>(
                           value: true,
@@ -328,10 +360,13 @@ class UserScheduleSelectionView extends StatelessWidget {
                               Icon(
                                 Icons.play_arrow,
                                 color: Colors.green,
-                                size: 16,
+                                size: 13.6,
                               ),
-                              const SizedBox(width: 8),
-                              const Text('Đang tập'),
+                              const SizedBox(width: 6.8),
+                              const Text(
+                                'Đang tập',
+                                style: TextStyle(fontSize: 12.75),
+                              ),
                             ],
                           ),
                         ),
@@ -345,17 +380,20 @@ class UserScheduleSelectionView extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10.2),
           // Row 3: Clear filters button
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () => controller.clearFilters(),
-                  icon: const Icon(Icons.clear),
-                  label: const Text('Xóa bộ lọc'),
+                  icon: const Icon(Icons.clear, size: 17),
+                  label: const Text(
+                    'Xóa bộ lọc',
+                    style: TextStyle(fontSize: 13.6),
+                  ),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10.2),
                   ),
                 ),
               ),
@@ -428,152 +466,98 @@ class UserScheduleSelectionView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Image với overlay gradient
-                Stack(
-                  children: [
-                    if (schedule.imageUrl != null)
-                      Image.network(
-                        schedule.imageUrl!,
-                        height: 180,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildDefaultImage(),
-                      )
-                    else
-                      _buildDefaultImage(),
-
-                    // Gradient overlay
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.7),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Active schedule indicator (top left)
-                    Obx(() {
-                      if (controller.isScheduleActive(schedule.id)) {
-                        return Positioned(
-                          top: 12,
-                          left: 12,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.play_arrow,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Đang tập',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    }),
-
-                    // Difficulty badge (top right)
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getDifficultyColor(schedule.difficulty),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _getDifficultyText(schedule.difficulty),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
                 // Content
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(14.4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Badges row at top
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (controller.isScheduleActive(schedule.id))
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7.2,
+                                vertical: 3.6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(10.8),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.play_arrow,
+                                    color: Colors.white,
+                                    size: 12.6,
+                                  ),
+                                  SizedBox(width: 3.6),
+                                  Text(
+                                    'Đang tập',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.8,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7.2,
+                              vertical: 3.6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getDifficultyColor(schedule.difficulty),
+                              borderRadius: BorderRadius.circular(10.8),
+                            ),
+                            child: Text(
+                              _getDifficultyText(schedule.difficulty),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10.8),
                       // Title
                       Text(
                         schedule.title,
                         style: const TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 7.2),
 
                       // Description
                       Text(
                         schedule.description,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12.6,
                           color: Colors.grey[600],
-                          height: 1.4,
+                          height: 1.35,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12.8),
 
                       // Stats trong container đẹp hơn
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(10.8),
                         decoration: BoxDecoration(
                           color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10.8),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -599,23 +583,23 @@ class UserScheduleSelectionView extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10.8),
 
                       // Category chip
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                          horizontal: 10.8,
+                          vertical: 5.4,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.purple[100],
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
                           _getCategoryText(schedule.category),
                           style: TextStyle(
                             color: Colors.purple[700],
-                            fontSize: 12,
+                            fontSize: 10.8,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -623,27 +607,27 @@ class UserScheduleSelectionView extends StatelessWidget {
 
                       // Tags
                       if (schedule.tags.isNotEmpty) ...[
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 7.2),
                         Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
+                          spacing: 5.4,
+                          runSpacing: 3.6,
                           children: schedule.tags
                               .take(3)
                               .map(
                                 (tag) => Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 3,
+                                    horizontal: 7.2,
+                                    vertical: 2.7,
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(10.8),
                                   ),
                                   child: Text(
                                     '#$tag',
                                     style: TextStyle(
                                       color: Colors.grey[700],
-                                      fontSize: 10,
+                                      fontSize: 9,
                                     ),
                                   ),
                                 ),
@@ -670,17 +654,17 @@ class UserScheduleSelectionView extends StatelessWidget {
   ) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 20),
-        const SizedBox(height: 4),
+        Icon(icon, color: color, size: 18),
+        const SizedBox(height: 3.6),
         Text(
           value,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14.4,
             fontWeight: FontWeight.bold,
             color: color,
           ),
         ),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+        Text(label, style: TextStyle(fontSize: 9, color: Colors.grey[600])),
       ],
     );
   }

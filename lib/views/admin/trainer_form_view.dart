@@ -228,25 +228,41 @@ class _TrainerFormViewState extends State<TrainerFormView> {
               value: selectedTrinhDo,
               decoration: const InputDecoration(
                 labelText: 'Trình độ PT',
-                prefixIcon: Icon(Icons.military_tech),
+                labelStyle: TextStyle(fontSize: 13),
+                prefixIcon: Icon(Icons.military_tech, size: 20),
                 border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               ),
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              isExpanded: true,
               items: const [
                 DropdownMenuItem(
                   value: 'moi',
-                  child: Text('Huấn luyện viên mới (100k/giờ)'),
+                  child: Text('Mới (100k/giờ)', style: TextStyle(fontSize: 14)),
                 ),
                 DropdownMenuItem(
                   value: 'trung_cap',
-                  child: Text('HLV Trung cấp (150k/giờ)'),
+                  child: Text(
+                    'Trung cấp (150k/giờ)',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
                 DropdownMenuItem(
                   value: 'chuyen_nghiep',
-                  child: Text('HLV Chuyên nghiệp (200k/giờ)'),
+                  child: Text(
+                    'Chuyên nghiệp (200k/giờ)',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
                 DropdownMenuItem(
                   value: 'ifbb_pro',
-                  child: Text('IFBB Pro (300k/giờ)'),
+                  child: Text(
+                    'IFBB Pro (300k/giờ)',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ),
               ],
               onChanged: (value) {
@@ -260,23 +276,28 @@ class _TrainerFormViewState extends State<TrainerFormView> {
             // Số năm kinh nghiệm
             Row(
               children: [
-                const Text(
-                  'Số năm kinh nghiệm:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                const Expanded(
+                  flex: 3,
+                  child: Text(
+                    'Số năm KN:',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
                 ),
-                const SizedBox(width: 16),
                 IconButton(
                   onPressed: namKinhNghiem > 0
                       ? () => setState(() => namKinhNghiem--)
                       : null,
-                  icon: const Icon(Icons.remove_circle_outline),
+                  icon: const Icon(Icons.remove_circle_outline, size: 28),
                   color: Colors.orange,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
+                    horizontal: 16,
+                    vertical: 10,
                   ),
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
                   decoration: BoxDecoration(
                     color: Colors.orange.shade50,
                     borderRadius: BorderRadius.circular(8),
@@ -284,7 +305,7 @@ class _TrainerFormViewState extends State<TrainerFormView> {
                   child: Text(
                     '$namKinhNghiem năm',
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -293,8 +314,10 @@ class _TrainerFormViewState extends State<TrainerFormView> {
                   onPressed: namKinhNghiem < 50
                       ? () => setState(() => namKinhNghiem++)
                       : null,
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const Icon(Icons.add_circle_outline, size: 28),
                   color: Colors.orange,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                 ),
               ],
             ),

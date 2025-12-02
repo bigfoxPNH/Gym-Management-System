@@ -14,7 +14,7 @@ class _DraggableAIChatButtonState extends State<DraggableAIChatButton>
     with TickerProviderStateMixin {
   final controller = Get.put(AIChatController());
   Offset? _position; // Sẽ tính toán sau khi có context
-  final double _iconSize = 60;
+  final double _iconSize = 51; // Giảm 15% từ 60
   final double _maxEdgeDistance = 38; // ~1cm từ mép (38 pixels)
   bool _isInitialized = false;
 

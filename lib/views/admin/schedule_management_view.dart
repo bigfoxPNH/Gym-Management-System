@@ -116,27 +116,36 @@ class ScheduleManagementView extends StatelessWidget {
         child: Row(
           children: [
             SizedBox(
-              width: 150,
+              width: 165,
               child: Obx(
                 () => DropdownButtonFormField<ScheduleCategory>(
                   value: controller.selectedCategory.value,
                   decoration: const InputDecoration(
                     labelText: 'Danh mục',
+                    labelStyle: TextStyle(fontSize: 12),
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 10,
                       vertical: 8,
                     ),
                   ),
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  isExpanded: true,
                   items: [
                     const DropdownMenuItem<ScheduleCategory>(
                       value: null,
-                      child: Text('Tất cả danh mục'),
+                      child: Text(
+                        'Tất cả danh mục',
+                        style: TextStyle(fontSize: 13),
+                      ),
                     ),
                     ...ScheduleCategory.values.map(
                       (category) => DropdownMenuItem<ScheduleCategory>(
                         value: category,
-                        child: Text(_getCategoryText(category)),
+                        child: Text(
+                          _getCategoryText(category),
+                          style: const TextStyle(fontSize: 13),
+                        ),
                       ),
                     ),
                   ],
@@ -144,29 +153,38 @@ class ScheduleManagementView extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             SizedBox(
-              width: 120,
+              width: 135,
               child: Obx(
                 () => DropdownButtonFormField<DifficultyLevel>(
                   value: controller.selectedDifficulty.value,
                   decoration: const InputDecoration(
                     labelText: 'Độ khó',
+                    labelStyle: TextStyle(fontSize: 12),
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 10,
                       vertical: 8,
                     ),
                   ),
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  isExpanded: true,
                   items: [
                     const DropdownMenuItem<DifficultyLevel>(
                       value: null,
-                      child: Text('Tất cả độ khó'),
+                      child: Text(
+                        'Tất cả độ khó',
+                        style: TextStyle(fontSize: 13),
+                      ),
                     ),
                     ...DifficultyLevel.values.map(
                       (difficulty) => DropdownMenuItem<DifficultyLevel>(
                         value: difficulty,
-                        child: Text(_getDifficultyText(difficulty)),
+                        child: Text(
+                          _getDifficultyText(difficulty),
+                          style: const TextStyle(fontSize: 13),
+                        ),
                       ),
                     ),
                   ],

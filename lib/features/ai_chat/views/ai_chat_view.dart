@@ -60,8 +60,13 @@ class _AIChatViewState extends State<AIChatView>
       }
 
       // Vị trí cố định của chat (góc phải dưới)
-      const chatWidth = 350.0;
-      const chatHeight = 500.0;
+      // Điều chỉnh kích thước cho phù hợp với màn hình di động
+      final chatWidth = screenSize.width > 390
+          ? 310.0
+          : screenSize.width * 0.83;
+      final chatHeight = screenSize.height > 590
+          ? 480.0
+          : screenSize.height * 0.68;
       const chatRight = 20.0;
       const chatBottom = 20.0;
 
@@ -80,7 +85,9 @@ class _AIChatViewState extends State<AIChatView>
       );
 
       return Positioned(
-        right: chatRight,
+        right: screenSize.width > 400
+            ? chatRight
+            : (screenSize.width - chatWidth) / 2,
         bottom: chatBottom,
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -132,7 +139,7 @@ class _AIChatViewState extends State<AIChatView>
 
   Widget _buildHeader(AIChatController controller) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10.8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [const Color(0xFF1E88E5), const Color(0xFF42A5F5)],
@@ -147,8 +154,8 @@ class _AIChatViewState extends State<AIChatView>
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 36,
+            height: 36,
             decoration: const BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
@@ -158,8 +165,8 @@ class _AIChatViewState extends State<AIChatView>
                 clipBehavior: Clip.antiAlias,
                 child: Image.asset(
                   'assets/images/chatai/chatbotai.png',
-                  width: 28,
-                  height: 28,
+                  width: 25.2,
+                  height: 25.2,
                   fit: BoxFit.contain,
                   filterQuality: FilterQuality.medium,
                   isAntiAlias: true,
@@ -176,13 +183,13 @@ class _AIChatViewState extends State<AIChatView>
                   'Gym Pro AI',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 14.4,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'Trợ lý ảo',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  style: TextStyle(color: Colors.white70, fontSize: 10.8),
                 ),
               ],
             ),

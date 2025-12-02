@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -73,28 +74,7 @@ class UserTrainerDetailView extends StatelessWidget {
               ],
             ),
             child: trainer.anhDaiDien != null
-                ? ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: trainer.anhDaiDien!,
-                      width: 120,
-                      height: 120,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey[300],
-                        child: const CircularProgressIndicator(),
-                      ),
-                      errorWidget: (context, url, error) => CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.grey[300],
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  )
+                ? ClipOval(child: _buildTrainerImage(trainer.anhDaiDien!))
                 : CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.grey[300],
@@ -352,18 +332,7 @@ class UserTrainerDetailView extends StatelessWidget {
               child: cert.anhUrl != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: cert.anhUrl!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        errorWidget: (context, url, error) => Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey[600],
-                          size: 30,
-                        ),
-                      ),
+                      child: _buildCertificateImage(cert.anhUrl!, 60, 60),
                     )
                   : Icon(
                       Icons.workspace_premium,
@@ -467,36 +436,7 @@ class UserTrainerDetailView extends StatelessWidget {
                   onTap: () => _showFullImage(cert.anhUrl!),
                   child: Container(
                     constraints: const BoxConstraints(maxHeight: 300),
-                    child: CachedNetworkImage(
-                      imageUrl: cert.anhUrl!,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => Container(
-                        height: 200,
-                        color: Colors.grey[100],
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        height: 200,
-                        color: Colors.grey[200],
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.broken_image,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Không thể tải ảnh',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: _buildCertificateImage(cert.anhUrl!, null, 300),
                   ),
                 ),
 
@@ -819,5 +759,137 @@ class UserTrainerDetailView extends StatelessWidget {
       default:
         return level;
     }
+  }
+
+  Widget _buildCertificateImage(
+    String imageUrl,
+    double? width,
+    double? height,
+  ) {
+    imageUrl = imageUrl.trim();
+
+    // Check if it's a base64 data URL
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',')[1];
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          width: width,
+          height: height,
+          fit: width != null && height != null ? BoxFit.cover : BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: width,
+              height: height ?? 200,
+              color: Colors.grey[200],
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Không thể tải ảnh',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      } catch (e) {
+        return Container(
+          width: width,
+          height: height ?? 200,
+          color: Colors.grey[200],
+          child: Center(
+            child: Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+          ),
+        );
+      }
+    }
+
+    // Regular network image
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: width != null && height != null ? BoxFit.cover : BoxFit.contain,
+      placeholder: (context, url) => Container(
+        width: width,
+        height: height ?? 200,
+        color: Colors.grey[100],
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+      errorWidget: (context, url, error) => Container(
+        width: width,
+        height: height ?? 200,
+        color: Colors.grey[200],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.broken_image, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 8),
+              Text(
+                'Không thể tải ảnh',
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrainerImage(String imageUrl) {
+    imageUrl = imageUrl.trim();
+
+    // Check if it's a base64 data URL
+    if (imageUrl.startsWith('data:image')) {
+      try {
+        final base64String = imageUrl.split(',')[1];
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          width: 120,
+          height: 120,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return CircleAvatar(
+              radius: 60,
+              backgroundColor: Colors.grey[300],
+              child: Icon(Icons.person, size: 60, color: Colors.grey[600]),
+            );
+          },
+        );
+      } catch (e) {
+        return CircleAvatar(
+          radius: 60,
+          backgroundColor: Colors.grey[300],
+          child: Icon(Icons.person, size: 60, color: Colors.grey[600]),
+        );
+      }
+    }
+
+    // Regular network image
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: 120,
+      height: 120,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => CircleAvatar(
+        radius: 60,
+        backgroundColor: Colors.grey[300],
+        child: const CircularProgressIndicator(),
+      ),
+      errorWidget: (context, url, error) => CircleAvatar(
+        radius: 60,
+        backgroundColor: Colors.grey[300],
+        child: Icon(Icons.person, size: 60, color: Colors.grey[600]),
+      ),
+    );
   }
 }

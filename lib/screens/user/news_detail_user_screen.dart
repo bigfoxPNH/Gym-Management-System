@@ -850,7 +850,10 @@ class _NewsDetailUserScreenState extends State<NewsDetailUserScreen> {
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: InlineLoading(message: ''),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                      ),
                     )
                   : Icon(Icons.send, color: Colors.cyan[600]),
             ),

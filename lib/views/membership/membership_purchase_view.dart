@@ -100,15 +100,21 @@ class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
         children: [
           // Search bar
           TextField(
+            style: const TextStyle(fontSize: 13.6),
             decoration: const InputDecoration(
               hintText: 'Tìm kiếm thẻ tập...',
-              prefixIcon: Icon(Icons.search),
+              hintStyle: TextStyle(fontSize: 13.6),
+              prefixIcon: Icon(Icons.search, size: 20.4),
               border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 10.2,
+                vertical: 10.2,
+              ),
             ),
             onChanged: controller.setSearchQuery,
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10.2),
 
           // Filter and sort row
           Row(
@@ -119,18 +125,28 @@ class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
                   () => DropdownButtonFormField<CardType?>(
                     decoration: const InputDecoration(
                       labelText: 'Loại thẻ',
+                      labelStyle: TextStyle(fontSize: 12),
                       border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
                     ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    isExpanded: true,
                     value: controller.selectedCardType.value,
                     items: [
                       const DropdownMenuItem<CardType?>(
                         value: null,
-                        child: Text('Tất cả'),
+                        child: Text('Tất cả', style: TextStyle(fontSize: 13)),
                       ),
                       ...CardType.values.map(
                         (type) => DropdownMenuItem(
                           value: type,
-                          child: Text(controller.getCardTypeText(type)),
+                          child: Text(
+                            controller.getCardTypeText(type),
+                            style: const TextStyle(fontSize: 13),
+                          ),
                         ),
                       ),
                     ],
@@ -139,7 +155,7 @@ class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
               // Duration type filter
               Expanded(
@@ -147,18 +163,28 @@ class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
                   () => DropdownButtonFormField<DurationType?>(
                     decoration: const InputDecoration(
                       labelText: 'Thời hạn',
+                      labelStyle: TextStyle(fontSize: 12),
                       border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
                     ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                    isExpanded: true,
                     value: controller.selectedDurationType.value,
                     items: [
                       const DropdownMenuItem<DurationType?>(
                         value: null,
-                        child: Text('Tất cả'),
+                        child: Text('Tất cả', style: TextStyle(fontSize: 13)),
                       ),
                       ...DurationType.values.map(
                         (type) => DropdownMenuItem(
                           value: type,
-                          child: Text(controller.getDurationTypeText(type)),
+                          child: Text(
+                            controller.getDurationTypeText(type),
+                            style: const TextStyle(fontSize: 13),
+                          ),
                         ),
                       ),
                     ],
@@ -167,7 +193,7 @@ class _MembershipPurchaseViewState extends State<MembershipPurchaseView> {
                 ),
               ),
 
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
 
               // Sort button
               PopupMenuButton<String>(
