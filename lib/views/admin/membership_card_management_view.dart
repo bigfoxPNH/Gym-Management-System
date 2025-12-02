@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../controllers/membership_card_controller.dart';
 import '../../models/membership_card.dart';
 import '../../widgets/loading_overlay.dart';
-import '../../widgets/loading_button.dart';
 
 class MembershipCardManagementView extends StatelessWidget {
   const MembershipCardManagementView({super.key});
@@ -502,105 +501,135 @@ class MembershipCardManagementView extends StatelessWidget {
     String title,
     bool isEdit,
   ) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: 600,
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.purple[50],
-                  border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.purple[50],
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      isEdit ? Icons.edit : Icons.add_circle_outline,
-                      color: Colors.purple[700],
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple[900],
-                        ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    isEdit ? Icons.edit : Icons.add_circle_outline,
+                    color: Colors.purple[700],
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.purple[900],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Get.back(),
-                      tooltip: 'Đóng',
-                    ),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Get.back(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
               ),
+            ),
 
-              // Scrollable Content
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: _buildCardForm(context, controller),
-                ),
+            // Scrollable Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: _buildCardForm(context, controller),
               ),
+            ),
 
-              // Footer Actions
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  border: Border(top: BorderSide(color: Colors.grey[300]!)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
+            // Footer Actions
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, -2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
                       onPressed: () => Get.back(),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: Colors.grey),
                       ),
                       child: const Text('Hủy'),
                     ),
-                    const SizedBox(width: 12),
-                    Obx(
-                      () => LoadingButton(
-                        text: isEdit ? 'Cập nhật' : 'Tạo mới',
-                        isLoading: isEdit
-                            ? controller.isUpdating.value
-                            : controller.isCreating.value,
-                        backgroundColor: const Color(0xFF00BCD4),
-                        height: 42,
-                        onPressed: () async {
-                          if (isEdit) {
-                            await controller.updateCard();
-                          } else {
-                            await controller.createCard();
-                          }
-                          if (!controller.isCreating.value &&
-                              !controller.isUpdating.value) {
-                            Get.back();
-                          }
-                        },
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: Obx(
+                      () => ElevatedButton(
+                        onPressed:
+                            (isEdit
+                                ? controller.isUpdating.value
+                                : controller.isCreating.value)
+                            ? null
+                            : () async {
+                                if (isEdit) {
+                                  await controller.updateCard();
+                                } else {
+                                  await controller.createCard();
+                                }
+                                if (!controller.isCreating.value &&
+                                    !controller.isUpdating.value) {
+                                  Get.back();
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00BCD4),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child:
+                            (isEdit
+                                ? controller.isUpdating.value
+                                : controller.isCreating.value)
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(isEdit ? 'Cập nhật' : 'Tạo mới'),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -659,119 +688,108 @@ class MembershipCardManagementView extends StatelessWidget {
         const SizedBox(height: 16),
 
         // Duration Type and Duration
-        Row(
-          children: [
-            Expanded(
-              child: Obx(
-                () => DropdownButtonFormField<DurationType>(
-                  value: controller.selectedDurationType.value,
-                  onChanged: (value) {
-                    controller.selectedDurationType.value = value!;
-                    if (value != DurationType.custom) {
-                      controller.selectedCustomEndDate.value = null;
+        Obx(() {
+          final isCustomType =
+              controller.selectedDurationType.value == DurationType.custom;
+
+          return Column(
+            children: [
+              // Duration Type (full width)
+              DropdownButtonFormField<DurationType>(
+                value: controller.selectedDurationType.value,
+                onChanged: (value) {
+                  controller.selectedDurationType.value = value!;
+                  if (value != DurationType.custom) {
+                    controller.selectedCustomEndDate.value = null;
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Loại thời gian *',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.schedule),
+                ),
+                items: DurationType.values
+                    .map(
+                      (type) => DropdownMenuItem(
+                        value: type,
+                        child: Text(type.label),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 16),
+              // Duration value (conditional)
+              if (isCustomType)
+                TextFormField(
+                  readOnly: true,
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate:
+                          controller.selectedCustomEndDate.value ??
+                          DateTime.now().add(const Duration(days: 30)),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 3650)),
+                    );
+                    if (date != null) {
+                      controller.selectedCustomEndDate.value = date;
                     }
                   },
                   decoration: InputDecoration(
-                    labelText: 'Loại thời gian *',
+                    labelText: 'Ngày kết thúc *',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    prefixIcon: const Icon(Icons.schedule),
+                    prefixIcon: const Icon(Icons.event),
+                    hintText: 'Chọn ngày',
                   ),
-                  items: DurationType.values
-                      .map(
-                        (type) => DropdownMenuItem(
-                          value: type,
-                          child: Text(type.label),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Obx(() {
-                if (controller.selectedDurationType.value ==
-                    DurationType.custom) {
-                  return InkWell(
-                    onTap: () async {
-                      final date = await showDatePicker(
-                        context: context,
-                        initialDate:
-                            controller.selectedCustomEndDate.value ??
-                            DateTime.now().add(const Duration(days: 30)),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(
-                          const Duration(days: 3650),
-                        ),
+                  controller: TextEditingController(
+                    text: controller.selectedCustomEndDate.value != null
+                        ? DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(controller.selectedCustomEndDate.value!)
+                        : '',
+                  ),
+                )
+              else
+                TextField(
+                  controller: controller.durationController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 5,
+                  decoration: InputDecoration(
+                    labelText: 'Số lượng *',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    prefixIcon: const Icon(Icons.numbers),
+                    counterText: '',
+                    hintText: 'Tối đa 5 ký tự số',
+                  ),
+                  onChanged: (value) {
+                    if (value.length > 5) {
+                      Get.snackbar(
+                        'Cảnh báo',
+                        'Số lượng không được vượt quá 5 ký tự',
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.orange,
+                        colorText: Colors.white,
+                        duration: const Duration(seconds: 2),
                       );
-                      if (date != null) {
-                        controller.selectedCustomEndDate.value = date;
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Ngày kết thúc *',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        prefixIcon: const Icon(Icons.event),
-                      ),
-                      child: Text(
-                        controller.selectedCustomEndDate.value != null
-                            ? DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(controller.selectedCustomEndDate.value!)
-                            : 'Chọn ngày',
-                      ),
-                    ),
-                  );
-                } else {
-                  return TextField(
-                    controller: controller.durationController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 5,
-                    decoration: InputDecoration(
-                      labelText: 'Số lượng *',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      prefixIcon: const Icon(Icons.numbers),
-                      counterText: '',
-                      helperText: 'Tối đa 5 ký tự số',
-                      helperStyle: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    onChanged: (value) {
-                      // Check length limit
-                      if (value.length > 5) {
-                        Get.snackbar(
-                          'Cảnh báo',
-                          'Số lượng không được vượt quá 5 ký tự',
-                          snackPosition: SnackPosition.TOP,
-                          backgroundColor: Colors.orange,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 2),
-                        );
-                        controller.durationController.text = value.substring(
-                          0,
-                          5,
-                        );
-                        controller.durationController.selection =
-                            TextSelection.fromPosition(TextPosition(offset: 5));
-                      }
-                      // Trigger rebuild to update end date preview
-                      controller.selectedDurationType.refresh();
-                    },
-                  );
-                }
-              }),
-            ),
-          ],
-        ),
+                      controller.durationController.text = value.substring(
+                        0,
+                        5,
+                      );
+                      controller.durationController.selection =
+                          TextSelection.fromPosition(TextPosition(offset: 5));
+                    }
+                    controller.selectedDurationType.refresh();
+                  },
+                ),
+            ],
+          );
+        }),
         const SizedBox(height: 16),
 
         // Price
