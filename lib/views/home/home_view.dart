@@ -568,6 +568,12 @@ class _HomeViewState extends State<HomeView> {
                           'imagePath': 'assets/images/admin/purchase_order.png',
                           'route': AppRoutes.orderManagement,
                         },
+                        {
+                          'label': 'Quản Lý Thẻ Mua',
+                          'imagePath':
+                              'assets/images/admin/manager_cardpurchase.png',
+                          'route': AppRoutes.adminMembershipPurchases,
+                        },
                       ];
 
                       // Nếu tìm được tiêu đề thì hiển thị tất cả

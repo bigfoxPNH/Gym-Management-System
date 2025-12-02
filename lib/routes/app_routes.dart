@@ -66,4 +66,7 @@ abstract class AppRoutes {
 
   // Order Management Routes (Admin)
   static const orderManagement = '/admin/order-management';
+
+  // Admin Membership Purchases Routes
+  static const adminMembershipPurchases = '/admin/membership-purchases';
 }
